@@ -1,0 +1,44 @@
+﻿  ImageWidget.cpp
+  Main.cpp
+  ScriptHandler.cpp
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\ScriptHandler.cpp(105,34): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(133): message : 請參閱 'strcpy' 的宣告
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\ScriptHandler.cpp(106,1): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(440): message : 請參閱 'strtok' 的宣告
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\ScriptHandler.cpp(131,1): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(440): message : 請參閱 'strtok' 的宣告
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\ScriptHandler.cpp(148,1): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(440): message : 請參閱 'strtok' 的宣告
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\ScriptHandler.cpp(159,1): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(440): message : 請參閱 'strtok' 的宣告
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\ScriptHandler.cpp(237,1): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(440): message : 請參閱 'strtok' 的宣告
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\ScriptHandler.cpp(280,1): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(440): message : 請參閱 'strtok' 的宣告
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\ScriptHandler.cpp(295,1): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(440): message : 請參閱 'strtok' 的宣告
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\ScriptHandler.cpp(312,1): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(440): message : 請參閱 'strtok' 的宣告
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\ScriptHandler.cpp(330,1): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(440): message : 請參閱 'strtok' 的宣告
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\ScriptHandler.cpp(348,1): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(440): message : 請參閱 'strtok' 的宣告
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\ScriptHandler.cpp(366,1): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(440): message : 請參閱 'strtok' 的宣告
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\ScriptHandler.cpp(384,1): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(440): message : 請參閱 'strtok' 的宣告
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\ScriptHandler.cpp(402,1): warning C4996: 'strtok': This function or variable may be unsafe. Consider using strtok_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  TargaImage.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(440): message : 請參閱 'strtok' 的宣告
+  libtarga.c
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\libtarga.c(216,1): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\stdio.h(208): message : 請參閱 'fopen' 的宣告
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\libtarga.c(517,1): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\stdio.h(208): message : 請參閱 'fopen' 的宣告
+D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\Skeleton\Codes\libtarga.c(663,1): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\stdio.h(208): message : 請參閱 'fopen' 的宣告
+  正在產生程式碼
+  Compiler switch has changed, fall back to full compilation.
+  All 236 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  已完成程式碼產生
+  Skeleton.vcxproj -> D:\maochinn\NTUST\CG\FLTK_skeleton\Skeleton\x64\Release\Skeleton.exe
