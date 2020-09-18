@@ -23,6 +23,8 @@
 #include <tuple>
 #include <array>
 #include <limits.h>
+#include <cstdlib>
+#include <time.h>
 #define sqare(x) ((x)*(x))
 using namespace std;
 
@@ -204,7 +206,12 @@ TargaImage* TargaImage::Load_Image(char *filename)
     return result;
 }// Load_Image
 
-
+int TargaImage::index_of_pixel(int x, int y, int color) {
+    return (y * width + x) * 4 + color;
+}
+unsigned char TargaImage::to_gray(int x, int y) {
+    return  0.299 * (double)data[index_of_pixel(x, y, RED)] + 0.587 * (double)data[index_of_pixel(x, y, GREEN)] + 0.114 * (double)data[index_of_pixel(x, y, BLUE)];
+}
 ///////////////////////////////////////////////////////////////////////////////
 //
 //      Convert image to grayscale.  Red, green, and blue channels should all 
@@ -212,16 +219,14 @@ TargaImage* TargaImage::Load_Image(char *filename)
 //  success of operation.
 //
 ///////////////////////////////////////////////////////////////////////////////
-int TargaImage::index_of_pixel(int x, int y, int color) {
-    return (y * width + x) * 4 + color;
-}
+
 
 bool TargaImage::To_Grayscale()
 {
     //ClearToBlack();
     for (int i = 0;i < height;i++) {
         for (int j = 0;j < width;j++) {
-            unsigned char g = 0.299 * (double)data[index_of_pixel(j, i, RED)] + 0.587 * (double)data[index_of_pixel(j, i, GREEN)] + 0.114 * (double)data[index_of_pixel(j, i, BLUE)];
+            unsigned char g = to_gray(j,i);
             for (int k = 0;k < 3;k++) {
                 data[index_of_pixel(j, i, k)] = g;
             }
@@ -324,8 +329,17 @@ bool TargaImage::Quant_Populosity()//38¬í
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::Dither_Threshold()
 {
-    ClearToBlack();
-    return false;
+    for (int i = 0;i < height;i++) {
+        for (int j = 0;j < width;j++) {
+            unsigned char g = to_gray(j, i);
+            if (g > 127) g = 255;
+            else g = 0;
+            for (int k = 0;k < 3;k++) {
+                data[index_of_pixel(j, i, k)] = g;
+            }
+        }
+    }
+    return true;
 }// Dither_Threshold
 
 
@@ -336,8 +350,18 @@ bool TargaImage::Dither_Threshold()
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::Dither_Random()
 {
-    ClearToBlack();
-    return false;
+    //ClearToBlack();
+    for (int i = 0;i < height;i++) {
+        for (int j = 0;j < width;j++) {
+            unsigned char g = to_gray(j, i);
+            if (g > 76+(rand()%103)) g = 255;
+            else g = 0;
+            for (int k = 0;k < 3;k++) {
+                data[index_of_pixel(j, i, k)] = g;
+            }
+        }
+    }
+    return true;
 }// Dither_Random
 
 
@@ -362,8 +386,41 @@ bool TargaImage::Dither_FS()
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::Dither_Bright()
 {
-    ClearToBlack();
-    return false;
+    unsigned long long int all_brightness = 0;
+    int min_diff = INT_MAX;
+    int averge_brightness = 0;
+    int best_black_count = 0;
+    int best_threshold = 0;
+    for (int i = 0;i < height;i++) {
+        for (int j = 0;j < width;j++) {
+            all_brightness += to_gray(j, i);
+        }
+    }
+    best_black_count = all_brightness / 255;
+    for (int threshold = 0;threshold < 256;threshold++) {
+        int black_count = 0;
+        for (int i = 0;i < height;i++) {
+            for (int j = 0;j < width;j++) {
+                if (to_gray(j, i) > threshold) black_count++;
+            }
+        }
+        if (abs(best_black_count - black_count) < min_diff) {
+            min_diff = abs(best_black_count - black_count);
+            best_threshold = threshold;
+        }
+    }
+    for (int i = 0;i < height;i++) {
+        for (int j = 0;j < width;j++) {
+            unsigned char g = to_gray(j, i);
+            if (g > best_threshold) g = 255;
+            else g = 0;
+            for (int k = 0;k < 3;k++) {
+                data[index_of_pixel(j, i, k)] = g;
+            }
+        }
+    }
+
+    return true;
 }// Dither_Bright
 
 
@@ -374,8 +431,22 @@ bool TargaImage::Dither_Bright()
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::Dither_Cluster()
 {
-    ClearToBlack();
-    return false;
+    double matrix[4][4] = {
+        {0.7059, 0.3529, 0.5882, 0.2353 },
+        {0.0588, 0.9412, 0.8235, 0.4118 },
+        {0.4706, 0.7647, 0.8824, 0.1176},
+        {0.1765, 0.5294, 0.2941, 0.6471} };
+    for (int i = 0;i < height;i++) {
+        for (int j = 0;j < width;j++) {
+            unsigned char g = to_gray(j, i);
+            if (g > 255*matrix[j%4][i%4]) g = 255;
+            else g = 0;
+            for (int k = 0;k < 3;k++) {
+                data[index_of_pixel(j, i, k)] = g;
+            }
+        }
+    }
+    return true;
 }// Dither_Cluster
 
 

@@ -87,6 +87,7 @@ class TargaImage
         int		height;	    // height of the image in pixels
         unsigned char	*data;	    // pixel data for the image, assumed to be in pre-multiplied RGBA format.
         int index_of_pixel(int, int, int);
+        unsigned char to_gray(int,int);
 };
 
 class Stroke { // Data structure for holding painterly strokes.

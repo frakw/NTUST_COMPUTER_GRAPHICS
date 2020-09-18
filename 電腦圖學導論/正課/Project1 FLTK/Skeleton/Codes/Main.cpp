@@ -19,6 +19,8 @@
 #include <string.h>
 #include <iostream>
 #include <vector>
+#include <cstdlib>
+#include <time.h>
 #include "TargaImage.h"
 #include "ImageWidget.h"
 #include "ScriptHandler.h"
@@ -78,6 +80,7 @@ static int Arg_Callback(int argc, char *argv[], int &i)
 ///////////////////////////////////////////////////////////////////////////////
 int main(int argc, char *argv[])
 {
+    srand(time(NULL));
     int script_arg;
 
     // Do argument processing. At the end of this, script_arg contains
