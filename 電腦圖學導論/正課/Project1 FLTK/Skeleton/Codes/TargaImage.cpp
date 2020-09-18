@@ -20,7 +20,10 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
-
+#include <tuple>
+#include <array>
+#include <limits.h>
+#define sqare(x) ((x)*(x))
 using namespace std;
 
 // constants
@@ -209,18 +212,27 @@ TargaImage* TargaImage::Load_Image(char *filename)
 //  success of operation.
 //
 ///////////////////////////////////////////////////////////////////////////////
+int TargaImage::index_of_pixel(int x, int y, int color) {
+    return (y * width + x) * 4 + color;
+}
+
 bool TargaImage::To_Grayscale()
 {
     //ClearToBlack();
     for (int i = 0;i < height;i++) {
         for (int j = 0;j < width;j++) {
-
+            unsigned char g = 0.299 * (double)data[index_of_pixel(j, i, RED)] + 0.587 * (double)data[index_of_pixel(j, i, GREEN)] + 0.114 * (double)data[index_of_pixel(j, i, BLUE)];
+            for (int k = 0;k < 3;k++) {
+                data[index_of_pixel(j, i, k)] = g;
+            }
         }
     }
     return true;
 }// To_Grayscale
 
-
+int Quant(int val,int level) {
+    return val - val % level;
+}
 ///////////////////////////////////////////////////////////////////////////////
 //
 //  Convert the image to an 8 bit image using uniform quantization.  Return 
@@ -229,8 +241,15 @@ bool TargaImage::To_Grayscale()
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::Quant_Uniform()
 {
-    ClearToBlack();
-    return false;
+    //ClearToBlack();
+    for (int i = 0;i < height;i++) {
+        for (int j = 0;j < width;j++) {
+            data[index_of_pixel(j, i, RED)] -= data[index_of_pixel(j, i, RED)] % 32;
+            data[index_of_pixel(j, i, GREEN)] -= data[index_of_pixel(j, i, GREEN)] % 32;
+            data[index_of_pixel(j, i, BLUE)] -= data[index_of_pixel(j, i, BLUE)] % 64;
+        }
+    }
+    return true;
 }// Quant_Uniform
 
 
@@ -240,10 +259,61 @@ bool TargaImage::Quant_Uniform()
 //  Return success of operation.
 //
 ///////////////////////////////////////////////////////////////////////////////
-bool TargaImage::Quant_Populosity()
+bool TargaImage::Quant_Populosity()//38¬í
 {
-    ClearToBlack();
-    return false;
+    //ClearToBlack();
+    unsigned int color_count[32][32][32] = { 0 };
+    for (int i = 0;i < height;i++) {
+        for (int j = 0;j < width;j++) {
+            data[index_of_pixel(j, i, RED)] -= data[index_of_pixel(j, i, RED)] % 8;
+            data[index_of_pixel(j, i, GREEN)]-=data[index_of_pixel(j, i, GREEN)] % 8;
+            data[index_of_pixel(j, i, BLUE)] -= data[index_of_pixel(j, i, BLUE)] % 8;
+            ++color_count[data[index_of_pixel(j, i, RED)]/8][data[index_of_pixel(j, i, GREEN)]/8][data[index_of_pixel(j, i, BLUE)]/8];
+        }
+    }
+    array<tuple<int,int,int,int>,256 > popular;
+    popular.fill(make_tuple(0, 0, 0, 0));
+    for (int i = 0;i < 32;i++) {
+        for (int j = 0;j < 32;j++) {
+            for (int k = 0;k < 32;k++) {
+                int g = 0;
+                for (;;) {
+                    if (color_count[i][j][k] < get<0>(popular[g])) {
+                        --g;
+                        break;
+                    }
+                    if (g == 255) break;
+                    else ++g;
+                }
+                if (g == -1) continue;
+                for (int h = 0;h < g;h++) {
+                    popular[h] = popular[h + 1];
+                }
+                popular[g] = make_tuple(color_count[i][j][k], i*8, j*8, k*8);                
+            }
+        }
+    }
+    for (int i = 0;i < height;i++) {
+        for (int j = 0;j < width;j++) {
+            tuple<int, int, int, int> change;
+            int min_dis = INT_MAX;
+            for (int g = 0;g < 256;g++) {
+                int tmp = sqrt(
+                    sqare(get<1>(popular[g]) - data[index_of_pixel(j, i, RED)]) +
+                    sqare(get<2>(popular[g]) - data[index_of_pixel(j, i, GREEN)]) +
+                    sqare(get<3>(popular[g]) - data[index_of_pixel(j, i, BLUE)]));
+                if (tmp < min_dis)
+                {
+                    min_dis = tmp;
+                    change = popular[g];
+                }
+            }
+            data[index_of_pixel(j, i, RED)] = get<1>(change);
+            data[index_of_pixel(j, i, GREEN)] = get<2>(change);
+            data[index_of_pixel(j, i, BLUE)] = get<3>(change);
+        }
+    }
+    return true;
 }// Quant_Populosity
 
 
