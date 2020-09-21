@@ -91,8 +91,8 @@
     <LibraryPath>C:\lib\FLTK1.3.5\build\lib\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>D:\maochinn\Lib\FLTK\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\maochinn\Lib\FLTK\build\lib\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\lib\FLTK1.3.5\source;C:\lib\FLTK1.3.5\build;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\lib\FLTK1.3.5\build\lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -147,7 +147,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>fltk.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fltk_forms.lib;fltk_gl.lib;fltk_images.lib;fltk_jpeg.lib;fltk_png.lib;fltk_z.lib;fltk.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -206,11 +206,20 @@ TargaImage* TargaImage::Load_Image(char *filename)
     return result;
 }// Load_Image
 
+//#define index_of_pixel(x,y,color) (((y) * width + (x)) * 4 + (color))
 int TargaImage::index_of_pixel(int x, int y, int color) {
     return (y * width + x) * 4 + color;
 }
 unsigned char TargaImage::to_gray(int x, int y) {
     return  0.299 * (double)data[index_of_pixel(x, y, RED)] + 0.587 * (double)data[index_of_pixel(x, y, GREEN)] + 0.114 * (double)data[index_of_pixel(x, y, BLUE)];
+}
+bool TargaImage::legal_index(int x, int y) {
+    return x > 0 && x < width && y> 0 && y < height;
+}
+void TargaImage::replace_rgb(int x,int y,int val) {
+    for (int k = 0;k < 3;k++) {
+        data[index_of_pixel(x, y, k)] = val;
+    }
 }
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -373,8 +382,49 @@ bool TargaImage::Dither_Random()
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::Dither_FS()
 {
-    ClearToBlack();
-    return false;
+    To_Grayscale();
+    for (int i = 0;i < height;i++) {
+        for (int j = 0;j < width;j++) {
+            unsigned char g = data[index_of_pixel(j,i,0)];
+            int quant_error = g > 127 ? g - 255 : g;
+            for (int k = 0;k < 3;k++) {
+                data[index_of_pixel(j, i, k)] = g > 127 ? 255 : 0;
+            }
+            if (legal_index(j + 1, i)) {
+                int result = data[index_of_pixel(j + 1, i, 0)] + quant_error * 7 / 16;
+                if (result > 255) result = 255;
+                else if (result < 0) result = 0;
+                for (int k = 0;k < 3;k++) {
+                    data[index_of_pixel(j + 1, i, k)] = result;
+                }
+            }
+            if (legal_index(j - 1, i + 1)) {
+                int result = data[index_of_pixel(j - 1, i + 1, 0)] + quant_error * 3 / 16;
+                if (result > 255) result = 255;
+                else if (result < 0) result = 0;
+                for (int k = 0;k < 3;k++) {
+                    data[index_of_pixel(j - 1, i + 1, k)] = result;
+                }
+            }
+            if (legal_index(j, i + 1)) {
+                int result = data[index_of_pixel(j, i + 1, 0)] + quant_error * 5 / 16;
+                if (result > 255) result = 255;
+                else if (result < 0) result = 0;
+                for (int k = 0;k < 3;k++) {
+                    data[index_of_pixel(j, i + 1, k)] = result;
+                }
+            }
+            if (legal_index(j + 1, i + 1)) {
+                int result = data[index_of_pixel(j + 1, i + 1, 0)] + quant_error * 1 / 16;
+                if (result > 255) result = 255;
+                else if (result < 0) result = 0;
+                for (int k = 0;k < 3;k++) {
+                    data[index_of_pixel(j + 1, i + 1, k)] = result;
+                }
+            }
+        }
+    }
+    return true;
 }// Dither_FS
 
 
@@ -459,8 +509,57 @@ bool TargaImage::Dither_Cluster()
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::Dither_Color()
 {
-    ClearToBlack();
-    return false;
+    
+    for (int i = 0;i < height;i++) {
+        for (int j = 0;j < width;j++) {
+            int r = data[index_of_pixel(j, i, RED)];
+            int g = data[index_of_pixel(j, i, GREEN)];
+            int b = data[index_of_pixel(j, i, BLUE)];
+            int nr = (7 * r / 255) * (255 / 7);
+            int ng = (7 * g / 255) * (255 / 7);
+            int nb = (3 * b / 255) * (255 / 3);
+            int err[3];
+            err[0] = r - nr;
+            err[1] = g - ng;
+            err[2] = b - nb;
+            data[index_of_pixel(j, i, RED)] = nr;
+            data[index_of_pixel(j, i, GREEN)] = ng;
+            data[index_of_pixel(j, i, BLUE)] = nb;
+            if (legal_index(j + 1, i)) {
+                for (int k = 0;k < 3;k++) {
+                    int result =  err[k] * 7 / 16 + data[index_of_pixel(j + 1, i, k)];
+                    if (result > 255) result = 255;
+                    else if (result < 0) result = 0;
+                    data[index_of_pixel(j + 1, i, k)] = result;
+                }
+            }
+            if (legal_index(j - 1, i + 1)) {
+                for (int k = 0;k < 3;k++) {
+                    int result = err[k] * 3 / 16 + data[index_of_pixel(j - 1, i + 1, k)];
+                    if (result > 255) result = 255;
+                    else if (result < 0) result = 0;
+                    data[index_of_pixel(j - 1, i + 1, k)] = result;
+                }
+            }
+            if (legal_index(j, i + 1)) {
+                for (int k = 0;k < 3;k++) {
+                    int result = err[k] * 5 / 16 + data[index_of_pixel(j, i + 1, k)];
+                    if (result > 255) result = 255;
+                    else if (result < 0) result = 0;
+                    data[index_of_pixel(j , i + 1, k)] = result;
+                }
+            }
+            if (legal_index(j + 1, i + 1)) {
+                for (int k = 0;k < 3;k++) {
+                    int result = err[k] * 1 / 16 + data[index_of_pixel(j + 1, i + 1, k)];
+                    if (result > 255) result = 255;
+                    else if (result < 0) result = 0;
+                    data[index_of_pixel(j + 1, i + 1, k)] = result;
+                }
+            }
+        }
+    }
+    return true;
 }// Dither_Color
 
 

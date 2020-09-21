@@ -88,6 +88,8 @@ class TargaImage
         unsigned char	*data;	    // pixel data for the image, assumed to be in pre-multiplied RGBA format.
         int index_of_pixel(int, int, int);
         unsigned char to_gray(int,int);
+        bool legal_index(int x, int y);
+        void replace_rgb(int,int,int);
 };
 
 class Stroke { // Data structure for holding painterly strokes.
