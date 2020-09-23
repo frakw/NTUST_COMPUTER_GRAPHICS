@@ -34,6 +34,7 @@ using namespace std;
 const int           RED             = 0;                // red channel
 const int           GREEN           = 1;                // green channel
 const int           BLUE            = 2;                // blue channel
+const int           ALPHA           = 3;                // alpha channel
 const unsigned char BACKGROUND[3]   = { 0, 0, 0 };      // background color
 
 
@@ -949,8 +950,47 @@ bool TargaImage::NPR_Paint()
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::Half_Size()
 {
-    ClearToBlack();
-    return false;
+    int filter[3][3] = {
+        {1,2,1},
+        {2,4,2},
+        {1,2,1},
+    };
+    int new_height = (int)(height / 2);
+    int new_width = (int)(width / 2);
+    unsigned char* new_data = new unsigned char[new_width * new_height * 4]{};
+    for (int i = 0;i < new_height;i++) {
+        for (int j = 0;j < new_width;j++) {
+            double resultR = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
+            double resultG = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
+            double resultB = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
+            double resultA = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
+            for (int k = 0;k < 3;k++) {
+                for (int g = 0;g < 3;g++) {
+                    int x = 2 * j + g - 1;
+                    int y = 2 * i + k - 1;
+                    if (x < 0) x *= -1;
+                    else if (x >= width) x = 2 * (width - 1) - x;
+
+                    if (y < 0) y *= -1;
+                    else if (y >= height) y = 2 * (height - 1) - y;
+
+                    resultR += (double)data[index_of_pixel(x, y, RED)] * (double)filter[k][g] / 16.0f;
+                    resultG += (double)data[index_of_pixel(x, y, GREEN)] * (double)filter[k][g] / 16.0f;
+                    resultB += (double)data[index_of_pixel(x, y, BLUE)] * (double)filter[k][g] / 16.0f;
+                    resultA += (double)data[index_of_pixel(x, y, ALPHA)] * (double)filter[k][g] / 16.0f;
+                }
+            }
+            new_data[(i * new_width + j) * 4 + RED] = avoid_overflow(resultR);
+            new_data[(i * new_width + j) * 4 + GREEN] = avoid_overflow(resultG);
+            new_data[(i * new_width + j) * 4 + BLUE] = avoid_overflow(resultB);
+            new_data[(i * new_width + j) * 4 + ALPHA] = avoid_overflow(resultA);
+        }
+    }
+    width  = new_width;
+    height = new_height;
+    delete[] data;
+    data = new_data;
+    return true;
 }// Half_Size
 
 
@@ -961,8 +1001,8 @@ bool TargaImage::Half_Size()
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::Double_Size()
 {
-    ClearToBlack();
-    return false;
+    //ClearToBlack();
+    return true;
 }// Double_Size
 
 
