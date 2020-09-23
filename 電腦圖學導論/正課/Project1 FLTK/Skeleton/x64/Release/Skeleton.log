@@ -1,11 +1,26 @@
 ﻿  TargaImage.cpp
-C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(214,113): warning C4244: 'return': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(295,46): warning C4018: '<': signed/unsigned 不相符
-C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(315,25): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
-C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(449,39): warning C4244: '=': 將 'unsigned __int64' 轉換為 'int'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(216,113): warning C4244: 'return': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(297,46): warning C4018: '<': signed/unsigned 不相符
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(317,25): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(451,39): warning C4244: '=': 將 'unsigned __int64' 轉換為 'int'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(776,47): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(777,49): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(778,48): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(831,47): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(832,49): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(833,48): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(850,22): warning C4018: '<': signed/unsigned 不相符
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(866,23): warning C4018: '<': signed/unsigned 不相符
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(867,27): warning C4018: '<': signed/unsigned 不相符
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(875,30): warning C4018: '<': signed/unsigned 不相符
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(876,34): warning C4018: '<': signed/unsigned 不相符
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(890,47): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(891,49): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(892,48): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(895,22): warning C4018: '<': signed/unsigned 不相符
   正在產生程式碼
-  2 of 319 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
+  12 of 319 functions ( 3.8%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    2 functions had inline decision re-evaluated but remain unchanged
+    20 functions had inline decision re-evaluated but remain unchanged
   已完成程式碼產生
   Skeleton.vcxproj -> C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\x64\Release\Skeleton.exe
