@@ -1001,7 +1001,121 @@ bool TargaImage::Half_Size()
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::Double_Size()
 {
-    //ClearToBlack();
+    double two_even_filter[3][3] = {
+    {0.0625,0.125,0.0625},
+    {0.125, 0.25,0.125},
+    {0.0625,0.125,0.0625},
+    };
+    double two_odd_filter[4][4] = {
+    {0.015625,0.046875,0.046875,0.015625},
+    {0.046875,0.140625,0.140625,0.046875},
+    {0.046875,0.140625,0.140625,0.046875},
+    {0.015625,0.046875,0.046875,0.015625},
+    };
+    double odd_even_filter[3][4] = {//x->odd y->even
+    {0.03125,0.09375,0.09375,0.03125},
+    {0.0625 ,0.1875 ,0.1875 ,0.0625 },
+    {0.03125,0.09375,0.09375,0.03125},
+    };
+    double even_odd_filter[4][3] = {//x->even y->odd
+    {0.03125,0.0625,0.03125},
+    {0.09375,0.1875,0.09375},
+    {0.09375,0.1875,0.09375},
+    {0.03125,0.0625,0.03125},
+    };
+
+    int new_height = height * 2;
+    int new_width  = width  * 2;
+    unsigned char* new_data = new unsigned char[new_width * new_height * 4]{};
+    for (int i = 0;i < new_height;i++) {
+        for (int j = 0;j < new_width;j++) {
+            double resultR = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
+            double resultG = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
+            double resultB = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
+            double resultA = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
+            if (!(i % 2) && !(j % 2)) {
+                for (int k = 0;k < 3;k++) {
+                    for (int g = 0;g < 3;g++) {
+                        int x = (j >> 1) + g - 1;
+                        int y = (i >> 1) + k - 1;
+                        if (x < 0) x *= -1;
+                        else if (x >= width) x = 2 * (width - 1) - x;
+
+                        if (y < 0) y *= -1;
+                        else if (y >= height) y = 2 * (height - 1) - y;
+
+                        resultR += (double)data[index_of_pixel(x, y, RED)] * two_even_filter[k][g];
+                        resultG += (double)data[index_of_pixel(x, y, GREEN)] * two_even_filter[k][g];
+                        resultB += (double)data[index_of_pixel(x, y, BLUE)] * two_even_filter[k][g];
+                        resultA += (double)data[index_of_pixel(x, y, ALPHA)] * two_even_filter[k][g];
+                    }
+                }
+            }
+            else if ((i % 2) && (j % 2)) {
+                for (int k = 0;k < 4;k++) {
+                    for (int g = 0;g < 4;g++) {
+                        int x = (j >> 1) + g - 1;
+                        int y = (i >> 1) + k - 1;
+                        if (x < 0) x *= -1;
+                        else if (x >= width) x = 2 * (width - 1) - x;
+
+                        if (y < 0) y *= -1;
+                        else if (y >= height) y = 2 * (height - 1) - y;
+
+                        resultR += (double)data[index_of_pixel(x, y, RED)] * two_odd_filter[k][g];
+                        resultG += (double)data[index_of_pixel(x, y, GREEN)] * two_odd_filter[k][g];
+                        resultB += (double)data[index_of_pixel(x, y, BLUE)] * two_odd_filter[k][g];
+                        resultA += (double)data[index_of_pixel(x, y, ALPHA)] * two_odd_filter[k][g];
+                    }
+                }
+            }
+            else if (!(i % 2) && (j % 2)) {//x->odd y->even
+                for (int k = 0;k < 3;k++) {
+                    for (int g = 0;g < 4;g++) {
+                        int x = (j >> 1) + g - 1;
+                        int y = (i >> 1) + k - 1;
+                        if (x < 0) x *= -1;
+                        else if (x >= width) x = 2 * (width - 1) - x;
+
+                        if (y < 0) y *= -1;
+                        else if (y >= height) y = 2 * (height - 1) - y;
+
+                        resultR += (double)data[index_of_pixel(x, y, RED)] * odd_even_filter[k][g];
+                        resultG += (double)data[index_of_pixel(x, y, GREEN)] * odd_even_filter[k][g];
+                        resultB += (double)data[index_of_pixel(x, y, BLUE)] * odd_even_filter[k][g];
+                        resultA += (double)data[index_of_pixel(x, y, ALPHA)] * odd_even_filter[k][g];
+                    }
+                }
+            }
+            else{//x->even y->odd
+                for (int k = 0;k < 4;k++) {
+                    for (int g = 0;g < 3;g++) {
+                        int x = (j >> 1) + g - 1;
+                        int y = (i >> 1) + k - 1;
+                        if (x < 0) x *= -1;
+                        else if (x >= width) x = 2 * (width - 1) - x;
+
+                        if (y < 0) y *= -1;
+                        else if (y >= height) y = 2 * (height - 1) - y;
+
+                        resultR += (double)data[index_of_pixel(x, y, RED)] * even_odd_filter[k][g];
+                        resultG += (double)data[index_of_pixel(x, y, GREEN)] * even_odd_filter[k][g];
+                        resultB += (double)data[index_of_pixel(x, y, BLUE)] * even_odd_filter[k][g];
+                        resultA += (double)data[index_of_pixel(x, y, ALPHA)] * even_odd_filter[k][g];
+                    }
+                }
+            }
+
+            new_data[(i * new_width + j) * 4 + RED] = avoid_overflow(resultR);
+            new_data[(i * new_width + j) * 4 + GREEN] = avoid_overflow(resultG);
+            new_data[(i * new_width + j) * 4 + BLUE] = avoid_overflow(resultB);
+            new_data[(i * new_width + j) * 4 + ALPHA] = avoid_overflow(resultA);
+        }
+    }
+    width = new_width;
+    height = new_height;
+    delete[] data;
+    data = new_data;
     return true;
 }// Double_Size
 
