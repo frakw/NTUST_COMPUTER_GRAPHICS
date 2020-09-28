@@ -502,9 +502,21 @@ bool TargaImage::Dither_Color()
             int r = data[index_of_pixel(j, i, RED)];
             int g = data[index_of_pixel(j, i, GREEN)];
             int b = data[index_of_pixel(j, i, BLUE)];
-            int nr = (7 * r / 255) * (255 / 7);
-            int ng = (7 * g / 255) * (255 / 7);
-            int nb = (3 * b / 255) * (255 / 3);
+            //int nr = (7 * r / 255) * (255 / 7);
+            //int ng = (7 * g / 255) * (255 / 7);
+            //int nb = (3 * b / 255) * (255 / 3);
+            int nr;
+            int ng;
+            int nb;
+            int new_rg[8] = { 0, 36, 73, 109, 146, 182, 219 , 255 };
+            int new_b[4] = { 0, 85, 170, 255 };
+            int new_index;
+            for (new_index = 1;new_index < 8;new_index++) {if (r < new_rg[new_index]) { nr = new_rg[new_index - 1]; break; }}
+            if (new_index == 8) nr = 255;
+            for (new_index = 1;new_index < 8;new_index++) { if (g < new_rg[new_index]) { ng = new_rg[new_index - 1]; break; } }
+            if (new_index == 8) ng = 255;
+            for (new_index = 1;new_index < 4;new_index++) { if (b < new_b[new_index]) { nb = new_b[new_index - 1]; break; } }
+            if (new_index == 4) nb = 255;
             int err[3];
             err[0] = r - nr;
             err[1] = g - ng;
@@ -678,17 +690,22 @@ bool TargaImage::Filter_Box()
             int resultB = 0;
             for (int k = -2;k < 3;k++) {
                 for (int g = -2;g < 3;g++){
+                    int tmpk = k;
+                    int tmpg = g;
+                    if ((j + g) < 0) tmpg *= -1;
+                    else if (g >= width) tmpg = 2 * (width - 1) - tmpg;
+                    if ((i + k) < 0) tmpk *= -1;
+                    else if (y >= height) tmpk = 2 * (height - 1) - k;
                     int x = j + g;
                     int y = i + k;
-                    if (x < 0) x *= -1;
-                    else if (x >= width) x = -1 * x + 2 * (width - 1);
+
 
                     if (y < 0) y *= -1;
-                    else if (y >= height) y = -1 * y + 2 * (height - 1);
+                    else if (y >= height) y = 2 * (height - 1) - y;
 
-                    resultR += data[index_of_pixel(x, y, RED)];
-                    resultG += data[index_of_pixel(x, y, GREEN)];
-                    resultB += data[index_of_pixel(x, y, BLUE)];
+                    resultR += data[index_of_pixel(j + tmpg, y, RED)];
+                    resultG += data[index_of_pixel(j + tmpg, y, GREEN)];
+                    resultB += data[index_of_pixel(j + tmpg, y, BLUE)];
                 }
             }
             resultR /= 25;
