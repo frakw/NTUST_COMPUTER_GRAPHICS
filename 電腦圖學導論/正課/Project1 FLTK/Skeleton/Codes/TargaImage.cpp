@@ -682,7 +682,6 @@ bool TargaImage::Difference(TargaImage* pImage)
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::Filter_Box()
 {
-    //ClearToBlack();
     for (int i = 0;i < height;i++) {
         for (int j = 0;j < width;j++) {
             int resultR = 0;
@@ -690,22 +689,18 @@ bool TargaImage::Filter_Box()
             int resultB = 0;
             for (int k = -2;k < 3;k++) {
                 for (int g = -2;g < 3;g++){
-                    int tmpk = k;
-                    int tmpg = g;
-                    if ((j + g) < 0) tmpg *= -1;
-                    else if (g >= width) tmpg = 2 * (width - 1) - tmpg;
-                    if ((i + k) < 0) tmpk *= -1;
-                    else if (y >= height) tmpk = 2 * (height - 1) - k;
                     int x = j + g;
                     int y = i + k;
+                    if (x < 0) x *= -1;
+                    else if (x >= width) x = 2 * (width - 1) - x;
 
 
                     if (y < 0) y *= -1;
                     else if (y >= height) y = 2 * (height - 1) - y;
 
-                    resultR += data[index_of_pixel(j + tmpg, y, RED)];
-                    resultG += data[index_of_pixel(j + tmpg, y, GREEN)];
-                    resultB += data[index_of_pixel(j + tmpg, y, BLUE)];
+                    resultR += data[index_of_pixel(x, y, RED)];
+                    resultG += data[index_of_pixel(x, y, GREEN)];
+                    resultB += data[index_of_pixel(x, y, BLUE)];
                 }
             }
             resultR /= 25;
@@ -1120,10 +1115,13 @@ bool TargaImage::Resize(float scale)
 //  image.  Return success of operation.
 //
 ///////////////////////////////////////////////////////////////////////////////
-bool TargaImage::Rotate(float angleDegrees)
+bool TargaImage::Rotate(double angleDegrees)
 {
-    ClearToBlack();
-    return false;
+    unsigned char* new_data = new unsigned char[width * height * 4]{};
+    double cos_t = cosf(angleDegrees * (double)(M_PI / 180));
+    double sin_t = sinf(angleDegrees * (double)(M_PI / 180));
+    for()
+    return true;
 }// Rotate
 
 
