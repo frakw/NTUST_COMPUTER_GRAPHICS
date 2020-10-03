@@ -65,7 +65,7 @@ class TargaImage
 
         bool Half_Size();
         bool Double_Size();
-        bool Resize(float scale);
+        bool Resize(double scale);
         bool Rotate(double angleDegrees);
 
     private:

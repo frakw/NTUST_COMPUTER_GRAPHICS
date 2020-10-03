@@ -37,6 +37,7 @@ const int           BLUE            = 2;                // blue channel
 const int           ALPHA           = 3;                // alpha channel
 const unsigned char BACKGROUND[3]   = { 0, 0, 0 };      // background color
 
+double bicubic_S(double x);
 
 // Computes n choose s, efficiently
 double Binomial(int n, int s)
@@ -1003,6 +1004,7 @@ bool TargaImage::Double_Size()
     int new_height = height * 2;
     int new_width  = width  * 2;
     unsigned char* new_data = new unsigned char[new_width * new_height * 4]{};
+    
     for (int i = 0;i < new_height;i++) {
         for (int j = 0;j < new_width;j++) {
             double resultR = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
@@ -1088,6 +1090,7 @@ bool TargaImage::Double_Size()
             new_data[(i * new_width + j) * 4 + ALPHA] = avoid_overflow(resultA);
         }
     }
+
     width = new_width;
     height = new_height;
     delete[] data;
@@ -1095,17 +1098,74 @@ bool TargaImage::Double_Size()
     return true;
 }// Double_Size
 
+///////////此公式來自:https://en.wikipedia.org/wiki/Bicubic_interpolation#Bicubic_convolution_algorithm /////////////////
+double bicubic_S(double x) {
+    double A = -0.5;
+    double absX = x >= 0.0f ? x : -x;
+    double x2 = x * x;
+    double x3 = absX * x2;
 
+    if (absX <= 1) {
+        return (A + 2.0f) * x3 - (A + 3.0f) * x2 + 1.0f;
+    }
+    else if (absX <= 2.0f) {
+        return (A * x3) - (5.0f * A * x2) + (8.0f * A * absX) - (4.0f * A);
+    }
+
+    return 0.0f;
+}
+////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 //
 //      Scale the image dimensions by the given factor.  The given factor is 
 //  assumed to be greater than one.  Return success of operation.
 //
 ///////////////////////////////////////////////////////////////////////////////
-bool TargaImage::Resize(float scale)
+bool TargaImage::Resize(double scale)
 {
-    ClearToBlack();
-    return false;
+    int new_height = height * scale;
+    int new_width = width * scale;
+    unsigned char* new_data = new unsigned char[new_width * new_height * 4]{};
+    for (int i = 0;i < new_height;i++) {
+        for (int j = 0;j < new_width;j++) {
+            double resultR = 0.0f;
+            double resultG = 0.0f;
+            double resultB = 0.0f;
+            double resultA = 0.0f;
+            double originX = Min((double)j / scale, (double)(width - 1));
+            double originY = Min((double)i / scale, (double)(height - 1));
+            int floor_originX = floor(originX);
+            int floor_originY = floor(originY);
+            double u = originX - floor_originX;
+            double v = originY - floor_originY;
+            for (int k = -1; k < 3;k++) {
+                for (int g = -1; g < 3;g++) {
+                    int x = floor_originX + g;
+                    int y = floor_originY + k;
+                    if (x < 0) x *= -1;
+                    else if (x >= width) x = 2 * (width - 1) - x;
+
+                    if (y < 0) y *= -1;
+                    else if (y >= height) y = 2 * (height - 1) - y;
+
+                    double SS = bicubic_S(k-v) * bicubic_S(g-u);
+                    resultR += (double)data[index_of_pixel(x, y, RED)] * SS;
+                    resultG += (double)data[index_of_pixel(x, y, GREEN)] * SS;
+                    resultB += (double)data[index_of_pixel(x, y, BLUE)] * SS;
+                    resultA += (double)data[index_of_pixel(x, y, ALPHA)] * SS;
+                }
+            }
+            new_data[(i * new_width + j) * 4 + RED] = avoid_overflow(resultR);
+            new_data[(i * new_width + j) * 4 + GREEN] = avoid_overflow(resultG);
+            new_data[(i * new_width + j) * 4 + BLUE] = avoid_overflow(resultB);
+            new_data[(i * new_width + j) * 4 + ALPHA] = avoid_overflow(resultA);
+        }
+    }
+    width = new_width;
+    height = new_height;
+    delete[] data;
+    data = new_data;
+    return true;
 }// Resize
 
 
@@ -1118,9 +1178,48 @@ bool TargaImage::Resize(float scale)
 bool TargaImage::Rotate(double angleDegrees)
 {
     unsigned char* new_data = new unsigned char[width * height * 4]{};
-    double cos_t = cosf(angleDegrees * (double)(M_PI / 180));
-    double sin_t = sinf(angleDegrees * (double)(M_PI / 180));
-    for()
+    double cos_t = cosf(angleDegrees * (double)(M_PI / 180.0f));
+    double sin_t = sinf(angleDegrees * (double)(M_PI / 180.0f));
+    int halfH = height / 2;
+    int halfW = width / 2;
+    for (int i = -halfH;i < halfH;i++) {
+        for (int j = -halfW;j < halfW;j++) {
+            double resultR = 0.0f;
+            double resultG = 0.0f;
+            double resultB = 0.0f;
+            double resultA = 0.0f;
+            double originX = (i)*sin_t + (j)*cos_t + halfW;//加上旋轉中心點座標(widh/2,height/2)修正
+            double originY = (i)*cos_t - (j)*sin_t + halfH;//加上旋轉中心點座標(widh/2,height/2)修正
+            if (originX > (width - 1) || originX<0 || originY>(height - 1) || originY < 0) continue;
+            int floor_originX = floor(originX);
+            int floor_originY = floor(originY);
+            double u = originX - floor_originX;
+            double v = originY - floor_originY;
+            for (int k = -1; k < 3;k++) {
+                for (int g = -1; g < 3;g++) {
+                    int x = floor_originX + g;
+                    int y = floor_originY + k;
+                    if (x < 0) x *= -1;
+                    else if (x >= width) x = 2 * (width - 1) - x;
+
+                    if (y < 0) y *= -1;
+                    else if (y >= height) y = 2 * (height - 1) - y;
+
+                    double SS = bicubic_S(k - v) * bicubic_S(g - u);
+                    resultR += (double)data[index_of_pixel(x, y, RED)] * SS;
+                    resultG += (double)data[index_of_pixel(x, y, GREEN)] * SS;
+                    resultB += (double)data[index_of_pixel(x, y, BLUE)] * SS;
+                    resultA += (double)data[index_of_pixel(x, y, ALPHA)] * SS;
+                }
+            }
+            new_data[index_of_pixel(j + halfW, i + halfH, RED)] = avoid_overflow(resultR);
+            new_data[index_of_pixel(j + halfW, i + halfH, GREEN)] = avoid_overflow(resultG);
+            new_data[index_of_pixel(j + halfW, i + halfH, BLUE)] = avoid_overflow(resultB);
+            new_data[index_of_pixel(j + halfW, i + halfH, ALPHA)] = avoid_overflow(resultA);
+        }
+    }
+    delete[] data;
+    data = new_data;
     return true;
 }// Rotate
 
