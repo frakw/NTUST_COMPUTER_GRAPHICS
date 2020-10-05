@@ -53,7 +53,7 @@ class TargaImage
         bool Comp_Xor(TargaImage* pImage);
 
         bool Difference(TargaImage* pImage);
-
+        void filter_base(double* filter_in, int x, int y, bool alpha);
         bool Filter_Box();
         bool Filter_Bartlett();
         bool Filter_Gaussian();
