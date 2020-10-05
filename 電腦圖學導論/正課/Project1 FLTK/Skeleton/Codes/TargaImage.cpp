@@ -28,6 +28,7 @@
 #include <cmath>
 #define sqare(x) ((x)*(x))
 #define avoid_overflow(x) ((x) > 255 ? 255:((x) < 0 ? 0: (x)))
+#define DGMM
 using namespace std;
 
 // constants
@@ -909,6 +910,10 @@ bool TargaImage::NPR_Paint()
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::Half_Size()
 {
+#ifndef DGMM
+    Resize(0.5f);
+    return true;
+#endif
     int filter[3][3] = {
         {1,2,1},
         {2,4,2},
@@ -960,6 +965,15 @@ bool TargaImage::Half_Size()
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::Double_Size()
 {
+#ifndef DGMM
+    Resize(2.0f);
+    return true;
+#endif
+
+
+
+
+
     double two_even_filter[3][3] = {
     {0.0625,0.125,0.0625},
     {0.125, 0.25,0.125},
