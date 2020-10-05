@@ -51,6 +51,50 @@ double Binomial(int n, int s)
     return res;
 }// Binomial
 
+void TargaImage::filter_base(double* filter_in,int filter_width,int filter_height,bool alpha_open) {
+    double** filter = new double* [filter_height] {};
+    unsigned char* new_data = new unsigned char[width * height * 4]{};
+    for (int i = 0;i < filter_height;i++) {
+        filter[i] = filter_in + (i * filter_width);
+    }
+    for (int i = 0;i < height;i++) {
+        for (int j = 0;j < width;j++) {
+            double resultR = 0.0f;
+            double resultG = 0.0f;
+            double resultB = 0.0f;
+            double resultA = 0.0f;
+            for (int k = 0;k < filter_height;k++) {
+                for (int g = 0;g < filter_width;g++) {
+                    int x = j + g;
+                    int y = i + k;
+                    if (filter_height % 2) y -= (int)(filter_height / 2);
+                    else y -= (int)(filter_height / 2) - 1;
+                    if (filter_width % 2) x -= (int)(filter_width / 2);
+                    else x -= (int)(filter_width / 2) - 1;
+
+                    if (y < 0) y *= -1;
+                    else if (y >= height) y = 2 * (height - 1) - y;
+                    if (x < 0) x *= -1;
+                    else if (x >= width) x = 2 * (width - 1) - x;
+
+                    resultR += data[index_of_pixel(x, y, RED)] * filter[k][g];
+                    resultG += data[index_of_pixel(x, y, GREEN)] * filter[k][g];
+                    resultB += data[index_of_pixel(x, y, BLUE)] * filter[k][g];
+                    if(alpha_open) resultA += data[index_of_pixel(x, y, ALPHA)] * filter[k][g];
+                }
+            }
+            new_data[index_of_pixel(j, i, RED)] = avoid_overflow(resultR);
+            new_data[index_of_pixel(j, i, GREEN)] = avoid_overflow(resultG);
+            new_data[index_of_pixel(j, i, BLUE)] = avoid_overflow(resultB);
+            if(alpha_open) new_data[index_of_pixel(j, i, ALPHA)] = avoid_overflow(resultA);
+            else new_data[index_of_pixel(j, i, ALPHA)] = data[index_of_pixel(j, i, ALPHA)];
+        }
+    }
+    delete[] data;
+    data = new_data;
+    delete[] filter;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -683,35 +727,12 @@ bool TargaImage::Difference(TargaImage* pImage)
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::Filter_Box()
 {
-    for (int i = 0;i < height;i++) {
-        for (int j = 0;j < width;j++) {
-            int resultR = 0;
-            int resultG = 0;
-            int resultB = 0;
-            for (int k = -2;k < 3;k++) {
-                for (int g = -2;g < 3;g++){
-                    int x = j + g;
-                    int y = i + k;
-                    if (x < 0) x *= -1;
-                    else if (x >= width) x = 2 * (width - 1) - x;
-
-
-                    if (y < 0) y *= -1;
-                    else if (y >= height) y = 2 * (height - 1) - y;
-
-                    resultR += data[index_of_pixel(x, y, RED)];
-                    resultG += data[index_of_pixel(x, y, GREEN)];
-                    resultB += data[index_of_pixel(x, y, BLUE)];
-                }
-            }
-            resultR /= 25;
-            resultG /= 25;
-            resultB /= 25;
-            data[index_of_pixel(j, i, RED)] = avoid_overflow(resultR);
-            data[index_of_pixel(j, i, GREEN)] = avoid_overflow(resultG);
-            data[index_of_pixel(j, i, BLUE)] = avoid_overflow(resultB);
-        }
-    }
+    double filter[5][5] = { {0.04, 0.04, 0.04, 0.04, 0.04},
+                            {0.04, 0.04, 0.04, 0.04, 0.04},
+                            {0.04, 0.04, 0.04, 0.04, 0.04},
+                            {0.04, 0.04, 0.04, 0.04, 0.04},
+                            {0.04, 0.04, 0.04, 0.04, 0.04} };
+    filter_base((double*)filter, 5, 5, false);
     return true;
 }// Filter_Box
 
@@ -724,38 +745,12 @@ bool TargaImage::Filter_Box()
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::Filter_Bartlett()
 {
-    int gk[5][5] = {
-        {1,2,3,2,1},
-        {2,4,6,4,2},
-        {3,6,9,6,3},
-        {2,4,6,4,2},
-        {1,2,3,2,1},
-    };
-    for (int i = 0;i < height;i++) {
-        for (int j = 0;j < width;j++) {
-            double resultR = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
-            double resultG = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
-            double resultB = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
-            for (int k = 0;k < 5;k++) {
-                for (int g = 0;g < 5;g++) {
-                    int x = j + g - 2;
-                    int y = i + k - 2;
-                    if (x < 0) x *= -1;
-                    else if (x >= width) x = 2 * (width - 1) - x;
-
-                    if (y < 0) y *= -1;
-                    else if (y >= height) y = 2 * (height - 1) - y;
-
-                    resultR += (double)data[index_of_pixel(x, y, RED)] * ((double)gk[k][g] / 81.0f);//整數除法前要先強制轉型，不然會遺失小數點
-                    resultG += (double)data[index_of_pixel(x, y, GREEN)] * ((double)gk[k][g] / 81.0f);//整數除法前要先強制轉型，不然會遺失小數點
-                    resultB += (double)data[index_of_pixel(x, y, BLUE)] * ((double)gk[k][g] /81.0f);//整數除法前要先強制轉型，不然會遺失小數點
-                }
-            }
-            data[index_of_pixel(j, i, RED)] = avoid_overflow(resultR);
-            data[index_of_pixel(j, i, GREEN)] = avoid_overflow(resultG);
-            data[index_of_pixel(j, i, BLUE)] = avoid_overflow(resultB);
-        }
-    }
+    double filter[5][5] = { {0.0123, 0.0247, 0.0370, 0.0247, 0.0123},
+                            {0.0247, 0.0494, 0.0741, 0.0494, 0.0247},
+                            {0.0370, 0.0741, 0.1111, 0.0741, 0.0370},
+                            {0.0247, 0.0494, 0.0741, 0.0494, 0.0247},
+                            {0.0123, 0.0247, 0.0370, 0.0247, 0.0123} };
+    filter_base((double*)filter, 5, 5, false);
     return true;
 }// Filter_Bartlett
 
@@ -768,7 +763,7 @@ bool TargaImage::Filter_Bartlett()
 bool TargaImage::Filter_Gaussian()
 {
 ///////////////////////////////以下程式碼的出處:https://www.codewithc.com/gaussian-filter-generation-in-c/ ///////////////////////////
-    double gk[5][5];
+    double filter[5][5];
     double stdv = 1.0;
     double r, s = 2.0 * stdv * stdv;  // Assigning standard deviation to 1.0
     double sum = 0.0;   // Initialization of sun for normalization
@@ -777,40 +772,17 @@ bool TargaImage::Filter_Gaussian()
         for (int y = -2; y <= 2; y++)
         {
             r = sqrt(x * x + y * y);
-            gk[x + 2][y + 2] = (exp(-(r * r) / s)) / (M_PI * s);
-            sum += gk[x + 2][y + 2];
+            filter[x + 2][y + 2] = (exp(-(r * r) / s)) / (M_PI * s);
+            sum += filter[x + 2][y + 2];
         }
     }
 
     for (int i = 0; i < 5; ++i) // Loop to normalize the kernel
         for (int j = 0; j < 5; ++j)
-            gk[i][j] /= sum;
+            filter[i][j] /= sum;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    for (int i = 0;i < height;i++) {
-        for (int j = 0;j < width;j++) {
-            double resultR = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
-            double resultG = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
-            double resultB = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
-            for (int k = 0;k < 5;k++) {
-                for (int g = 0;g < 5;g++) {
-                    int x = j + g - 2;
-                    int y = i + k - 2;
-                    if (x < 0) x *= -1;
-                    else if (x >= width) x = 2 * (width - 1) - x;
+    filter_base((double*)filter, 5, 5, false);
 
-                    if (y < 0) y *= -1;
-                    else if (y >= height) y = 2 * (height - 1) - y;
-
-                    resultR += (double)data[index_of_pixel(x, y, RED)] * gk[k][g];
-                    resultG += (double)data[index_of_pixel(x, y, GREEN)] * gk[k][g];
-                    resultB += (double)data[index_of_pixel(x, y, BLUE)] * gk[k][g];
-                }
-            }
-            data[index_of_pixel(j, i, RED)] = avoid_overflow(resultR);
-            data[index_of_pixel(j, i, GREEN)] = avoid_overflow(resultG);
-            data[index_of_pixel(j, i, BLUE)] = avoid_overflow(resultB);
-        }
-    }
     return true;
 }// Filter_Gaussian
 
@@ -891,35 +863,7 @@ bool TargaImage::Filter_Edge()
                             {-0.0234, -0.0937,  0.8594, -0.0937, -0.0234},
                             {-0.0156, -0.0625, -0.0937, -0.0625, -0.0156},
                             {-0.0039, -0.0156, -0.0234, -0.0156, -0.0039} };
-    unsigned char* new_data = new unsigned char[width * height * 4]{};
-    for (int i = 0;i < height;i++) {
-        for (int j = 0;j < width;j++) {
-            double resultR = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
-            double resultG = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
-            double resultB = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
-            for (int k = 0;k < 5;k++) {
-                for (int g = 0;g < 5;g++) {
-                    int x = j + g - 2;
-                    int y = i + k - 2;
-                    if (x < 0) x *= -1;
-                    else if (x >= width) x = 2 * (width - 1) - x;
-
-                    if (y < 0) y *= -1;
-                    else if (y >= height) y = 2 * (height - 1) - y;
-
-                    resultR += (double)data[index_of_pixel(x, y, RED)] * filter[k][g];//整數除法前要先強制轉型，不然會遺失小數點
-                    resultG += (double)data[index_of_pixel(x, y, GREEN)] * filter[k][g];//整數除法前要先強制轉型，不然會遺失小數點
-                    resultB += (double)data[index_of_pixel(x, y, BLUE)] * filter[k][g];//整數除法前要先強制轉型，不然會遺失小數點
-                }
-            }
-            new_data[index_of_pixel(j, i, RED)] = avoid_overflow(resultR);
-            new_data[index_of_pixel(j, i, GREEN)] = avoid_overflow(resultG);
-            new_data[index_of_pixel(j, i, BLUE)] = avoid_overflow(resultB);
-            new_data[index_of_pixel(j, i, ALPHA)] = data[index_of_pixel(j, i, ALPHA)];
-        }
-    }
-    delete[] data;
-    data = new_data;
+    filter_base((double*)filter,5,5,false);
     return true;
 }// Filter_Edge
 
@@ -937,36 +881,7 @@ bool TargaImage::Filter_Enhance()
                             {-0.0234, -0.0937,  1.8594, -0.0937, -0.0234},
                             {-0.0156, -0.0625, -0.0937, -0.0625, -0.0156},
                             {-0.0039, -0.0156, -0.0234, -0.0156, -0.0039} };
-    unsigned char* new_data = new unsigned char[width * height * 4]{};
-    for (int i = 0;i < height;i++) {
-        for (int j = 0;j < width;j++) {
-            double resultR = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
-            double resultG = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
-            double resultB = 0;//要用double存，否則會遺失很多小數點，圖片地板變一圈一圈的
-            for (int k = 0;k < 5;k++) {
-                for (int g = 0;g < 5;g++) {
-                    int x = j + g - 2;
-                    int y = i + k - 2;
-                    if (x < 0) x *= -1;
-                    else if (x >= width) x = 2 * (width - 1) - x;
-
-                    if (y < 0) y *= -1;
-                    else if (y >= height) y = 2 * (height - 1) - y;
-
-                    resultR += (double)data[index_of_pixel(x, y, RED)] * filter[k][g];//整數除法前要先強制轉型，不然會遺失小數點
-                    resultG += (double)data[index_of_pixel(x, y, GREEN)] * filter[k][g];//整數除法前要先強制轉型，不然會遺失小數點
-                    resultB += (double)data[index_of_pixel(x, y, BLUE)] * filter[k][g];//整數除法前要先強制轉型，不然會遺失小數點
-                }
-            }
-            new_data[index_of_pixel(j, i, RED)] = avoid_overflow(resultR);
-            new_data[index_of_pixel(j, i, GREEN)] = avoid_overflow(resultG);
-            new_data[index_of_pixel(j, i, BLUE)] = avoid_overflow(resultB);
-            new_data[index_of_pixel(j, i, ALPHA)] = data[index_of_pixel(j, i, ALPHA)];
-        }
-    }
-    delete[] data;
-    data = new_data;
-    return true;
+    filter_base((double*)filter, 5, 5, false);
     return true;
 }// Filter_Enhance
 
