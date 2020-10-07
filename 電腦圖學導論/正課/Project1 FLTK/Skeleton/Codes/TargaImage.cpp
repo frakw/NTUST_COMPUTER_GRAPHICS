@@ -26,6 +26,8 @@
 #include <cstdlib>
 #include <time.h>
 #include <cmath>
+#include <set>
+#include<algorithm>
 #define square(x) ((x)*(x))
 #define avoid_overflow(x) ((x) > 255 ? 255:((x) < 0 ? 0: (x)))
 #define DGMM //half double 會以dgmm上的說明實作，註解後，使用bicubic法實作
@@ -902,7 +904,7 @@ void TargaImage::paintLayer(TargaImage& canvas, int R) {
     }
     double fg = 2;
     int grid = fg * R;
-    int T = 15;
+    int T = 25;
     int halfG = grid < 4 ? 1 : grid / 2;
     for (int x = halfG;x < width - halfG;x+= halfG) {
         for (int y = halfG;y < height - halfG;y+= halfG) {
@@ -929,6 +931,14 @@ void TargaImage::paintLayer(TargaImage& canvas, int R) {
             }
         }
     }
+    for (int i = 0;i < S.size();i++) {//去除重複點
+        for (int j = i+1;j < S.size();j++) {
+            if (S[i] == S[j]) {
+                S.erase(S.begin()+j);
+                j--;
+            }
+        }
+    }
     while (S.size()) {
         int rand_index = rand() % S.size();
         canvas.Paint_Stroke(S[rand_index]);
@@ -950,7 +960,7 @@ void TargaImage::paintLayer(TargaImage& canvas, int R) {
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::NPR_Paint()
 {
-    int radius[] = { 11,9,7,3,1 };
+    int radius[] = {11,7,5,3,1};
     TargaImage reference;
     reference.data = new unsigned char[width * height * 4]{};reference.width = width;reference.height = height;
     TargaImage canvas;

@@ -102,6 +102,9 @@ public:
    // data
    unsigned int radius, x, y;	// Location for the stroke
    unsigned char r, g, b, a;	// Color
+   bool operator==(Stroke& i) {
+       return x == i.x && y == i.y;
+   }
 };
 
 
