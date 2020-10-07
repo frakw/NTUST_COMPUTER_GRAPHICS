@@ -1,50 +1,51 @@
 ﻿  TargaImage.cpp
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(86,51): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(87,53): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(88,52): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(89,68): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(262,113): warning C4244: 'return': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(343,46): warning C4018: '<': signed/unsigned 不相符
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(363,25): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(450,32): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(481,39): warning C4244: '=': 將 'unsigned __int64' 轉換為 'int'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(581,36): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(800,22): warning C4018: '<': signed/unsigned 不相符
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(816,23): warning C4018: '<': signed/unsigned 不相符
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(817,27): warning C4018: '<': signed/unsigned 不相符
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(825,30): warning C4018: '<': signed/unsigned 不相符
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(826,34): warning C4018: '<': signed/unsigned 不相符
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(840,47): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(841,49): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(842,48): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(845,22): warning C4018: '<': signed/unsigned 不相符
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(942,55): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(943,57): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(944,56): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(945,57): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1071,55): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1072,57): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1073,56): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1074,57): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1110,20): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1111,19): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1121,31): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1122,31): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1142,55): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1143,57): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1144,56): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1145,57): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1165,38): warning C4244: '引數': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1166,38): warning C4244: '引數': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1178,31): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1179,31): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1199,67): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1200,69): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1201,68): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
-C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1202,69): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(87,51): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(88,53): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(89,52): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(90,68): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(263,113): warning C4244: 'return': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(344,46): warning C4018: '<': signed/unsigned 不相符
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(364,25): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(451,32): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(482,39): warning C4244: '=': 將 'unsigned __int64' 轉換為 'int'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(582,36): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(801,22): warning C4018: '<': signed/unsigned 不相符
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(817,23): warning C4018: '<': signed/unsigned 不相符
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(818,27): warning C4018: '<': signed/unsigned 不相符
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(826,30): warning C4018: '<': signed/unsigned 不相符
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(827,34): warning C4018: '<': signed/unsigned 不相符
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(841,47): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(842,49): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(843,48): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(846,22): warning C4018: '<': signed/unsigned 不相符
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(904,14): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1010,55): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1011,57): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1012,56): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1013,57): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1146,55): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1147,57): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1148,56): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1149,57): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1185,20): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1186,19): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1196,31): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1197,31): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1217,55): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1218,57): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1219,56): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1220,57): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1240,38): warning C4244: '引數': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1241,38): warning C4244: '引數': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1253,31): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1254,31): warning C4244: '正在初始化': 將 'double' 轉換為 'int'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1274,67): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1275,69): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1276,68): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
+C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\Skeleton\Codes\TargaImage.cpp(1277,69): warning C4244: '=': 將 'double' 轉換為 'unsigned char'，由於類型不同，可能導致資料遺失
   正在產生程式碼
-  1 of 353 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+  2 of 410 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    3 functions had inline decision re-evaluated but remain unchanged
+    2 functions had inline decision re-evaluated but remain unchanged
   已完成程式碼產生
-  Skeleton.vcxproj -> C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project1 FLTK\x64\Release\Skeleton.exe
+  Skeleton.vcxproj -> C:\Users\t4w32\source\repos\frakw\ntust_computer_graphics\電腦圖學導論\正課\Project1 FLTK\x64\Release\Skeleton.exe

@@ -26,9 +26,9 @@
 #include <cstdlib>
 #include <time.h>
 #include <cmath>
-#define sqare(x) ((x)*(x))
+#define square(x) ((x)*(x))
 #define avoid_overflow(x) ((x) > 255 ? 255:((x) < 0 ? 0: (x)))
-#define DGMM
+#define DGMM //half double 會以dgmm上的說明實作，註解後，使用bicubic法實作
 using namespace std;
 
 // constants
@@ -362,9 +362,9 @@ bool TargaImage::Quant_Populosity()//38秒
             int min_dis = INT_MAX;
             for (int g = 0;g < 256;g++) {
                 int tmp = sqrt(
-                    sqare(get<1>(popular[g]) - data[index_of_pixel(j, i, RED)]) +
-                    sqare(get<2>(popular[g]) - data[index_of_pixel(j, i, GREEN)]) +
-                    sqare(get<3>(popular[g]) - data[index_of_pixel(j, i, BLUE)]));
+                    square(get<1>(popular[g]) - data[index_of_pixel(j, i, RED)]) +
+                    square(get<2>(popular[g]) - data[index_of_pixel(j, i, GREEN)]) +
+                    square(get<3>(popular[g]) - data[index_of_pixel(j, i, BLUE)]));
                 if (tmp < min_dis)
                 {
                     min_dis = tmp;
@@ -886,6 +886,59 @@ bool TargaImage::Filter_Enhance()
     return true;
 }// Filter_Enhance
 
+void TargaImage::paintLayer(TargaImage& canvas, int R) {
+    vector<Stroke> S;
+    double** difference = new double*[height]{};// euclidean distance at every pixel
+    for (int i = 0;i < height;i++) {
+        difference[i] = new double[width] {};
+    }
+    for (int i = 0;i < width;i++) {
+        for (int j = 0;j < height;j++) {
+            int r1 = canvas.data[canvas.index_of_pixel(i, j, RED)];     int r2 = data[index_of_pixel(i, j, RED)];
+            int g1 = canvas.data[canvas.index_of_pixel(i, j, GREEN)];   int g2 = data[index_of_pixel(i, j, GREEN)];
+            int b1 = canvas.data[canvas.index_of_pixel(i, j, BLUE)];    int b2 = data[index_of_pixel(i, j, BLUE)];
+            difference[j][i] = sqrt(square(r1 - r2) + square(g1 - g2) + square(b1 - b2));// euclidean distance
+        }
+    }
+    double fg = 2;
+    int grid = fg * R;
+    int T = 15;
+    int halfG = grid < 4 ? 1 : grid / 2;
+    for (int x = halfG;x < width - halfG;x+= halfG) {
+        for (int y = halfG;y < height - halfG;y+= halfG) {
+            double areaError = 0.0f;
+            double max_err = 0.0f;
+            int max_err_x, max_err_y;
+            for (int i = x - halfG;i < x + halfG;i++) {
+                for (int j = y - halfG;j < y + halfG;j++) {
+                    areaError += difference[j][i];
+                    if (difference[j][i] > max_err) {
+                        max_err = difference[j][i];
+                        max_err_x = i;
+                        max_err_y = j;
+                    }
+                }
+            }
+            areaError /= square(grid);
+            if (areaError > T) {
+                S.push_back(Stroke(R, max_err_x, max_err_y,
+                    data[index_of_pixel(max_err_x, max_err_y, RED)],
+                    data[index_of_pixel(max_err_x, max_err_y, GREEN)],
+                    data[index_of_pixel(max_err_x, max_err_y, BLUE)],
+                    data[index_of_pixel(max_err_x, max_err_y, ALPHA)]));
+            }
+        }
+    }
+    while (S.size()) {
+        int rand_index = rand() % S.size();
+        canvas.Paint_Stroke(S[rand_index]);
+        S.erase(S.begin()+rand_index);
+    }
+    for (int i = 0;i < height;i++) {
+        delete[] difference[i];
+    }
+    delete[] difference;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -897,8 +950,18 @@ bool TargaImage::Filter_Enhance()
 ///////////////////////////////////////////////////////////////////////////////
 bool TargaImage::NPR_Paint()
 {
-    ClearToBlack();
-    return false;
+    int radius[] = { 11,9,7,3,1 };
+    TargaImage reference;
+    reference.data = new unsigned char[width * height * 4]{};reference.width = width;reference.height = height;
+    TargaImage canvas;
+    canvas.data = new unsigned char[width * height * 4]{};canvas.width = width;canvas.height = height;
+    for (int i = 0;i < (sizeof(radius) / sizeof(radius[0]));i++) {
+        memcpy(reference.data, data, width * height * 4 * sizeof(unsigned char));
+        reference.Filter_Gaussian_N(2 * radius[i] + 1);
+        reference.paintLayer(canvas, radius[i]);
+    }
+    memcpy(data,canvas.data, width * height * 4 * sizeof(unsigned char));//TargaImage有destructor，不能直接data = canvas.data;
+    return true;
 }
 
 
@@ -1110,7 +1173,7 @@ double bicubic_S(double x) {
 
     return 0.0f;
 }
-////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 //
 //      Scale the image dimensions by the given factor.  The given factor is 
