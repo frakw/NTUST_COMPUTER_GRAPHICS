@@ -67,6 +67,7 @@ class TargaImage
         bool Double_Size();
         bool Resize(double scale);
         bool Rotate(double angleDegrees);
+        void paintLayer(TargaImage& canvas, int R);
 
     private:
 	// helper function for format conversion
