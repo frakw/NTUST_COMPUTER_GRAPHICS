@@ -94,8 +94,8 @@
     <LibraryPath>D:\maochinn\Lib\FLTK\build\lib\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>D:\maochinn\Lib\FLTK\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\maochinn\Lib\FLTK\build\lib\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\lib\MazeVisibility-master\source\include;C:\lib\MazeVisibility-master\build;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\lib\MazeVisibility-master\source\lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -144,7 +144,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PreprocessorDefinitions>_XKEYCHECK_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_XKEYCHECK_H;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

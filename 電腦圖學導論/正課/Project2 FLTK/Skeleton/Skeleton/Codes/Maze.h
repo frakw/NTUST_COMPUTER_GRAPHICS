@@ -85,6 +85,7 @@ class Maze {
 		// corners of the window in which to draw.
 		void	Draw_Map(int, int, int, int);
 
+		void	Draw_Wall(const float[2], const float[2], const float[3]);
 		// Draws the viewer's cell and its neighbors in the map view of the maze.
 		// It is passed the minimum and maximum corners of the window in which
 		// to draw.
