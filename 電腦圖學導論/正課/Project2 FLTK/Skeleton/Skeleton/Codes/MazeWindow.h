@@ -22,7 +22,7 @@
 
 #include <Fl/Fl.h>
 #include <Fl/Fl_Gl_Window.h>
-
+#include "glm/mat4x4.hpp"
 #include "Maze.h"
 
 // Subclass the Fl_Gl_Window because we want to draw OpenGL in here.
@@ -63,6 +63,7 @@ class MazeWindow : public Fl_Gl_Window {
 							// pressed. A value of 1 means move up, a value of -1
 							// means move down. 0 means do nothing.
 		float   d_down;// The view direction when the mouse button was pushed
+		glm::mat4x4 matrix;
 
 };
 

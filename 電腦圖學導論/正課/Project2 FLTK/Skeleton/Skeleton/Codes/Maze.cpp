@@ -28,13 +28,23 @@
 #include <Fl/gl.h>
 #include <GL/glu.h>
 
+
+#include <glm/glm.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/matrix.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/vec4.hpp>
+#include <glm/vec3.hpp>
+#include<glm/geometric.hpp>
+
 const char Maze::X = 0;
 const char Maze::Y = 1;
 const char Maze::Z = 2;
 
 const float Maze::BUFFER = 0.1f;
 
-
+//extern glm::mat4x4 m;
 //**********************************************************************
 //
 // * Constructor for the maze exception
@@ -633,8 +643,9 @@ void Maze::
 Draw_View(const float focal_dist)
 //======================================================================
 {
+	//glMultMatrixf(matrix);
 	frame_num++;
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 	for (int i = 0; i < (int)this->num_edges; i++) {
 		float edge_start[2] = {
 			this->edges[i]->endpoints[Edge::START]->posn[Vertex::X],
@@ -646,32 +657,36 @@ Draw_View(const float focal_dist)
 		if (this->edges[i]->opaque)
 			Draw_Wall(edge_start, edge_end, color);
 	}
-
-	//for (int i = 0;i < num_cells;i++) {
-	//	for (int j = 0;j < 4;j++) {
-	//		if(this->cells[i]->Clip_To_Cell(,,,,BUFFER)!=NULL)
-	//		if (this->cells[i]->edges[j]->opaque) {
-	//			
-	//		}
-	//		else {
-	//			
-	//		}
-	//	}
-	//	this->cells[i]->counter = frame_num;
-	//}
 }
 
 void Maze::
 Draw_Wall(const float start[2], const float end[2], const float color[3]) {
+	glm::vec4 v0, v1, v2, v3;
 	float edge0[3] = { start[Y], 0.0f, start[X] };
 	float edge1[3] = { end[Y], 0.0f, end[X] };
 	glBegin(GL_POLYGON);
-	//glColor3f(0.0f, 1.0f, 0.0f);
+	//glPopMatrix();
+	//v0 = { edge0[X] ,1.0f,edge0[Z],1.0f };
+	//v0 = glGet * v0;
+	//v1 = { edge0[X] ,-1.0f,edge0[Z],1.0f };
+	//v1 = m * v1;
+	//v2 = { edge1[X] ,1.0f,edge1[Z],1.0f };
+	//v2 = m * v2;
+	//v3 = { edge1[X] ,-1.0f,edge1[Z],1.0f };
+	//v3 = m * v3;
+	//v0 /= abs(v0[3]);
+	//v1 /= abs(v1[3]);
+	//v2 /= abs(v2[3]);
+	//v3 /= abs(v3[3]);
 	glColor3fv(color);
-	glVertex3f(edge0[X], 1.0f, edge0[Z]);
-	glVertex3f(edge1[X], 1.0f, edge1[Z]);
-	glVertex3f(edge1[X], -1.0f, edge1[Z]);
-	glVertex3f(edge0[X], -1.0f, edge0[Z]);
+	glVertex4f(edge0[X], 1.0f, edge0[Z],1);
+	glVertex4f(edge1[X], 1.0f, edge1[Z],1);
+	glVertex4f(edge1[X], -1.0f, edge1[Z],1);
+	glVertex4f(edge0[X], -1.0f, edge0[Z],1);
+	//glVertex2f(v0[0], v0[1]);
+	//glVertex2f(v1[0], v1[1]);
+	//glVertex2f(v2[0], v2[1]);
+	//glVertex2f(v3[0], v3[1]);
 	glEnd();
 }
 

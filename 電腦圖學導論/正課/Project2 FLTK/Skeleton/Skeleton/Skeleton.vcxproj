@@ -23,11 +23,9 @@
     <ClCompile Include="Codes\Edge.cpp" />
     <ClCompile Include="Codes\LineSeg.cpp" />
     <ClCompile Include="Codes\MapWidget.cpp" />
-    <ClCompile Include="Codes\matrix.cpp" />
     <ClCompile Include="Codes\Maze.cpp" />
     <ClCompile Include="Codes\MazeWindow.cpp" />
     <ClCompile Include="Codes\RunMaze.cpp" />
-    <ClCompile Include="Codes\vector.cpp" />
     <ClCompile Include="Codes\Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -35,11 +33,9 @@
     <ClInclude Include="Codes\Edge.h" />
     <ClInclude Include="Codes\LineSeg.h" />
     <ClInclude Include="Codes\MapWidget.h" />
-    <ClInclude Include="Codes\matrix.h" />
     <ClInclude Include="Codes\Maze.h" />
     <ClInclude Include="Codes\MazeWindow.h" />
     <ClInclude Include="Codes\Point.h" />
-    <ClInclude Include="Codes\vector.h" />
     <ClInclude Include="Codes\Vertex.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -152,6 +148,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>_XKEYCHECK_H;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project2 FLTK\Skeleton\Skeleton\glm</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
