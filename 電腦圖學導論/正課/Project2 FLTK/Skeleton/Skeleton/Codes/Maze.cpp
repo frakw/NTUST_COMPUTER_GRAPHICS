@@ -633,6 +633,7 @@ void Maze::
 Draw_View(const float focal_dist)
 //======================================================================
 {
+	frame_num++;
 	glEnable(GL_DEPTH_TEST);
 	for (int i = 0; i < (int)this->num_edges; i++) {
 		float edge_start[2] = {
@@ -645,7 +646,19 @@ Draw_View(const float focal_dist)
 		if (this->edges[i]->opaque)
 			Draw_Wall(edge_start, edge_end, color);
 	}
-	frame_num++;
+
+	//for (int i = 0;i < num_cells;i++) {
+	//	for (int j = 0;j < 4;j++) {
+	//		if(this->cells[i]->Clip_To_Cell(,,,,BUFFER)!=NULL)
+	//		if (this->cells[i]->edges[j]->opaque) {
+	//			
+	//		}
+	//		else {
+	//			
+	//		}
+	//	}
+	//	this->cells[i]->counter = frame_num;
+	//}
 }
 
 void Maze::

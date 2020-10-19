@@ -23,9 +23,11 @@
     <ClCompile Include="Codes\Edge.cpp" />
     <ClCompile Include="Codes\LineSeg.cpp" />
     <ClCompile Include="Codes\MapWidget.cpp" />
+    <ClCompile Include="Codes\matrix.cpp" />
     <ClCompile Include="Codes\Maze.cpp" />
     <ClCompile Include="Codes\MazeWindow.cpp" />
     <ClCompile Include="Codes\RunMaze.cpp" />
+    <ClCompile Include="Codes\vector.cpp" />
     <ClCompile Include="Codes\Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -33,9 +35,11 @@
     <ClInclude Include="Codes\Edge.h" />
     <ClInclude Include="Codes\LineSeg.h" />
     <ClInclude Include="Codes\MapWidget.h" />
+    <ClInclude Include="Codes\matrix.h" />
     <ClInclude Include="Codes\Maze.h" />
     <ClInclude Include="Codes\MazeWindow.h" />
     <ClInclude Include="Codes\Point.h" />
+    <ClInclude Include="Codes\vector.h" />
     <ClInclude Include="Codes\Vertex.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -90,8 +94,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\maochinn\Lib\FLTK\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\maochinn\Lib\FLTK\build\lib\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\lib\MazeVisibility-master\source\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\lib\MazeVisibility-master\build\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>C:\lib\MazeVisibility-master\source\include;C:\lib\MazeVisibility-master\build;$(IncludePath)</IncludePath>
@@ -115,6 +119,8 @@
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>_XKEYCHECK_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
