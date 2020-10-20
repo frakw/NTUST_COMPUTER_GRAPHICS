@@ -1,19 +1,14 @@
 /************************************************************************
-     File:        Maze.cpp
-
-     Author:     
-                  Stephen Chenney, schenney@cs.wisc.edu
-     Modifier
-                  Yu-Chi Lai, yu-chi@cs.wisc.edu
-
-     Comment:    
+	 File:        Maze.cpp
+	 Author:
+				  Stephen Chenney, schenney@cs.wisc.edu
+	 Modifier
+				  Yu-Chi Lai, yu-chi@cs.wisc.edu
+	 Comment:
 						(c) 2001-2002 Stephen Chenney, University of Wisconsin at Madison
-
 						Class header file for Maze class. Manages the maze.
-		
 
-     Platform:    Visio Studio.Net 2003 (converted to 2005)
-
+	 Platform:    Visio Studio.Net 2003 (converted to 2005)
 *************************************************************************/
 
 #include "Maze.h"
@@ -29,14 +24,6 @@
 #include <GL/glu.h>
 
 
-#include <glm/glm.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/matrix.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/vec4.hpp>
-#include <glm/vec3.hpp>
-#include<glm/geometric.hpp>
 
 const char Maze::X = 0;
 const char Maze::Y = 1;
@@ -50,7 +37,7 @@ const float Maze::BUFFER = 0.1f;
 // * Constructor for the maze exception
 //======================================================================
 MazeException::
-MazeException(const char *m)
+MazeException(const char* m)
 //======================================================================
 {
 	message = new char[strlen(m) + 4];
@@ -90,26 +77,26 @@ Maze(const int nx, const int ny, const float sx, const float sy)
 // * Construtor to read in precreated maze
 //======================================================================
 Maze::
-Maze(const char *filename)
+Maze(const char* filename)
 //======================================================================
 {
 	char    err_string[128];
-	FILE    *f;
+	FILE* f;
 	int	    i;
 
 	// Open the file
-	if ( ! ( f = fopen(filename, "r") ) )
+	if (!(f = fopen(filename, "r")))
 		throw new MazeException("Maze: Couldn't open file");
 
 	// Get the total number of vertices
-	if ( fscanf(f, "%d", &num_vertices) != 1 )
+	if (fscanf(f, "%d", &num_vertices) != 1)
 		throw new MazeException("Maze: Couldn't read number of vertices");
 
 	// Read in each vertices
-	vertices = new Vertex*[num_vertices];
-	for ( i = 0 ; i < num_vertices ; i++ ) {
+	vertices = new Vertex * [num_vertices];
+	for (i = 0; i < num_vertices; i++) {
 		float x, y;
-		if ( fscanf(f, "%g %g", &x, &y) != 2 )	{
+		if (fscanf(f, "%g %g", &x, &y) != 2) {
 			sprintf(err_string, "Maze: Couldn't read vertex number %d", i);
 			throw new MazeException(err_string);
 		}
@@ -117,16 +104,16 @@ Maze(const char *filename)
 	}
 
 	// Get the number of edges
-	if ( fscanf(f, "%d", &num_edges) != 1 )
+	if (fscanf(f, "%d", &num_edges) != 1)
 		throw new MazeException("Maze: Couldn't read number of edges");
 
 	// read in all edges
-	edges = new Edge*[num_edges];
-	for ( i = 0 ; i < num_edges ; i++ ){
+	edges = new Edge * [num_edges];
+	for (i = 0; i < num_edges; i++) {
 		int     vs, ve, cl, cr, o;
 		float	r, g, b;
-		if ( fscanf(f, "%d %d %d %d %d %g %g %g",
-						&vs, &ve, &cl, &cr, &o, &r, &g, &b) != 8) {
+		if (fscanf(f, "%d %d %d %d %d %g %g %g",
+			&vs, &ve, &cl, &cr, &o, &r, &g, &b) != 8) {
 			sprintf(err_string, "Maze: Couldn't read edge number %d", i);
 			throw new MazeException(err_string);
 		}
@@ -137,84 +124,84 @@ Maze(const char *filename)
 	}
 
 	// Read in the number of cells
-	if ( fscanf(f, "%d", &num_cells) != 1 )
+	if (fscanf(f, "%d", &num_cells) != 1)
 		throw new MazeException("Maze: Couldn't read number of cells");
 
 
 	// Read in all cells
-	cells = new Cell*[num_cells];
-	for ( i = 0 ; i < num_cells ; i++ )	{
+	cells = new Cell * [num_cells];
+	for (i = 0; i < num_cells; i++) {
 		int epx, epy, emx, emy;
-		if ( fscanf(f, "%d %d %d %d", &epx, &epy, &emx, &emy) != 4 ){
+		if (fscanf(f, "%d %d %d %d", &epx, &epy, &emx, &emy) != 4) {
 			sprintf(err_string, "Maze: Couldn't read cell number %d", i);
 			throw new MazeException(err_string);
 		}
 		cells[i] = new Cell(i, epx >= 0 ? edges[epx] : NULL,
-									epy >= 0 ? edges[epy] : NULL,
-									emx >= 0 ? edges[emx] : NULL,
-									emy >= 0 ? edges[emy] : NULL);
-		if ( cells[i]->edges[0] ) {
-			if ( cells[i]->edges[0]->neighbors[0] == (Cell*)i )
+			epy >= 0 ? edges[epy] : NULL,
+			emx >= 0 ? edges[emx] : NULL,
+			emy >= 0 ? edges[emy] : NULL);
+		if (cells[i]->edges[0]) {
+			if (cells[i]->edges[0]->neighbors[0] == (Cell*)i)
 				cells[i]->edges[0]->neighbors[0] = cells[i];
-			else if ( cells[i]->edges[0]->neighbors[1] == (Cell*)i )
+			else if (cells[i]->edges[0]->neighbors[1] == (Cell*)i)
 				cells[i]->edges[0]->neighbors[1] = cells[i];
-			else	{
+			else {
 				sprintf(err_string,
-						  "Maze: Cell %d not one of edge %d's neighbors",
-							i, cells[i]->edges[0]->index);
+					"Maze: Cell %d not one of edge %d's neighbors",
+					i, cells[i]->edges[0]->index);
 				throw new MazeException(err_string);
 			}
 		}
 
-		if ( cells[i]->edges[1] )	{
-			if ( cells[i]->edges[1]->neighbors[0] == (Cell*)i )
+		if (cells[i]->edges[1]) {
+			if (cells[i]->edges[1]->neighbors[0] == (Cell*)i)
 				cells[i]->edges[1]->neighbors[0] = cells[i];
-			else if ( cells[i]->edges[1]->neighbors[1] == (Cell*)i )
+			else if (cells[i]->edges[1]->neighbors[1] == (Cell*)i)
 				cells[i]->edges[1]->neighbors[1] = cells[i];
 			else {
 				sprintf(err_string,
-							"Maze: Cell %d not one of edge %d's neighbors",
-							i, cells[i]->edges[1]->index);
+					"Maze: Cell %d not one of edge %d's neighbors",
+					i, cells[i]->edges[1]->index);
 				throw new MazeException(err_string);
 			}
 		}
-		if ( cells[i]->edges[2] ) {
-			if ( cells[i]->edges[2]->neighbors[0] == (Cell*)i )
+		if (cells[i]->edges[2]) {
+			if (cells[i]->edges[2]->neighbors[0] == (Cell*)i)
 				cells[i]->edges[2]->neighbors[0] = cells[i];
-			else if ( cells[i]->edges[2]->neighbors[1] == (Cell*)i )
+			else if (cells[i]->edges[2]->neighbors[1] == (Cell*)i)
 				cells[i]->edges[2]->neighbors[1] = cells[i];
-			else	{
+			else {
 				sprintf(err_string,
-							"Maze: Cell %d not one of edge %d's neighbors",
-							i, cells[i]->edges[2]->index);
+					"Maze: Cell %d not one of edge %d's neighbors",
+					i, cells[i]->edges[2]->index);
 				throw new MazeException(err_string);
 			}
 		}
-		if ( cells[i]->edges[3] ) {
-			if ( cells[i]->edges[3]->neighbors[0] == (Cell*)i )
+		if (cells[i]->edges[3]) {
+			if (cells[i]->edges[3]->neighbors[0] == (Cell*)i)
 				cells[i]->edges[3]->neighbors[0] = cells[i];
-			else if ( cells[i]->edges[3]->neighbors[1] == (Cell*)i )
+			else if (cells[i]->edges[3]->neighbors[1] == (Cell*)i)
 				cells[i]->edges[3]->neighbors[1] = cells[i];
-			else	{
+			else {
 				sprintf(err_string,
-							"Maze: Cell %d not one of edge %d's neighbors",
-							i, cells[i]->edges[3]->index);
+					"Maze: Cell %d not one of edge %d's neighbors",
+					i, cells[i]->edges[3]->index);
 				throw new MazeException(err_string);
 			}
 		}
 	}
 
-	if ( fscanf(f, "%g %g %g %g %g",
-					 &(viewer_posn[X]), &(viewer_posn[Y]), &(viewer_posn[Z]),
-					 &(viewer_dir), &(viewer_fov)) != 5 )
+	if (fscanf(f, "%g %g %g %g %g",
+		&(viewer_posn[X]), &(viewer_posn[Y]), &(viewer_posn[Z]),
+		&(viewer_dir), &(viewer_fov)) != 5)
 		throw new MazeException("Maze: Error reading view information.");
 
 	// Some edges have no neighbor on one side, so be sure to set their
 	// pointers to NULL. (They were set at -1 by the save/load process.)
-	for ( i = 0 ; i < num_edges ; i++ )	{
-		if ( edges[i]->neighbors[0] == (Cell*)-1 )
+	for (i = 0; i < num_edges; i++) {
+		if (edges[i]->neighbors[0] == (Cell*)-1)
 			edges[i]->neighbors[0] = NULL;
-		if ( edges[i]->neighbors[1] == (Cell*)-1 )
+		if (edges[i]->neighbors[1] == (Cell*)-1)
 			edges[i]->neighbors[1] = NULL;
 	}
 
@@ -240,15 +227,15 @@ Maze::
 {
 	int i;
 
-	for ( i = 0 ; i < num_vertices ; i++ )
+	for (i = 0; i < num_vertices; i++)
 		delete vertices[i];
 	delete[] vertices;
 
-	for ( i = 0 ; i < num_edges ; i++ )
+	for (i = 0; i < num_edges; i++)
 		delete edges[i];
 	delete[] edges;
 
-	for ( i = 0 ; i < num_cells ; i++ )
+	for (i = 0; i < num_cells; i++)
 		delete cells[i];
 	delete[] cells;
 }
@@ -260,8 +247,8 @@ Maze::
 //======================================================================
 void Maze::
 Build_Connectivity(const int num_x, const int num_y,
-                   const float sx, const float sy)
-//======================================================================
+	const float sx, const float sy)
+	//======================================================================
 {
 	int	i, j, k;
 	int edge_i;
@@ -270,11 +257,11 @@ Build_Connectivity(const int num_x, const int num_y,
 	// edges with vertices and faces with edges.
 
 	// Allocate and position the vertices.
-	num_vertices = ( num_x + 1 ) * ( num_y + 1 );
-	vertices = new Vertex*[num_vertices];
+	num_vertices = (num_x + 1) * (num_y + 1);
+	vertices = new Vertex * [num_vertices];
 	k = 0;
-	for ( i = 0 ; i < num_y + 1 ; i++ ) {
-		for ( j = 0 ; j < num_x + 1 ; j++ )	{
+	for (i = 0; i < num_y + 1; i++) {
+		for (j = 0; j < num_x + 1; j++) {
 			vertices[k] = new Vertex(k, j * sx, i * sy);
 			k++;
 		}
@@ -283,44 +270,44 @@ Build_Connectivity(const int num_x, const int num_y,
 	// Allocate the edges, and associate them with their vertices.
 	// Edges in the x direction get the first num_x * ( num_y + 1 ) indices,
 	// edges in the y direction get the rest.
-	num_edges = (num_x+1)*num_y + (num_y+1)*num_x;
-	edges = new Edge*[num_edges];
+	num_edges = (num_x + 1) * num_y + (num_y + 1) * num_x;
+	edges = new Edge * [num_edges];
 	k = 0;
-	for ( i = 0 ; i < num_y + 1 ; i++ ) {
-		int row = i * ( num_x + 1 );
-		for ( j = 0 ; j < num_x ; j++ ) {
+	for (i = 0; i < num_y + 1; i++) {
+		int row = i * (num_x + 1);
+		for (j = 0; j < num_x; j++) {
 			int vs = row + j;
 			int ve = row + j + 1;
 			edges[k] = new Edge(k, vertices[vs], vertices[ve],
-			rand() / (float)RAND_MAX * 0.5f + 0.25f,
-			rand() / (float)RAND_MAX * 0.5f + 0.25f,
-			rand() / (float)RAND_MAX * 0.5f + 0.25f);
+				rand() / (float)RAND_MAX * 0.5f + 0.25f,
+				rand() / (float)RAND_MAX * 0.5f + 0.25f,
+				rand() / (float)RAND_MAX * 0.5f + 0.25f);
 			k++;
 		}
 	}
 
 	edge_i = k;
-	for ( i = 0 ; i < num_y ; i++ ) {
-		int row = i * ( num_x + 1 );
-		for ( j = 0 ; j < num_x + 1 ; j++ )	{
+	for (i = 0; i < num_y; i++) {
+		int row = i * (num_x + 1);
+		for (j = 0; j < num_x + 1; j++) {
 			int vs = row + j;
 			int ve = row + j + num_x + 1;
 			edges[k] = new Edge(k, vertices[vs], vertices[ve],
-			rand() / (float)RAND_MAX * 0.5f + 0.25f,
-			rand() / (float)RAND_MAX * 0.5f + 0.25f,
-			rand() / (float)RAND_MAX * 0.5f + 0.25f);
+				rand() / (float)RAND_MAX * 0.5f + 0.25f,
+				rand() / (float)RAND_MAX * 0.5f + 0.25f,
+				rand() / (float)RAND_MAX * 0.5f + 0.25f);
 			k++;
 		}
 	}
 
 	// Allocate the cells and associate them with their edges.
 	num_cells = num_x * num_y;
-	cells = new Cell*[num_cells];
+	cells = new Cell * [num_cells];
 	k = 0;
-	for ( i = 0 ; i < num_y ; i++ ) {
-		int row_x = i * ( num_x + 1 );
+	for (i = 0; i < num_y; i++) {
+		int row_x = i * (num_x + 1);
 		int row_y = i * num_x;
-		for ( j = 0 ; j < num_x ; j++ )	{
+		for (j = 0; j < num_x; j++) {
 			int px = edge_i + row_x + 1 + j;
 			int py = row_y + j + num_x;
 			int mx = edge_i + row_x + j;
@@ -342,7 +329,7 @@ Build_Connectivity(const int num_x, const int num_y,
 //   grow the maze.
 //======================================================================
 static void
-Add_To_Available(Cell *cell, int *available, int &num_available)
+Add_To_Available(Cell* cell, int* available, int& num_available)
 //======================================================================
 {
 	int i, j;
@@ -350,17 +337,17 @@ Add_To_Available(Cell *cell, int *available, int &num_available)
 	// Add edges from cell to the set that are available for removal to
 	// grow the maze.
 
-	for ( i = 0 ; i < 4 ; i++ ){
-		Cell    *neighbor = cell->edges[i]->Neighbor(cell);
+	for (i = 0; i < 4; i++) {
+		Cell* neighbor = cell->edges[i]->Neighbor(cell);
 
-		if ( neighbor && ! neighbor->counter )	{
+		if (neighbor && !neighbor->counter) {
 			int candidate = cell->edges[i]->index;
-			for ( j = 0 ; j < num_available ; j++ )
-				if ( candidate == available[j] ) {
+			for (j = 0; j < num_available; j++)
+				if (candidate == available[j]) {
 					printf("Breaking early\n");
 					break;
-			}
-			if ( j == num_available )  {
+				}
+			if (j == num_available) {
 				available[num_available] = candidate;
 				num_available++;
 			}
@@ -381,9 +368,9 @@ void Maze::
 Build_Maze()
 //======================================================================
 {
-	Cell    *to_expand;
+	Cell* to_expand;
 	int     index;
-	int     *available = new int[num_edges];
+	int* available = new int[num_edges];
 	int     num_available = 0;
 	int	    num_visited;
 	int	    i;
@@ -397,7 +384,7 @@ Build_Maze()
 	num_visited = 1;
 
 	// Join cells up by making edges opaque.
-	while ( num_visited < num_cells && num_available > 0 ) {
+	while (num_visited < num_cells && num_available > 0) {
 		int ei;
 
 		index = (int)floor((rand() / (float)RAND_MAX) * num_available);
@@ -405,24 +392,24 @@ Build_Maze()
 
 		ei = available[index];
 
-		if ( edges[ei]->neighbors[0] && 
-			 !edges[ei]->neighbors[0]->counter )
+		if (edges[ei]->neighbors[0] &&
+			!edges[ei]->neighbors[0]->counter)
 			to_expand = edges[ei]->neighbors[0];
-		else if ( edges[ei]->neighbors[1] && 
-			 !edges[ei]->neighbors[1]->counter )
+		else if (edges[ei]->neighbors[1] &&
+			!edges[ei]->neighbors[1]->counter)
 			to_expand = edges[ei]->neighbors[1];
 
-		if ( to_expand ) {
+		if (to_expand) {
 			edges[ei]->opaque = false;
 			Add_To_Available(to_expand, available, num_available);
 			num_visited++;
 		}
 
-		available[index] = available[num_available-1];
+		available[index] = available[num_available - 1];
 		num_available--;
 	}
 
-	for ( i = 0 ; i < num_cells ; i++ )
+	for (i = 0; i < num_cells; i++)
 		cells[i]->counter = 0;
 }
 
@@ -442,16 +429,16 @@ Set_Extents(void)
 	max_xp = vertices[0]->posn[Vertex::X];
 	min_yp = vertices[0]->posn[Vertex::Y];
 	max_yp = vertices[0]->posn[Vertex::Y];
-	for ( i = 1 ; i < num_vertices ; i++ ) {
-		if ( vertices[i]->posn[Vertex::X] > max_xp )
-			 max_xp = vertices[i]->posn[Vertex::X];
-		if ( vertices[i]->posn[Vertex::X] < min_xp )
-			 min_xp = vertices[i]->posn[Vertex::X];
-		if ( vertices[i]->posn[Vertex::Y] > max_yp )
-			 max_yp = vertices[i]->posn[Vertex::Y];
-		if ( vertices[i]->posn[Vertex::Y] < min_yp )
-			 min_yp = vertices[i]->posn[Vertex::Y];
-    }
+	for (i = 1; i < num_vertices; i++) {
+		if (vertices[i]->posn[Vertex::X] > max_xp)
+			max_xp = vertices[i]->posn[Vertex::X];
+		if (vertices[i]->posn[Vertex::X] < min_xp)
+			min_xp = vertices[i]->posn[Vertex::X];
+		if (vertices[i]->posn[Vertex::Y] > max_yp)
+			max_yp = vertices[i]->posn[Vertex::Y];
+		if (vertices[i]->posn[Vertex::Y] < min_yp)
+			min_yp = vertices[i]->posn[Vertex::Y];
+	}
 }
 
 
@@ -466,23 +453,23 @@ Set_Extents(void)
 //   new cell).
 //======================================================================
 void Maze::
-Find_View_Cell(Cell *seed_cell)
+Find_View_Cell(Cell* seed_cell)
 //======================================================================
 {
-	Cell    *new_cell;
+	Cell* new_cell;
 
 	// 
-	while ( ! ( seed_cell->Point_In_Cell(viewer_posn[X], viewer_posn[Y],
-													 viewer_posn[Z], new_cell) ) ) {
-		if ( new_cell == 0 ) {
+	while (!(seed_cell->Point_In_Cell(viewer_posn[X], viewer_posn[Y],
+		viewer_posn[Z], new_cell))) {
+		if (new_cell == 0) {
 			// The viewer is outside the top or bottom of the maze.
 			throw new MazeException("Maze: View not in maze\n");
 		}
 
 		seed_cell = new_cell;
-    }
-    
-    view_cell = seed_cell;
+	}
+
+	view_cell = seed_cell;
 }
 
 
@@ -496,7 +483,7 @@ void Maze::
 Move_View_Posn(const float dx, const float dy, const float dz)
 //======================================================================
 {
-	Cell    *new_cell;
+	Cell* new_cell;
 	float   xs, ys, zs, xe, ye, ze;
 
 	// Move the viewer by the given amount. This does collision testing to
@@ -512,9 +499,9 @@ Move_View_Posn(const float dx, const float dy, const float dz)
 	ze = zs + dz;
 
 	// Fix the z to keep it in the maze.
-	if ( ze > 1.0f - BUFFER )
+	if (ze > 1.0f - BUFFER)
 		ze = 1.0f - BUFFER;
-	if ( ze < BUFFER - 1.0f )
+	if (ze < BUFFER - 1.0f)
 		ze = BUFFER - 1.0f;
 
 	// Clip_To_Cell clips the motion segment to the view_cell if the
@@ -524,7 +511,7 @@ Move_View_Posn(const float dx, const float dy, const float dz)
 	// and it returns the cell the viewer is entering. We keep going
 	// until Clip_To_Cell returns NULL, meaning we've done as much of
 	// the motion as is possible without passing through walls.
-	while ( ( new_cell = view_cell->Clip_To_Cell(xs, ys, xe, ye, BUFFER) ) )
+	while ((new_cell = view_cell->Clip_To_Cell(xs, ys, xe, ye, BUFFER)))
 		view_cell = new_cell;
 
 	// The viewer is at the end of the motion segment, which may have
@@ -544,17 +531,17 @@ Set_View_Posn(float x, float y, float z)
 {
 	// First make sure it's in some cell.
 	// This assumes that the maze is rectangular.
-	if ( x < min_xp + BUFFER )
+	if (x < min_xp + BUFFER)
 		x = min_xp + BUFFER;
-	if ( x > max_xp - BUFFER )
+	if (x > max_xp - BUFFER)
 		x = max_xp - BUFFER;
-	if ( y < min_yp + BUFFER )
+	if (y < min_yp + BUFFER)
 		y = min_yp + BUFFER;
-	if ( y > max_yp - BUFFER )
+	if (y > max_yp - BUFFER)
 		y = max_yp - BUFFER;
-	if ( z < -1.0f + BUFFER )
+	if (z < -1.0f + BUFFER)
 		z = -1.0f + BUFFER;
-	if ( z > 1.0f - BUFFER )
+	if (z > 1.0f - BUFFER)
 		z = 1.0f - BUFFER;
 
 	viewer_posn[X] = x;
@@ -604,17 +591,17 @@ Draw_Map(int min_x, int min_y, int max_x, int max_y)
 	int	    i;
 
 	// Figure out scaling factors and the effective height of the window.
-	scale_x = ( max_x - min_x - 10 ) / ( max_xp - min_xp );
-	scale_y = ( max_y - min_y - 10 ) / ( max_yp - min_yp );
+	scale_x = (max_x - min_x - 10) / (max_xp - min_xp);
+	scale_y = (max_y - min_y - 10) / (max_yp - min_yp);
 	scale = scale_x > scale_y ? scale_y : scale_x;
-	height = (int)ceil(scale * ( max_yp - min_yp ));
+	height = (int)ceil(scale * (max_yp - min_yp));
 
 	min_x += 5;
 	min_y += 5;
 
 	// Draw all the opaque edges.
-	for ( i = 0 ; i < num_edges ; i++ )
-		if ( edges[i]->opaque )	{
+	for (i = 0; i < num_edges; i++)
+		if (edges[i]->opaque) {
 			float   x1, y1, x2, y2;
 
 			x1 = edges[i]->endpoints[Edge::START]->posn[Vertex::X];
@@ -623,13 +610,13 @@ Draw_Map(int min_x, int min_y, int max_x, int max_y)
 			y2 = edges[i]->endpoints[Edge::END]->posn[Vertex::Y];
 
 			fl_color((unsigned char)floor(edges[i]->color[0] * 255.0),
-					 (unsigned char)floor(edges[i]->color[1] * 255.0),
-					 (unsigned char)floor(edges[i]->color[2] * 255.0));
+				(unsigned char)floor(edges[i]->color[1] * 255.0),
+				(unsigned char)floor(edges[i]->color[2] * 255.0));
 			fl_line_style(FL_SOLID);
 			fl_line(min_x + (int)floor((x1 - min_xp) * scale),
-					  min_y + height - (int)floor((y1 - min_yp) * scale),
-					  min_x + (int)floor((x2 - min_xp) * scale),
-					  min_y + height - (int)floor((y2 - min_yp) * scale));
+				min_y + height - (int)floor((y1 - min_yp) * scale),
+				min_x + (int)floor((x2 - min_xp) * scale),
+				min_y + height - (int)floor((y2 - min_yp) * scale));
 		}
 }
 
@@ -661,7 +648,6 @@ Draw_View(const float focal_dist)
 
 void Maze::
 Draw_Wall(const float start[2], const float end[2], const float color[3]) {
-	glm::vec4 v0, v1, v2, v3;
 	float edge0[3] = { start[Y], 0.0f, start[X] };
 	float edge1[3] = { end[Y], 0.0f, end[X] };
 	glBegin(GL_POLYGON);
@@ -679,10 +665,10 @@ Draw_Wall(const float start[2], const float end[2], const float color[3]) {
 	//v2 /= abs(v2[3]);
 	//v3 /= abs(v3[3]);
 	glColor3fv(color);
-	glVertex4f(edge0[X], 1.0f, edge0[Z],1);
-	glVertex4f(edge1[X], 1.0f, edge1[Z],1);
-	glVertex4f(edge1[X], -1.0f, edge1[Z],1);
-	glVertex4f(edge0[X], -1.0f, edge0[Z],1);
+	glVertex4f(edge0[X], 1.0f, edge0[Z], 1);
+	glVertex4f(edge1[X], 1.0f, edge1[Z], 1);
+	glVertex4f(edge1[X], -1.0f, edge1[Z], 1);
+	glVertex4f(edge0[X], -1.0f, edge0[Z], 1);
 	//glVertex2f(v0[0], v0[1]);
 	//glVertex2f(v1[0], v1[1]);
 	//glVertex2f(v2[0], v2[1]);
@@ -705,33 +691,33 @@ Draw_Frustum(int min_x, int min_y, int max_x, int max_y)
 
 	// Draws the view frustum in the map. Sets up all the same viewing
 	// parameters as draw().
-	scale_x	= ( max_x - min_x - 10 ) / ( max_xp - min_xp );
-	scale_y	= ( max_y - min_y - 10 ) / ( max_yp - min_yp );
-	scale		= scale_x > scale_y ? scale_y : scale_x;
-	height	= (int)ceil(scale * ( max_yp - min_yp ));
+	scale_x = (max_x - min_x - 10) / (max_xp - min_xp);
+	scale_y = (max_y - min_y - 10) / (max_yp - min_yp);
+	scale = scale_x > scale_y ? scale_y : scale_x;
+	height = (int)ceil(scale * (max_yp - min_yp));
 
 	min_x += 5;
 	min_y += 5;
 
-	view_x = ( viewer_posn[X] - min_xp ) * scale;
-	view_y = ( viewer_posn[Y] - min_yp ) * scale;
-	fl_line(min_x + (int)floor(view_x + 
-			  cos(To_Radians(viewer_dir+viewer_fov / 2.0)) * scale),
-			  min_y + height- 
-			  (int)floor(view_y + 
-							 sin(To_Radians(viewer_dir+viewer_fov / 2.0)) * 
-							 scale),
-				min_x + (int)floor(view_x),
-				min_y + height - (int)floor(view_y));
-	fl_line(min_x + (int)floor(view_x + 
-										cos(To_Radians(viewer_dir-viewer_fov / 2.0))	* 
-										scale),
-				min_y + height- 
-				(int)floor(view_y + sin(To_Radians(viewer_dir-viewer_fov / 2.0)) *
-				scale),
-				min_x + (int)floor(view_x),
-				min_y + height - (int)floor(view_y));
-	}
+	view_x = (viewer_posn[X] - min_xp) * scale;
+	view_y = (viewer_posn[Y] - min_yp) * scale;
+	fl_line(min_x + (int)floor(view_x +
+		cos(To_Radians(viewer_dir + viewer_fov / 2.0)) * scale),
+		min_y + height -
+		(int)floor(view_y +
+			sin(To_Radians(viewer_dir + viewer_fov / 2.0)) *
+			scale),
+		min_x + (int)floor(view_x),
+		min_y + height - (int)floor(view_y));
+	fl_line(min_x + (int)floor(view_x +
+		cos(To_Radians(viewer_dir - viewer_fov / 2.0)) *
+		scale),
+		min_y + height -
+		(int)floor(view_y + sin(To_Radians(viewer_dir - viewer_fov / 2.0)) *
+			scale),
+		min_x + (int)floor(view_x),
+		min_y + height - (int)floor(view_y));
+}
 
 
 //**********************************************************************
@@ -753,22 +739,22 @@ Draw_Neighbors(int min_x, int min_y, int max_x, int max_y)
 	// otherwise drawing the edge. Every edge is shared, so drawing the
 	// neighbors' edges also draws the view cell's edges.
 
-	scale_x = ( max_x - min_x - 10 ) / ( max_xp - min_xp );
-	scale_y = ( max_y - min_y - 10 ) / ( max_yp - min_yp );
+	scale_x = (max_x - min_x - 10) / (max_xp - min_xp);
+	scale_y = (max_y - min_y - 10) / (max_yp - min_yp);
 	scale = scale_x > scale_y ? scale_y : scale_x;
-	height = (int)ceil(scale * ( max_yp - min_yp ));
+	height = (int)ceil(scale * (max_yp - min_yp));
 
 	min_x += 5;
 	min_y += 5;
 
-	for ( i = 0 ; i < 4 ; i++ )   {
-		Cell	*neighbor = view_cell->edges[i]->Neighbor(view_cell);
+	for (i = 0; i < 4; i++) {
+		Cell* neighbor = view_cell->edges[i]->Neighbor(view_cell);
 
-		if ( neighbor ){
-			for ( j = 0 ; j < 4 ; j++ ){
-				Edge    *e = neighbor->edges[j];
+		if (neighbor) {
+			for (j = 0; j < 4; j++) {
+				Edge* e = neighbor->edges[j];
 
-				if ( e->opaque )	{
+				if (e->opaque) {
 					float   x1, y1, x2, y2;
 
 					x1 = e->endpoints[Edge::START]->posn[Vertex::X];
@@ -777,20 +763,20 @@ Draw_Neighbors(int min_x, int min_y, int max_x, int max_y)
 					y2 = e->endpoints[Edge::END]->posn[Vertex::Y];
 
 					fl_color((unsigned char)floor(e->color[0] * 255.0),
-							  (unsigned char)floor(e->color[1] * 255.0),
-							  (unsigned char)floor(e->color[2] * 255.0));
+						(unsigned char)floor(e->color[1] * 255.0),
+						(unsigned char)floor(e->color[2] * 255.0));
 					fl_line_style(FL_SOLID);
-					fl_line( min_x + (int)floor((x1 - min_xp) * scale),
-							 min_y + height - (int)floor((y1 - min_yp) * scale),
-							 min_x + (int)floor((x2 - min_xp) * scale),
-							 min_y + height - (int)floor((y2 - min_yp) * scale));
+					fl_line(min_x + (int)floor((x1 - min_xp) * scale),
+						min_y + height - (int)floor((y1 - min_yp) * scale),
+						min_x + (int)floor((x2 - min_xp) * scale),
+						min_y + height - (int)floor((y2 - min_yp) * scale));
 				}
 			}
 		}
 		else {
-			Edge    *e = view_cell->edges[i];
+			Edge* e = view_cell->edges[i];
 
-			if ( e->opaque ){
+			if (e->opaque) {
 				float   x1, y1, x2, y2;
 
 				x1 = e->endpoints[Edge::START]->posn[Vertex::X];
@@ -799,14 +785,14 @@ Draw_Neighbors(int min_x, int min_y, int max_x, int max_y)
 				y2 = e->endpoints[Edge::END]->posn[Vertex::Y];
 
 				fl_color((unsigned char)floor(e->color[0] * 255.0),
-							 (unsigned char)floor(e->color[1] * 255.0),
-							 (unsigned char)floor(e->color[2] * 255.0));
+					(unsigned char)floor(e->color[1] * 255.0),
+					(unsigned char)floor(e->color[2] * 255.0));
 				fl_line_style(FL_SOLID);
 				fl_line(min_x + (int)floor((x1 - min_xp) * scale),
-							min_y + height - (int)floor((y1 - min_yp) * scale),
-							min_x + (int)floor((x2 - min_xp) * scale),
-							min_y + height - (int)floor((y2 - min_yp) * scale));
-			 }
+					min_y + height - (int)floor((y1 - min_yp) * scale),
+					min_x + (int)floor((x2 - min_xp) * scale),
+					min_y + height - (int)floor((y2 - min_yp) * scale));
+			}
 		}
 	}
 }
@@ -817,47 +803,47 @@ Draw_Neighbors(int min_x, int min_y, int max_x, int max_y)
 // * Save the maze to a file of the given name.
 //======================================================================
 bool Maze::
-Save(const char *filename)
+Save(const char* filename)
 //======================================================================
 {
-	FILE    *f = fopen(filename, "w");
+	FILE* f = fopen(filename, "w");
 	int	    i;
 
 	// Dump everything to a file of the given name. Returns false if it
 	// couldn't open the file. True otherwise.
 
-	if ( ! f )  {
+	if (!f) {
 		return false;
-   }
+	}
 
 	fprintf(f, "%d\n", num_vertices);
-	for ( i = 0 ; i < num_vertices ; i++ )
+	for (i = 0; i < num_vertices; i++)
 		fprintf(f, "%g %g\n", vertices[i]->posn[Vertex::X],
-			      vertices[i]->posn[Vertex::Y]);
+			vertices[i]->posn[Vertex::Y]);
 
-		fprintf(f, "%d\n", num_edges);
-	for ( i = 0 ; i < num_edges ; i++ )
-	fprintf(f, "%d %d %d %d %d %g %g %g\n",
-				edges[i]->endpoints[Edge::START]->index,
-				edges[i]->endpoints[Edge::END]->index,
-				edges[i]->neighbors[Edge::LEFT] ?
-				edges[i]->neighbors[Edge::LEFT]->index : -1,
-				edges[i]->neighbors[Edge::RIGHT] ?
-				edges[i]->neighbors[Edge::RIGHT]->index : -1,
-				edges[i]->opaque ? 1 : 0,
-				edges[i]->color[0], edges[i]->color[1], edges[i]->color[2]);
+	fprintf(f, "%d\n", num_edges);
+	for (i = 0; i < num_edges; i++)
+		fprintf(f, "%d %d %d %d %d %g %g %g\n",
+			edges[i]->endpoints[Edge::START]->index,
+			edges[i]->endpoints[Edge::END]->index,
+			edges[i]->neighbors[Edge::LEFT] ?
+			edges[i]->neighbors[Edge::LEFT]->index : -1,
+			edges[i]->neighbors[Edge::RIGHT] ?
+			edges[i]->neighbors[Edge::RIGHT]->index : -1,
+			edges[i]->opaque ? 1 : 0,
+			edges[i]->color[0], edges[i]->color[1], edges[i]->color[2]);
 
 	fprintf(f, "%d\n", num_cells);
-	for ( i = 0 ; i < num_cells ; i++ )
+	for (i = 0; i < num_cells; i++)
 		fprintf(f, "%d %d %d %d\n",
-					cells[i]->edges[0] ? cells[i]->edges[0]->index : -1,
-					cells[i]->edges[1] ? cells[i]->edges[1]->index : -1,
-					cells[i]->edges[2] ? cells[i]->edges[2]->index : -1,
-					cells[i]->edges[3] ? cells[i]->edges[3]->index : -1);
+			cells[i]->edges[0] ? cells[i]->edges[0]->index : -1,
+			cells[i]->edges[1] ? cells[i]->edges[1]->index : -1,
+			cells[i]->edges[2] ? cells[i]->edges[2]->index : -1,
+			cells[i]->edges[3] ? cells[i]->edges[3]->index : -1);
 
-	   fprintf(f, "%g %g %g %g %g\n",
-					viewer_posn[X], viewer_posn[Y], viewer_posn[Z],
-					viewer_dir, viewer_fov);
+	fprintf(f, "%g %g %g %g %g\n",
+		viewer_posn[X], viewer_posn[Y], viewer_posn[Z],
+		viewer_dir, viewer_fov);
 
 	fclose(f);
 

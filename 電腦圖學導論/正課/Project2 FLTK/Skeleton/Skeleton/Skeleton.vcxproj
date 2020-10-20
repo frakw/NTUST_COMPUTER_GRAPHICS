@@ -94,7 +94,7 @@
     <LibraryPath>C:\lib\MazeVisibility-master\build\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\lib\MazeVisibility-master\source\include;C:\lib\MazeVisibility-master\build;$(IncludePath)</IncludePath>
+    <IncludePath>C:\lib\MazeVisibility-master\source\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\lib\MazeVisibility-master\source\lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -115,8 +115,6 @@
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>_XKEYCHECK_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,9 +144,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PreprocessorDefinitions>_XKEYCHECK_H;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_XKEYCHECK_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project2 FLTK\Skeleton\Skeleton\glm</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
