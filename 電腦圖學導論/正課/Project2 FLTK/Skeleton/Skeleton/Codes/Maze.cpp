@@ -14,6 +14,7 @@
 #include "Maze.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
 #include <math.h>
 #include <string.h>
 #include <time.h>
@@ -22,15 +23,22 @@
 #include <Fl/math.h>
 #include <Fl/gl.h>
 #include <GL/glu.h>
-
-
+#include "all_glm.h"
+using namespace std;
 
 const char Maze::X = 0;
 const char Maze::Y = 1;
 const char Maze::Z = 2;
 
 const float Maze::BUFFER = 0.1f;
-
+void print_mat4x4(glm::mat4x4& m) {
+	for (int i = 0;i < 4;i++) {
+		for (int j = 0;j < 4;j++) {
+			std::cout << m[i][j] << ' ';
+		}
+		std::cout << std::endl;
+	}
+}
 //extern glm::mat4x4 m;
 //**********************************************************************
 //
@@ -630,9 +638,9 @@ void Maze::
 Draw_View(const float focal_dist)
 //======================================================================
 {
-	//glMultMatrixf(matrix);
+	//print_mat4x4(global::MVP);
 	frame_num++;
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 	for (int i = 0; i < (int)this->num_edges; i++) {
 		float edge_start[2] = {
 			this->edges[i]->endpoints[Edge::START]->posn[Vertex::X],
@@ -648,31 +656,37 @@ Draw_View(const float focal_dist)
 
 void Maze::
 Draw_Wall(const float start[2], const float end[2], const float color[3]) {
+	glm::vec4 v0, v1, v2, v3;
 	float edge0[3] = { start[Y], 0.0f, start[X] };
 	float edge1[3] = { end[Y], 0.0f, end[X] };
 	glBegin(GL_POLYGON);
 	//glPopMatrix();
-	//v0 = { edge0[X] ,1.0f,edge0[Z],1.0f };
-	//v0 = glGet * v0;
-	//v1 = { edge0[X] ,-1.0f,edge0[Z],1.0f };
-	//v1 = m * v1;
-	//v2 = { edge1[X] ,1.0f,edge1[Z],1.0f };
-	//v2 = m * v2;
-	//v3 = { edge1[X] ,-1.0f,edge1[Z],1.0f };
-	//v3 = m * v3;
-	//v0 /= abs(v0[3]);
-	//v1 /= abs(v1[3]);
-	//v2 /= abs(v2[3]);
-	//v3 /= abs(v3[3]);
+	v0 = { edge0[X] ,1.0f,edge0[Z],1.0f };
+	v0 = global::MVP * v0;
+	v1 = { edge0[X] ,-1.0f,edge0[Z],1.0f };
+	v1 = global::MVP * v1;
+	v2 = { edge1[X] ,1.0f,edge1[Z],1.0f };
+	v2 = global::MVP * v2;
+	v3 = { edge1[X] ,-1.0f,edge1[Z],1.0f };
+	v3 = global::MVP * v3;
+	v0[0] /= abs(v0[3]);v0[1] /= abs(v0[3]);
+	v1[0] /= abs(v1[3]);v1[1] /= abs(v1[3]);
+	v2[0] /= abs(v2[3]);v2[1] /= abs(v2[3]);
+	v3[0] /= abs(v3[3]);v3[1] /= abs(v3[3]);
 	glColor3fv(color);
-	glVertex4f(edge0[X], 1.0f, edge0[Z], 1);
-	glVertex4f(edge1[X], 1.0f, edge1[Z], 1);
-	glVertex4f(edge1[X], -1.0f, edge1[Z], 1);
-	glVertex4f(edge0[X], -1.0f, edge0[Z], 1);
-	//glVertex2f(v0[0], v0[1]);
-	//glVertex2f(v1[0], v1[1]);
-	//glVertex2f(v2[0], v2[1]);
-	//glVertex2f(v3[0], v3[1]);
+	//glVertex4f(edge0[X], 1.0f, edge0[Z], 1);
+	//glVertex4f(edge1[X], 1.0f, edge1[Z], 1);
+	//glVertex4f(edge1[X], -1.0f, edge1[Z], 1);
+	//glVertex4f(edge0[X], -1.0f, edge0[Z], 1);
+	cout << v0[0] << ' ' << v0[1] << endl;
+	cout << v1[0] << ' ' << v1[1] << endl;
+	cout << v2[0] << ' ' << v2[1] << endl;
+	cout << v3[0] << ' ' << v3[1] << endl;
+	glVertex2f(v0[0], v0[1]);
+	glVertex2f(v1[0], v1[1]);
+	glVertex2f(v2[0], v2[1]);
+	glVertex2f(v3[0], v3[1]);
+	//cout << 87<<endl;
 	glEnd();
 }
 

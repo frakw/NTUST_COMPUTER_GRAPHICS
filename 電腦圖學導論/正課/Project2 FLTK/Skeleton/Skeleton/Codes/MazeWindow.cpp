@@ -16,10 +16,11 @@
 #include <GL/glu.h>
 #include <stdio.h>
 #include <array>
-
-
+#include "all_glm.h"
 #define square(x) ((x)*(x))
-//extern glm::mat4x4 mmm;
+
+glm::mat4x4 global::MVP;//只能在一個CPP內初始化，其他CPP有include all_glm.h，就可存取
+
 //*************************************************************************
 //
 // * Constructor
@@ -65,8 +66,8 @@ void glhPerspectivef2(float fovyInDegrees, float aspectRatio,
 	ymax = znear * tanf(fovyInDegrees * M_PI / 360.0);
 	xmax = ymax * aspectRatio;
 	glhFrustumf2(matrix, -xmax, xmax, -ymax, ymax, znear, zfar);
-	glMultMatrixf(matrix);//乘上最上面的矩陣並儲存 loadmatrix則是直接取代
-	//m *= matrix;
+	//glMultMatrixf(matrix);//乘上最上面的矩陣並儲存 loadmatrix則是直接取代
+	global::MVP = global::MVP * glm::make_mat4(matrix);
 }
 void glhFrustumf2(float* matrix, float left, float right, float bottom, float top,
 	float znear, float zfar)
@@ -146,11 +147,10 @@ void glhLookAtf2(float eyePosition3DX, float eyePosition3DY, float eyePosition3D
 	matrix2[3] = matrix2[7] = matrix2[11] = 0.0;
 	matrix2[15] = 1.0;
 	// --------------------
-	//glm::mat4 matrix_t = glm::make_mat4(matrix);
-	//mmm = mmm * matrix2;
-	glMultMatrixf(matrix2);//乘上最上面的矩陣並儲存 loadmatrix則是直接取代
-	//m = glm::translate(glm::mat4x4(), glm::vec3(-eyePosition3DX, -eyePosition3DY, -eyePosition3DZ));
-	glTranslatef(-eyePosition3DX, -eyePosition3DY, -eyePosition3DZ);
+	global::MVP = global::MVP * glm::make_mat4(matrix2);
+	//glMultMatrixf(matrix2);//乘上最上面的矩陣並儲存 loadmatrix則是直接取代
+	global::MVP = glm::translate(global::MVP, glm::vec3(-eyePosition3DX, -eyePosition3DY, -eyePosition3DZ));
+	//glTranslatef(-eyePosition3DX, -eyePosition3DY, -eyePosition3DZ);
 }
 
 //*************************************************************************
@@ -167,6 +167,7 @@ draw(void)
 	if (!valid()) {
 		// The OpenGL context may have been changed
 		// Set up the viewport to fill the window.
+
 		glViewport(0, 0, w(), h());
 
 		// We are using orthogonal viewing for 2D. This puts 0,0 in the
@@ -199,7 +200,8 @@ draw(void)
 	glVertex2f(-w() * 0.5f, 0.0);
 	glVertex2f(w() * 0.5f, 0.0);
 	glEnd();
-
+	global::MVP = glm::mat4(1);//填1才會是identity matrix
+	
 	if (maze) {
 		glClear(GL_DEPTH_BUFFER_BIT);
 		float aspect = (float)w() / h();

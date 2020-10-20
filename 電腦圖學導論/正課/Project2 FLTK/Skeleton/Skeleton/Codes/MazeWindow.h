@@ -22,7 +22,6 @@
 
 #include <Fl/Fl.h>
 #include <Fl/Fl_Gl_Window.h>
-
 #include "Maze.h"
 
 // Subclass the Fl_Gl_Window because we want to draw OpenGL in here.
