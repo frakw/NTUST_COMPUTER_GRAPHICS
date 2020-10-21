@@ -12,18 +12,10 @@
 *************************************************************************/
 
 #include "Maze.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <math.h>
-#include <string.h>
-#include <time.h>
-#include <FL/Fl.h>
-#include <FL/fl_draw.h>
-#include <Fl/math.h>
-#include <Fl/gl.h>
-#include <GL/glu.h>
+#include "all_cpp_std.h"
+#include "all_fl_gl.h"
 #include "all_glm.h"
+#include "LineSeg.h"
 using namespace std;
 
 const char Maze::X = 0;
@@ -640,27 +632,39 @@ Draw_View(const float focal_dist)
 {
 	//print_mat4x4(global::MVP);
 	frame_num++;
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
+	int camera_cell_index;
 	for (int i = 0; i < (int)this->num_edges; i++) {
-		float edge_start[2] = {
-			this->edges[i]->endpoints[Edge::START]->posn[Vertex::X],
-			this->edges[i]->endpoints[Edge::START]->posn[Vertex::Y] };
-		float edge_end[2] = {
-			this->edges[i]->endpoints[Edge::END]->posn[Vertex::X],
-			this->edges[i]->endpoints[Edge::END]->posn[Vertex::Y] };
-		float color[3] = { this->edges[i]->color[0], this->edges[i]->color[1], this->edges[i]->color[2] };
-		if (this->edges[i]->opaque)
-			Draw_Wall(edge_start, edge_end, color);
+		//float edge_start[2] = {
+		//	this->edges[i]->endpoints[Edge::START]->posn[Vertex::X],
+		//	this->edges[i]->endpoints[Edge::START]->posn[Vertex::Y] };
+		//float edge_end[2] = {
+		//	this->edges[i]->endpoints[Edge::END]->posn[Vertex::X],
+		//	this->edges[i]->endpoints[Edge::END]->posn[Vertex::Y] };
+		//float color[3] = { this->edges[i]->color[0], this->edges[i]->color[1], this->edges[i]->color[2] };
+		//if (this->edges[i]->opaque)
+		//	Draw_Wall(edge_start, edge_end, color);
+		if (cells[i]->Point_In_Cell(viewer_posn[X], viewer_posn[Y])) {
+			camera_cell_index = i;
+			break;
+		}
 	}
+	float right_side_frustum_X = viewer_posn[X] + cos((viewer_dir / 2.0f) * M_PI / 180.0f);
+	float right_side_frustum_Y = viewer_posn[Y] + sin((viewer_dir / 2.0f) * M_PI / 180.0f);
+	LineSeg right_side_frustum(viewer_posn[X], viewer_posn[Y], right_side_frustum_X, right_side_frustum_Y);
+	float left_side_frustum_X = viewer_posn[X] + sin((viewer_dir / 2.0f) * M_PI / 180.0f);
+	float left_side_frustum_Y = viewer_posn[Y] + cos((viewer_dir / 2.0f) * M_PI / 180.0f);
+	LineSeg left_side_frustum(viewer_posn[X], viewer_posn[Y],left_side_frustum_X, left_side_frustum_Y);
+
+	draw_cell(camera_cell_index, left_side_frustum, right_side_frustum, NULL);
 }
 
 void Maze::
-Draw_Wall(const float start[2], const float end[2], const float color[3]) {
+Draw_Wall(LineSeg& e,float color[3]) {
 	glm::vec4 v0, v1, v2, v3;
-	float edge0[3] = { start[Y], 0.0f, start[X] };
-	float edge1[3] = { end[Y], 0.0f, end[X] };
+	float edge0[3] = { e.start[1], 0.0f, e.start[0] };
+	float edge1[3] = { e.end[1], 0.0f, e.end[0] };
 	glBegin(GL_POLYGON);
-	//glPopMatrix();
 	v0 = { edge0[X] ,1.0f,edge0[Z],1.0f };
 	v0 = global::MVP * v0;
 	v1 = { edge0[X] ,-1.0f,edge0[Z],1.0f };
@@ -688,6 +692,63 @@ Draw_Wall(const float start[2], const float end[2], const float color[3]) {
 	glVertex2f(v3[0], v3[1]);
 	//cout << 87<<endl;
 	glEnd();
+}
+
+
+void Maze::draw_cell(int camera_cell_index, LineSeg L, LineSeg R,int prev_edge_index) {
+	Cell* now = cells[camera_cell_index];
+	for (int i = 0;i < 4;i++) {
+		LineSeg edge_line(
+			now->edges[i]->endpoints[Edge::START]->posn[Vertex::X],
+			now->edges[i]->endpoints[Edge::START]->posn[Vertex::Y],
+			now->edges[i]->endpoints[Edge::END]->posn[Vertex::X],
+			now->edges[i]->endpoints[Edge::END]->posn[Vertex::Y]);
+		char sr = edge_line.point_on_line_side(R.start[0], R.start[1]);
+		char er = edge_line.point_on_line_side(R.end[0], R.end[1]);
+		char sl = edge_line.point_on_line_side(L.start[0], L.start[1]);
+		char el = edge_line.point_on_line_side(L.end[0], L.end[1]);
+
+		if (sr == Edge::RIGHT && er == Edge::RIGHT)
+		{
+			//在視錐外
+			continue;
+		}
+		else if (sr == Edge::RIGHT && er == Edge::LEFT)
+		{
+			float percent = R.Cross_Param(edge_line);
+			edge_line.start[0] = R.start[0] + R.x_diff() * percent;
+			edge_line.start[1] = R.start[1] + R.y_diff() * percent;
+			
+		}
+		else if (sr == Edge::LEFT && er == Edge::RIGHT)
+		{
+			float percent = R.Cross_Param(edge_line);
+			edge_line.end[0] = R.start[0] + R.x_diff() * percent;
+			edge_line.end[1] = R.start[1] + R.y_diff() * percent;
+		}
+
+
+		if (sl == Edge::LEFT && el == Edge::LEFT)
+		{
+			//在視錐外
+			continue;
+		}
+		else if (sl == Edge::LEFT && el == Edge::RIGHT)
+		{
+			float percent = L.Cross_Param(edge_line);
+			edge_line.start[0] = L.start[0] + L.x_diff() * percent;
+			edge_line.start[1] = L.start[1] + L.y_diff() * percent;
+
+		}
+		else if (sl == Edge::RIGHT && el == Edge::LEFT)
+		{
+			float percent = L.Cross_Param(edge_line);
+			edge_line.end[0] = L.start[0] + L.x_diff() * percent;
+			edge_line.end[1] = L.start[1] + L.y_diff() * percent;
+		}
+		if (now->edges[i]->opaque)
+			Draw_Wall(edge_line,now->edges[i]->color);
+	}
 }
 
 //**********************************************************************

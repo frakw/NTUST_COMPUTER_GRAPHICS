@@ -26,6 +26,10 @@ const char  Cell::PLUS_Y	= 1;
 const char  Cell::MINUS_X	= 2;
 const char  Cell::MINUS_Y	= 3;
 
+void Cell::draw() {
+	
+}
+
 //***********************************************************************
 //
 // * Constructor.
@@ -43,6 +47,7 @@ Cell(int i, Edge *px, Edge *py, Edge *mx, Edge *my)
 
 	counter = 0;
 }
+
 
 
 //***********************************************************************
@@ -75,6 +80,15 @@ Point_In_Cell(const float x, const float y, const float z,
 	}
 
 	// Inside all edges, so we must be inside the cell.
+	return true;
+}
+bool Cell::Point_In_Cell(const float x, const float y)
+{
+	for (int i = 0; i < 4; i++) {
+		if (edges[i]->Cell_Side(this) != edges[i]->Point_Side(x, y)) {
+			return false;
+		}
+	}
 	return true;
 }
 

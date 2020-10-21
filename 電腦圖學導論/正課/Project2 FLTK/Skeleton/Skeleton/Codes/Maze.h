@@ -16,6 +16,7 @@
 
 #include <FL/math.h> // Use FLTK's math header because it defines M_PI
 #include "Cell.h"
+#include "LineSeg.h"
 
 //************************************************************************
 //
@@ -80,7 +81,7 @@ public:
 	// corners of the window in which to draw.
 	void	Draw_Map(int, int, int, int);
 
-	void	Draw_Wall(const float[2], const float[2], const float[3]);
+	void	Draw_Wall(LineSeg&,float [3]);
 	// Draws the viewer's cell and its neighbors in the map view of the maze.
 	// It is passed the minimum and maximum corners of the window in which
 	// to draw.
@@ -111,6 +112,8 @@ private:
 	void    Build_Maze(void);
 	void    Set_Extents(void);
 	void    Find_View_Cell(Cell*);
+
+	void draw_cell(int, LineSeg, LineSeg,int);
 
 private:
 	Cell* view_cell;// The cell that currently contains the view

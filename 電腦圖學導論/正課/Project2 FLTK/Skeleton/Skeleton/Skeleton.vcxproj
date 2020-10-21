@@ -29,6 +29,8 @@
     <ClCompile Include="Codes\Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="all_cpp_std.h" />
+    <ClInclude Include="all_fl_gl.h" />
     <ClInclude Include="all_glm.h" />
     <ClInclude Include="Codes\Cell.h" />
     <ClInclude Include="Codes\Edge.h" />

@@ -18,6 +18,9 @@
 #define _EDGE_H_
 
 #include "Vertex.h"
+#include "all_cpp_std.h"
+#include "all_fl_gl.h"
+#include "all_glm.h"
 
 class Edge {
 
@@ -25,6 +28,7 @@ class Edge {
 		// Constructor takes the index, pointers to the start and end
 		// vertices, and r, g and b for the color.
 		Edge(int, Vertex*, Vertex*, float, float, float);
+		//Edge(int,glm::vec3, glm::vec3, glm::vec3, glm::vec3, float, float, float);
 
 	public:
 		// Add a cell to the neighbors of this edge. Valid values for
@@ -50,7 +54,6 @@ class Edge {
 		// is one of the constants defined above (LEFT, RIGHT, ON). See above
 		// for a discussion of which side is left and which is right.
 		char	Point_Side(float x, float y);
-
   public:
 		// Constants.
 		// To access these outside the edge class, use Edge::LEFT etc.

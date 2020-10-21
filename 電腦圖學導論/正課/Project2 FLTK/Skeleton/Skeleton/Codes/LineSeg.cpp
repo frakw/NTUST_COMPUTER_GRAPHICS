@@ -78,3 +78,8 @@ Cross_Param(LineSeg e)
 
 	return s / denom;
 }
+
+char LineSeg::point_on_line_side(float x, float y) {
+	float d = (x - start[0]) * (end[1] - start[1]) - (y - start[1]) * (end[0] - start[0]);
+	return d < 0 ? Edge::LEFT : Edge::RIGHT;
+}

@@ -31,7 +31,7 @@ class Cell {
 		// the edge for which the inside test failed. Used in tracking the viewer.
 		bool    Point_In_Cell(const float x, const float y, const float z,
 									 Cell *&new_cell);
-
+		bool  Point_In_Cell(const float x, const float y);
 		// Clip the segment (xs,ys)->(xe,ye) to the cell. If the segment
 		// crosses an opaque edge, clip it to that edge and set (xe,ye) to be
 		// the intersection point. If it crosses a transparent edge, clip
@@ -43,6 +43,8 @@ class Cell {
 		// for clipping edges, so you should try to understand how it works.
 		Cell*   Clip_To_Cell(float &xs, float &ys,
 									float &xe, float &ye, const float buffer);
+
+		void draw();
   public:
     // Constants for accessing edges.
     static const char	PLUS_X;         // The edge in the positive x direction

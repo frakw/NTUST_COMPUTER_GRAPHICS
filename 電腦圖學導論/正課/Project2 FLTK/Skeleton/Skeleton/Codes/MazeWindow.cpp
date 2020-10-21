@@ -182,6 +182,8 @@ draw(void)
 	// Clear the screen.
 	glClear(GL_COLOR_BUFFER_BIT);
 	glBegin(GL_QUADS);
+
+
 	// Draw the "floor". It is an infinite plane perpendicular to
 	// vertical, so we know it projects to cover the entire bottom
 	// half of the screen. Walls of the maze will be drawn over the top
