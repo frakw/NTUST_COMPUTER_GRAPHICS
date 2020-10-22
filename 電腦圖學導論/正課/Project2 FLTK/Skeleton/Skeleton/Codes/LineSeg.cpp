@@ -80,6 +80,24 @@ Cross_Param(LineSeg e)
 }
 
 char LineSeg::point_on_line_side(float x, float y) {
-	float d = (x - start[0]) * (end[1] - start[1]) - (y - start[1]) * (end[0] - start[0]);
-	return d < 0 ? Edge::LEFT : Edge::RIGHT;
+	// Compute the determinant: | xs ys 1 |
+//                          | xe ye 1 |
+//                          | x  y  1 |
+// Use its sign to get the answer.
+
+	float   det;
+
+	det = start[0] *
+		(end[1] - y) -
+		start[1] *
+		(end[0] - x) +
+		end[0] * y -
+		end[1] * x;
+
+	if (det == 0.0)
+		return Edge::ON;
+	else if (det > 0.0)
+		return Edge::LEFT;
+	else
+		return Edge::RIGHT;
 }

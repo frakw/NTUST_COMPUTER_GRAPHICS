@@ -639,21 +639,17 @@ Draw_View(const float focal_dist)
 	frame_num++;
 	//glEnable(GL_DEPTH_TEST);
 	int camera_cell_index;
-	//for (int i = 0; i < (int)this->num_edges; i++) {
-
-	//	NDC.push_back(glm::vec3());
-	//}
-	for (int i = 0; i < (int)this->num_edges; i++) {
+	for (int i = 0; i < (int)this->num_cells; i++) {
 		if (cells[i]->Point_In_Cell(viewer_posn[X], viewer_posn[Y])) {
 			camera_cell_index = i;
 			break;
 		}
 	}
-	float right_side_frustum_X = viewer_posn[X] + cos((viewer_dir - viewer_fov * 0.5) * M_PI / 180.0f);
-	float right_side_frustum_Y = viewer_posn[Y] + sin((viewer_dir - viewer_fov * 0.5) * M_PI / 180.0f);
+	float right_side_frustum_X = viewer_posn[X] + cos(Maze::To_Radians(viewer_dir - viewer_fov * 0.5));
+	float right_side_frustum_Y = viewer_posn[Y] + sin(Maze::To_Radians(viewer_dir - viewer_fov * 0.5));
 	LineSeg right_side_frustum(viewer_posn[X], viewer_posn[Y], right_side_frustum_X, right_side_frustum_Y);
-	float left_side_frustum_X = viewer_posn[X] + cos((viewer_dir + viewer_fov * 0.5) * M_PI / 180.0f);
-	float left_side_frustum_Y = viewer_posn[Y] + sin((viewer_dir + viewer_fov * 0.5) * M_PI / 180.0f);
+	float left_side_frustum_X = viewer_posn[X] + cos(Maze::To_Radians(viewer_dir + viewer_fov * 0.5));
+	float left_side_frustum_Y = viewer_posn[Y] + sin(Maze::To_Radians(viewer_dir + viewer_fov * 0.5));
 	LineSeg left_side_frustum(viewer_posn[X], viewer_posn[Y],left_side_frustum_X, left_side_frustum_Y);
 
 	draw_cell(camera_cell_index, left_side_frustum, right_side_frustum, NULL);
@@ -680,27 +676,85 @@ Draw_Wall(LineSeg& e,float color[3]) {
 	//v2[0] /= abs(v2[3]);v2[1] /= abs(v2[3]);
 	//v3[0] /= abs(v3[3]);v3[1] /= abs(v3[3]);
 	glColor3fv(color);
-	cout << "87\n";
+	//cout << "87\n";
 	glVertex2f(v0[0], v0[1]);
 	glVertex2f(v1[0], v1[1]);
 	glVertex2f(v2[0], v2[1]);
 	glVertex2f(v3[0], v3[1]);
 	glEnd();
 }
+char side(float ax, float ay, float bx, float by, float xp, float yp){
+	float d = (xp - ax) * (by - ay) - (yp - ay) * (bx - ax);
+	return d < 0 ? Edge::LEFT : Edge::RIGHT;
+}
 
+float cross_param(glm::vec4& s1, glm::vec4& e1,glm::vec4& s2, glm::vec4& e2) {
+	float   dx1, dy1, dx2, dy2;
+	float   denom, s;
+
+	// This computation comes from writing each segment in parametric form,
+	// and solving a simulataneous equation to determine the parameter
+	// value of the intersection point on this LineSeg.
+	dx1 = e2[0] - s2[0];
+	dy1 = e2[1] - s2[1];
+	dx2 = e1[0] - s1[0];
+	dy2 = e1[1] - s1[1];
+
+	if ((denom = dx2 * dy1 - dy2 * dx1) == 0.0)
+		// Parallel segments.
+		return 1.0e20f;
+
+	s = (s2[0] - s1[0]) * dy1 - (s2[1] - s1[1]) * dx1;
+
+	return s / denom;
+}
 
 void Maze::draw_cell(int camera_cell_index, LineSeg L, LineSeg R,int prev_edge_index) {
 	Cell* now = cells[camera_cell_index];
 	for (int i = 0;i < 4;i++) {
+		if (!now->edges[i]->opaque) continue;
 		LineSeg edge_line(
 			now->edges[i]->endpoints[Edge::START]->posn[Vertex::X],
 			now->edges[i]->endpoints[Edge::START]->posn[Vertex::Y],
 			now->edges[i]->endpoints[Edge::END]->posn[Vertex::X],
 			now->edges[i]->endpoints[Edge::END]->posn[Vertex::Y]);
-		char sr = R.point_on_line_side(edge_line.start[0], edge_line.start[1]);
-		char er = R.point_on_line_side(edge_line.end[0], edge_line.end[1]);
-		char sl = L.point_on_line_side(edge_line.start[0], edge_line.start[1]);
-		char el = L.point_on_line_side(edge_line.end[0], edge_line.end[1]);
+		glm::vec4 
+				v0(edge_line.start[1], 1.0f, edge_line.start[0], 1.0f),
+				v1(edge_line.start[1], -1.0f, edge_line.start[0], 1.0f),
+				v2(edge_line.end[1], 1.0f, edge_line.end[0], 1.0f),
+				v3(edge_line.end[1], -1.0f, edge_line.end[0], 1.0f);
+		v0 = global::model_view * v0;
+		v1 = global::model_view * v1;
+		v2 = global::model_view * v2;
+		v3 = global::model_view * v3;
+
+		glm::vec4
+			l0(L.start[1], 1.0f, L.start[0], 1.0f),
+			l1(L.start[1], -1.0f, L.start[0], 1.0f),
+			l2(L.end[1], 1.0f, L.end[0], 1.0f),
+			l3(L.end[1], -1.0f, L.end[0], 1.0f);
+
+		l0 = global::model_view * l0;
+		l1 = global::model_view * l1;
+		l2 = global::model_view * l2;
+		l3 = global::model_view * l3;
+
+		glm::vec4
+			r0(R.start[1], 1.0f, R.start[0], 1.0f),
+			r1(R.start[1], -1.0f, R.start[0], 1.0f),
+			r2(R.end[1], 1.0f, R.end[0], 1.0f),
+			r3(R.end[1], -1.0f, R.end[0], 1.0f);
+
+		r0 = global::model_view * r0;
+		r1 = global::model_view * r1;
+		r2 = global::model_view * r2;
+		r3 = global::model_view * r3;
+
+
+		char sr = side(r0[0], r0[1], r2[0], r2[1], v0[0], v0[1]);
+		char er = side(r1[0], r0[1], r2[0], r2[1], v2[0], v2[1]);
+		char sl = side(l0[0], l0[1], l2[0], l2[1], v0[0], v0[1]);
+		char el = side(l0[0], l0[1], l2[0], l2[1], v2[0], v2[1]);
 
 		if (sr == Edge::RIGHT && er == Edge::RIGHT)
 		{
@@ -709,17 +763,15 @@ void Maze::draw_cell(int camera_cell_index, LineSeg L, LineSeg R,int prev_edge_i
 		}
 		else if (sr == Edge::RIGHT && er == Edge::LEFT)
 		{
-			//float percent = R.Cross_Param(edge_line);
-			//edge_line.start[0] = R.start[0] + R.x_diff() * percent;
-			//edge_line.start[1] = R.start[1] + R.y_diff() * percent;
-			float percent = edge_line.Cross_Param(R);
-			edge_line.start[0] = edge_line.start[0] + edge_line.x_diff() * percent;
-			edge_line.start[1] = edge_line.start[1] + edge_line.y_diff() * percent;
-			
+			float percent = cross_param(v0, v2,r0, r2);
+			v0[0] = v0[0] + (v2[0] - v0[0]) * percent;
+			v0[1] = v0[1] + (v2[1] - v0[1]) * percent;
+			v1[]
 		}
 		else if (sr == Edge::LEFT && er == Edge::RIGHT)
 		{
-			float percent = edge_line.Cross_Param(R);
+
+			float percent = cross_param(r0, r2, v0, v2);
 			edge_line.end[0] = edge_line.start[0] + edge_line.x_diff() * percent;
 			edge_line.end[1] = edge_line.start[1] + edge_line.y_diff() * percent;
 		}
@@ -732,19 +784,19 @@ void Maze::draw_cell(int camera_cell_index, LineSeg L, LineSeg R,int prev_edge_i
 		}
 		else if (sl == Edge::LEFT && el == Edge::RIGHT)
 		{
-			float percent = edge_line.Cross_Param(L);
+			float percent = cross_param(l0, l2, v0, v2);
 			edge_line.start[0] = edge_line.start[0] + edge_line.x_diff() * percent;
 			edge_line.start[1] = edge_line.start[1] + edge_line.y_diff() * percent;
 
 		}
 		else if (sl == Edge::RIGHT && el == Edge::LEFT)
 		{
-			float percent = edge_line.Cross_Param(L);
+			float percent = cross_param(l0, l2, v0, v2);
 			edge_line.end[0] = edge_line.start[0] + edge_line.x_diff() * percent;
 			edge_line.end[1] = edge_line.start[1] + edge_line.y_diff() * percent;
 		}
-		if (now->edges[i]->opaque)
-			Draw_Wall(edge_line,now->edges[i]->color);
+
+		Draw_Wall(edge_line,now->edges[i]->color);
 	}
 }
 
