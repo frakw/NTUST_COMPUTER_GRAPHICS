@@ -19,7 +19,8 @@
 #include "all_glm.h"
 #define square(x) ((x)*(x))
 
-glm::mat4x4 global::MVP;//只能在一個CPP內初始化，其他CPP有include all_glm.h，就可存取
+glm::mat4x4 global::model_view;//只能在一個CPP內初始化，其他CPP有include all_glm.h，就可存取projection
+glm::mat4x4 global::projection;//只能在一個CPP內初始化，其他CPP有include all_glm.h，就可存取projection
 
 //*************************************************************************
 //
@@ -67,7 +68,7 @@ void glhPerspectivef2(float fovyInDegrees, float aspectRatio,
 	xmax = ymax * aspectRatio;
 	glhFrustumf2(matrix, -xmax, xmax, -ymax, ymax, znear, zfar);
 	//glMultMatrixf(matrix);//乘上最上面的矩陣並儲存 loadmatrix則是直接取代
-	global::MVP = global::MVP * glm::make_mat4(matrix);
+	global::projection = global::projection * glm::make_mat4(matrix);
 }
 void glhFrustumf2(float* matrix, float left, float right, float bottom, float top,
 	float znear, float zfar)
@@ -147,9 +148,9 @@ void glhLookAtf2(float eyePosition3DX, float eyePosition3DY, float eyePosition3D
 	matrix2[3] = matrix2[7] = matrix2[11] = 0.0;
 	matrix2[15] = 1.0;
 	// --------------------
-	global::MVP = global::MVP * glm::make_mat4(matrix2);
+	global::model_view = global::model_view * glm::make_mat4(matrix2);
 	//glMultMatrixf(matrix2);//乘上最上面的矩陣並儲存 loadmatrix則是直接取代
-	global::MVP = glm::translate(global::MVP, glm::vec3(-eyePosition3DX, -eyePosition3DY, -eyePosition3DZ));
+	global::model_view = glm::translate(global::model_view, glm::vec3(-eyePosition3DX, -eyePosition3DY, -eyePosition3DZ));
 	//glTranslatef(-eyePosition3DX, -eyePosition3DY, -eyePosition3DZ);
 }
 
@@ -202,7 +203,8 @@ draw(void)
 	glVertex2f(-w() * 0.5f, 0.0);
 	glVertex2f(w() * 0.5f, 0.0);
 	glEnd();
-	global::MVP = glm::mat4(1);//填1才會是identity matrix
+	global::model_view = glm::mat4(1);//填1才會是identity matrix
+	global::projection = glm::mat4(1);//填1才會是identity matrix
 	
 	if (maze) {
 		glClear(GL_DEPTH_BUFFER_BIT);

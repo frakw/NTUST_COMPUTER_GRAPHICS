@@ -115,6 +115,7 @@ private:
 
 	void draw_cell(int, LineSeg, LineSeg,int);
 
+	void add_edge_to_ndc(Edge&);
 private:
 	Cell* view_cell;// The cell that currently contains the view
 									  // point. You will need to use this.
@@ -151,6 +152,7 @@ public:
 										// axis, in the usual way.
 	float		viewer_fov;			// The horizontal field of view, in degrees.
 	//glm::mat4x4* matrix;
+	vector<glm::vec3> NDC;
 };
 
 

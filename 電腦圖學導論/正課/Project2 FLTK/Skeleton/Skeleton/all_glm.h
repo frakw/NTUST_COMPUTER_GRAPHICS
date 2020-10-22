@@ -11,7 +11,8 @@
 void print_mat4x4(glm::mat4x4&);
 class global{
 public:
-	static glm::mat4x4 MVP;
+	static glm::mat4x4 model_view;
+	static glm::mat4x4 projection;
 };
 
 //extern glm::mat4x4 MVP;
