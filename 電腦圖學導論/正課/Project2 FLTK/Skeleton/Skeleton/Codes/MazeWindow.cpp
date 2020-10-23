@@ -17,10 +17,8 @@
 #include <stdio.h>
 #include <array>
 #include "all_glm.h"
-#define square(x) ((x)*(x))
 
-glm::mat4x4 global::model_view;//只能在一個CPP內初始化，其他CPP有include all_glm.h，就可存取projection
-glm::mat4x4 global::projection;//只能在一個CPP內初始化，其他CPP有include all_glm.h，就可存取projection
+
 
 //*************************************************************************
 //
@@ -49,109 +47,8 @@ Set_Maze(Maze* m)
 {
 	// Change the maze
 	maze = m;
-
 	// Force a redraw
 	redraw();
-}
-void glhFrustumf2(float* matrix, float left, float right, float bottom, float top,
-	float znear, float zfar);
-// Matrix will receive the calculated perspective matrix.
-// You would have to upload to your shader
-// or use glLoadMatrixf if you aren't using shaders.
-void glhPerspectivef2(float fovyInDegrees, float aspectRatio,
-	float znear, float zfar)
-{
-	float matrix[16];
-	float ymax, xmax;
-	float temp, temp2, temp3, temp4;
-	ymax = znear * tanf(fovyInDegrees * M_PI / 360.0);
-	xmax = ymax * aspectRatio;
-	glhFrustumf2(matrix, -xmax, xmax, -ymax, ymax, znear, zfar);
-	//glMultMatrixf(matrix);//乘上最上面的矩陣並儲存 loadmatrix則是直接取代
-	global::projection = global::projection * glm::make_mat4(matrix);
-}
-void glhFrustumf2(float* matrix, float left, float right, float bottom, float top,
-	float znear, float zfar)
-{
-	float temp, temp2, temp3, temp4;
-	temp = 2.0 * znear;
-	temp2 = right - left;
-	temp3 = top - bottom;
-	temp4 = zfar - znear;
-	matrix[0] = temp / temp2;
-	matrix[1] = 0.0;
-	matrix[2] = 0.0;
-	matrix[3] = 0.0;
-	matrix[4] = 0.0;
-	matrix[5] = temp / temp3;
-	matrix[6] = 0.0;
-	matrix[7] = 0.0;
-	matrix[8] = (right + left) / temp2;
-	matrix[9] = (top + bottom) / temp3;
-	matrix[10] = (-zfar - znear) / temp4;
-	matrix[11] = -1.0;
-	matrix[12] = 0.0;
-	matrix[13] = 0.0;
-	matrix[14] = (-temp * zfar) / temp4;
-	matrix[15] = 0.0;
-}
-
-void NormalizeVector(float x[3]) {
-	float Norm = sqrt(square(x[0]) + square(x[1]) + square(x[2]));
-	x[0] /= Norm;
-	x[1] /= Norm;
-	x[2] /= Norm;
-}
-
-void ComputeNormalOfPlane(float result[3], float A[3], float B[3]) {
-	result[0] = A[1] * B[2] - A[2] * B[1];
-	result[1] = A[2] * B[0] - A[0] * B[2];
-	result[2] = A[0] * B[1] - A[1] * B[0];
-}
-
-void glhLookAtf2(float eyePosition3DX, float eyePosition3DY, float eyePosition3DZ,
-	float center3DX, float center3DY, float center3DZ,
-	float upVector3DX, float upVector3DY, float upVector3DZ)
-{
-	float forward[3], side[3], up[3];
-	float matrix2[16];
-
-	// --------------------
-	forward[0] = center3DX - eyePosition3DX;
-	forward[1] = center3DY - eyePosition3DY;
-	forward[2] = center3DZ - eyePosition3DZ;
-	NormalizeVector(forward);
-	// --------------------
-	// Side = forward x up    向量外積
-	float tmp[3] = { upVector3DX ,upVector3DY, upVector3DZ };
-	ComputeNormalOfPlane(side, forward, tmp);
-	NormalizeVector(side);
-	//--------------------
-	// Recompute up as: up = side x forward    向量外積
-	ComputeNormalOfPlane(up, side, forward);
-	// --------------------
-	matrix2[0] = side[0];
-	matrix2[4] = side[1];
-	matrix2[8] = side[2];
-	matrix2[12] = 0.0;
-	// --------------------
-	matrix2[1] = up[0];
-	matrix2[5] = up[1];
-	matrix2[9] = up[2];
-	matrix2[13] = 0.0;
-	// --------------------
-	matrix2[2] = -forward[0];
-	matrix2[6] = -forward[1];
-	matrix2[10] = -forward[2];
-	matrix2[14] = 0.0;
-	// --------------------
-	matrix2[3] = matrix2[7] = matrix2[11] = 0.0;
-	matrix2[15] = 1.0;
-	// --------------------
-	global::model_view = global::model_view * glm::make_mat4(matrix2);
-	//glMultMatrixf(matrix2);//乘上最上面的矩陣並儲存 loadmatrix則是直接取代
-	global::model_view = glm::translate(global::model_view, glm::vec3(-eyePosition3DX, -eyePosition3DY, -eyePosition3DZ));
-	//glTranslatef(-eyePosition3DX, -eyePosition3DY, -eyePosition3DZ);
 }
 
 //*************************************************************************
@@ -203,25 +100,10 @@ draw(void)
 	glVertex2f(-w() * 0.5f, 0.0);
 	glVertex2f(w() * 0.5f, 0.0);
 	glEnd();
-	global::model_view = glm::mat4(1);//填1才會是identity matrix
-	global::projection = glm::mat4(1);//填1才會是identity matrix
-	
 	if (maze) {
-		glClear(GL_DEPTH_BUFFER_BIT);
-		float aspect = (float)w() / h();
-		glhPerspectivef2(maze->viewer_fov, aspect, 0.01, 200);
-		float viewer_pos[3] = { maze->viewer_posn[Maze::Y], 0.0f, maze->viewer_posn[Maze::X] };
-		glhLookAtf2(viewer_pos[Maze::X], viewer_pos[Maze::Y], viewer_pos[Maze::Z],
-			viewer_pos[Maze::X] + sin(Maze::To_Radians(maze->viewer_dir)),
-			viewer_pos[Maze::Y],
-			viewer_pos[Maze::Z] + cos(Maze::To_Radians(maze->viewer_dir)),
-			0.0, 1.0, 0.0);
-		maze->Draw_View(focal_length);
+		maze->Draw_View(focal_length,(float)w()/h());
 	}
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();//回歸單位矩陣，避免被上次影響
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+
 }
 
 

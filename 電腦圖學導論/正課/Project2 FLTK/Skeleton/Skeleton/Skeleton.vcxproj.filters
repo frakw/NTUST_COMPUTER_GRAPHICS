@@ -74,5 +74,8 @@
     <ClInclude Include="all_cpp_std.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="frustum.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

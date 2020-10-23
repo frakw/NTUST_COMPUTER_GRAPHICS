@@ -27,6 +27,7 @@ class Edge {
 	public:
 		// Constructor takes the index, pointers to the start and end
 		// vertices, and r, g and b for the color.
+		Edge(Vertex* s, Vertex* e) { *this = Edge(0, s, e, 0, 0, 0); }
 		Edge(int, Vertex*, Vertex*, float, float, float);
 		//Edge(int,glm::vec3, glm::vec3, glm::vec3, glm::vec3, float, float, float);
 

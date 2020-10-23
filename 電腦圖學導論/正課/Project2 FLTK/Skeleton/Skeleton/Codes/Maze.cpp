@@ -16,6 +16,9 @@
 #include "all_fl_gl.h"
 #include "all_glm.h"
 #include "LineSeg.h"
+#include <tuple>
+#define square(x) ((x)*(x))
+//#define check_matrix
 using namespace std;
 
 const char Maze::X = 0;
@@ -23,6 +26,9 @@ const char Maze::Y = 1;
 const char Maze::Z = 2;
 
 const float Maze::BUFFER = 0.1f;
+
+glm::mat4x4 global::model_view;//只能在一個CPP內初始化，其他CPP有include all_glm.h，就可存取projection
+glm::mat4x4 global::projection;//只能在一個CPP內初始化，其他CPP有include all_glm.h，就可存取projection
 void print_mat4x4(glm::mat4x4& m) {
 	for (int i = 0;i < 4;i++) {
 		for (int j = 0;j < 4;j++) {
@@ -31,7 +37,7 @@ void print_mat4x4(glm::mat4x4& m) {
 		std::cout << std::endl;
 	}
 }
-//extern glm::mat4x4 m;
+glm::vec4 cross_param(glm::vec4& s1, glm::vec4& e1, glm::vec4& s2, glm::vec4& e2,bool);
 //**********************************************************************
 //
 // * Constructor for the maze exception
@@ -619,76 +625,243 @@ Draw_Map(int min_x, int min_y, int max_x, int max_y)
 				min_y + height - (int)floor((y2 - min_yp) * scale));
 		}
 }
+void Frustum(float* matrix, float left, float right, float bottom, float top,
+	float znear, float zfar);
+// Matrix will receive the calculated perspective matrix.
+// You would have to upload to your shader
+// or use glLoadMatrixf if you aren't using shaders.
+void Perspective(float fovyInDegrees, float aspectRatio,
+	float znear, float zfar)
+{
+	float matrix[16];
+	float ymax, xmax;
+	float temp, temp2, temp3, temp4;
+	ymax = znear * tanf(fovyInDegrees * M_PI / 360.0);
+	xmax = ymax * aspectRatio;
+	Frustum(matrix, -xmax, xmax, -ymax, ymax, znear, zfar);
+#ifdef check_matrix
+	glMultMatrixf(matrix);//乘上最上面的矩陣並儲存 loadmatrix則是直接取代
+#else
+	global::projection = glm::make_mat4(matrix);
+#endif // check_matrix
 
-//void Maze::add_edge_to_ndc(Edge& i) {
-//	glm::vec4 v0, v1, v2, v3;
-//	float edge0[3] = { i.endpoints[Edge::START]->posn[Vertex::Y], 0.0f, i.endpoints[Edge::START]->posn[Vertex::X] };
-//	float edge1[3] = { i.endpoints[Edge::END]->posn[Vertex::Y], 0.0f,i.endpoints[Edge::END]->posn[Vertex::X] };
-//	LINE wall();
-//	NDC.push_back();
-//}
+}
+void Frustum(float* matrix, float left, float right, float bottom, float top,
+	float znear, float zfar)
+{
+	float temp, temp2, temp3, temp4;
+	temp = 2.0 * znear;
+	temp2 = right - left;
+	temp3 = top - bottom;
+	temp4 = zfar - znear;
+	matrix[0] = temp / temp2;
+	matrix[1] = 0.0;
+	matrix[2] = 0.0;
+	matrix[3] = 0.0;
+	matrix[4] = 0.0;
+	matrix[5] = temp / temp3;
+	matrix[6] = 0.0;
+	matrix[7] = 0.0;
+	matrix[8] = (right + left) / temp2;
+	matrix[9] = (top + bottom) / temp3;
+	matrix[10] = (-zfar - znear) / temp4;
+	matrix[11] = -1.0;
+	matrix[12] = 0.0;
+	matrix[13] = 0.0;
+	matrix[14] = (-temp * zfar) / temp4;
+	matrix[15] = 0.0;
+}
+
+void NormalizeVector(float x[3]) {
+	float Norm = sqrt(square(x[0]) + square(x[1]) + square(x[2]));
+	x[0] /= Norm;
+	x[1] /= Norm;
+	x[2] /= Norm;
+}
+
+void ComputeNormalOfPlane(float result[3], float A[3], float B[3]) {
+	result[0] = A[1] * B[2] - A[2] * B[1];
+	result[1] = A[2] * B[0] - A[0] * B[2];
+	result[2] = A[0] * B[1] - A[1] * B[0];
+}
+
+void LookAt(float eyePosition3DX, float eyePosition3DY, float eyePosition3DZ,
+	float center3DX, float center3DY, float center3DZ,
+	float upVector3DX, float upVector3DY, float upVector3DZ)
+{
+	float forward[3], side[3], up[3];
+	float matrix2[16];
+
+	// --------------------
+	forward[0] = center3DX - eyePosition3DX;
+	forward[1] = center3DY - eyePosition3DY;
+	forward[2] = center3DZ - eyePosition3DZ;
+	NormalizeVector(forward);
+	// --------------------
+	// Side = forward x up    向量外積
+	float tmp[3] = { upVector3DX ,upVector3DY, upVector3DZ };
+	ComputeNormalOfPlane(side, forward, tmp);
+	NormalizeVector(side);
+	//--------------------
+	// Recompute up as: up = side x forward    向量外積
+	ComputeNormalOfPlane(up, side, forward);
+	// --------------------
+	matrix2[0] = side[0];
+	matrix2[4] = side[1];
+	matrix2[8] = side[2];
+	matrix2[12] = 0.0;
+	// --------------------
+	matrix2[1] = up[0];
+	matrix2[5] = up[1];
+	matrix2[9] = up[2];
+	matrix2[13] = 0.0;
+	// --------------------
+	matrix2[2] = -forward[0];
+	matrix2[6] = -forward[1];
+	matrix2[10] = -forward[2];
+	matrix2[14] = 0.0;
+	// --------------------
+	matrix2[3] = matrix2[7] = matrix2[11] = 0.0;
+	matrix2[15] = 1.0;
+	// --------------------
+#ifdef check_matrix
+	glMultMatrixf(matrix2);//乘上最上面的矩陣並儲存 loadmatrix則是直接取代
+	glTranslatef(-eyePosition3DX, -eyePosition3DY, -eyePosition3DZ);
+#else
+	global::model_view = glm::make_mat4(matrix2);
+	global::model_view = glm::translate(global::model_view, glm::vec3(-eyePosition3DX, -eyePosition3DY, -eyePosition3DZ));
+#endif // check_matrix
+
+
+}
 //**********************************************************************
 //
 // * Draws the first-person view of the maze. It is passed the focal distance.
 //   THIS IS THE FUINCTION YOU SHOULD MODIFY.
 //======================================================================
 void Maze::
-Draw_View(const float focal_dist)
+Draw_View(const float focal_dist,const float aspect)
 //======================================================================
 {
 	frame_num++;
-	//glEnable(GL_DEPTH_TEST);
-	int camera_cell_index;
-	for (int i = 0; i < (int)this->num_cells; i++) {
-		if (cells[i]->Point_In_Cell(viewer_posn[X], viewer_posn[Y])) {
-			camera_cell_index = i;
-			break;
+	float my_near = 0.01;
+	float my_far = 200.0f;
+	glLoadIdentity();
+	global::model_view = glm::mat4(1);//填1才會是identity matrix
+	global::projection = glm::mat4(1);//填1才會是identity matrix
+	glClear(GL_DEPTH_BUFFER_BIT);
+	Perspective(viewer_fov, aspect, my_near, my_far);
+	float viewer_pos[3] = {viewer_posn[Maze::Y], 0.0f, viewer_posn[Maze::X] };
+	LookAt(viewer_pos[Maze::X], viewer_pos[Maze::Y], viewer_pos[Maze::Z],
+		viewer_pos[Maze::X] + sin(Maze::To_Radians(viewer_dir)),
+		viewer_pos[Maze::Y],
+		viewer_pos[Maze::Z] + cos(Maze::To_Radians(viewer_dir)),
+		0.0, 1.0, 0.0);
+#ifdef check_matrix
+	glEnable(GL_DEPTH_TEST);
+	for (int i = 0; i < (int)this->num_edges; i++) {
+		float edge_start[2] = {
+			this->edges[i]->endpoints[Edge::START]->posn[Vertex::X],
+			this->edges[i]->endpoints[Edge::START]->posn[Vertex::Y] };
+		float edge_end[2] = {
+			this->edges[i]->endpoints[Edge::END]->posn[Vertex::X],
+			this->edges[i]->endpoints[Edge::END]->posn[Vertex::Y] };
+		float color[3] = { this->edges[i]->color[0], this->edges[i]->color[1], this->edges[i]->color[2] };
+		if (this->edges[i]->opaque)
+			matrix_test_draw_wall(edge_start, edge_end, color);
+	}
+	glMatrixMode(GL_PROJECTION);//回歸單位矩陣，避免被上次影響
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+#else
+
+	//int camera_cell_index;
+	//int i;
+	//for (i = 0; i < this->num_cells; i++) {
+	//	if (cells[i]->Point_In_Cell(viewer_posn[X], viewer_posn[Y])) {
+	//		camera_cell_index = i;
+	//		break;
+	//	}
+	//}
+	//if (i == num_cells) return;
+	frustum view(Vertex(my_near*tan(viewer_fov*0.5), my_near), Vertex(-my_near * tan(viewer_fov * 0.5), my_near), Vertex(-my_far * tan(viewer_fov * 0.5), my_far), Vertex(my_far * tan(viewer_fov * 0.5), my_far));
+	//draw_cell(camera_cell_index, view);
+
+	for (int i = 0;i < 1;i++) {
+		if (!edges[i]->opaque) continue;
+		LineSeg edge_line(edges[i]);
+		glm::vec4 start(edge_line.start[1], 1.0f, edge_line.start[0], 1.0f), end(edge_line.end[1], 1.0f, edge_line.end[0], 1.0f);
+		start = global::model_view * start;
+		end = global::model_view * end;
+		bool draw_edge = false;
+		for (int j = 0;j < 4;j++) {//跑視錐的四個邊
+			char s = view.which_side(j).Point_Side(start[0], start[2]);
+			char e = view.which_side(j).Point_Side(end[0], end[2]);
+			if (s == Edge::LEFT && e == Edge::LEFT)
+			{
+				//在視錐外
+				//continue;
+				draw_edge = false;
+				break;
+			}
+			else if (s == Edge::RIGHT && e == Edge::LEFT)
+			{
+				draw_edge = true;
+				pair<glm::vec4, glm::vec4> frustum_line = view.pair_vec4_which_side(j);
+				end = cross_param(start, end,frustum_line.first, frustum_line.second,false);
+			}
+			else if (s == Edge::LEFT && e == Edge::RIGHT)
+			{
+				draw_edge = true;
+				pair<glm::vec4, glm::vec4> frustum_line = view.pair_vec4_which_side(j);
+				start = cross_param(start, end,frustum_line.first, frustum_line.second,true);
+			}
+
+		}
+		//if (!draw_edge) continue;
+		start = global::projection * start;
+		end = global::projection * end;
+
+		if (edges[i]->opaque)
+		{
+			start /= start[3];
+			end /= end[3];
+			glBegin(GL_POLYGON);
+			glColor3fv(edges[i]->color);
+
+			cout << start[0] << ' ' << start[1] << endl;
+			cout << end[0] << ' ' << end[1] << endl;
+			cout << "----------------------------" << endl;
+			glVertex2f(start[0], start[1]);
+			glVertex2f(end[0], end[1]);
+			glVertex2f(end[0], -end[1]);
+			glVertex2f(start[0], -start[1]);
+			glEnd();
 		}
 	}
-	float right_side_frustum_X = viewer_posn[X] + cos(Maze::To_Radians(viewer_dir - viewer_fov * 0.5));
-	float right_side_frustum_Y = viewer_posn[Y] + sin(Maze::To_Radians(viewer_dir - viewer_fov * 0.5));
-	LineSeg right_side_frustum(viewer_posn[X], viewer_posn[Y], right_side_frustum_X, right_side_frustum_Y);
-	float left_side_frustum_X = viewer_posn[X] + cos(Maze::To_Radians(viewer_dir + viewer_fov * 0.5));
-	float left_side_frustum_Y = viewer_posn[Y] + sin(Maze::To_Radians(viewer_dir + viewer_fov * 0.5));
-	LineSeg left_side_frustum(viewer_posn[X], viewer_posn[Y],left_side_frustum_X, left_side_frustum_Y);
-
-	draw_cell(camera_cell_index, left_side_frustum, right_side_frustum, NULL);
+#endif
 }
-
 void Maze::
-Draw_Wall(LineSeg& e,float color[3]) {
-	glm::vec4 v0, v1, v2, v3;
+matrix_test_draw_wall(const float start[2], const float end[2], const float color[3]) {
+	float edge0[3] = { start[Y], 0.0f, start[X] };
+	float edge1[3] = { end[Y], 0.0f, end[X] };
 	glBegin(GL_POLYGON);
-	v0 = { e.start[1] ,1.0f,e.start[0],1.0f };
-	v0 = global::projection * global::model_view * v0;
-	v1 = { e.start[1] ,-1.0f,e.start[0],1.0f };
-	v1 = global::projection * global::model_view * v1;
-	v2 = { e.end[1] ,1.0f,e.end[0],1.0f };
-	v2 = global::projection * global::model_view * v2;
-	v3 = { e.end[1] ,-1.0f,e.end[0],1.0f };
-	v3 = global::projection * global::model_view * v3;
-	v0 /= v0[3];
-	v1 /= v1[3];
-	v2 /= v2[3];
-	v3 /= v3[3];
-	//v0[0] /= v0[3];v0[1] /= abs(v0[3]);
-	//v1[0] /= abs(v1[3]);v1[1] /= abs(v1[3]);
-	//v2[0] /= abs(v2[3]);v2[1] /= abs(v2[3]);
-	//v3[0] /= abs(v3[3]);v3[1] /= abs(v3[3]);
 	glColor3fv(color);
-	//cout << "87\n";
-	glVertex2f(v0[0], v0[1]);
-	glVertex2f(v1[0], v1[1]);
-	glVertex2f(v2[0], v2[1]);
-	glVertex2f(v3[0], v3[1]);
+	glVertex4f(edge0[X], 1.0f, edge0[Z], 1);
+	glVertex4f(edge1[X], 1.0f, edge1[Z], 1);
+	glVertex4f(edge1[X], -1.0f, edge1[Z], 1);
+	glVertex4f(edge0[X], -1.0f, edge0[Z], 1);
 	glEnd();
 }
-char side(float ax, float ay, float bx, float by, float xp, float yp){
-	float d = (xp - ax) * (by - ay) - (yp - ay) * (bx - ax);
-	return d < 0 ? Edge::LEFT : Edge::RIGHT;
-}
 
-float cross_param(glm::vec4& s1, glm::vec4& e1,glm::vec4& s2, glm::vec4& e2) {
+//char side(float ax, float ay, float bx, float by, float xp, float yp){
+//	float d = (xp - ax) * (by - ay) - (yp - ay) * (bx - ax);
+//	return d < 0 ? Edge::LEFT : Edge::RIGHT;
+//}
+
+glm::vec4 cross_param(glm::vec4& s1, glm::vec4& e1,glm::vec4& s2, glm::vec4& e2,bool se) {
 	float   dx1, dy1, dx2, dy2;
 	float   denom, s;
 
@@ -696,108 +869,132 @@ float cross_param(glm::vec4& s1, glm::vec4& e1,glm::vec4& s2, glm::vec4& e2) {
 	// and solving a simulataneous equation to determine the parameter
 	// value of the intersection point on this LineSeg.
 	dx1 = e2[0] - s2[0];
-	dy1 = e2[1] - s2[1];
+	dy1 = e2[2] - s2[2];
 	dx2 = e1[0] - s1[0];
-	dy2 = e1[1] - s1[1];
+	dy2 = e1[2] - s1[2];
 
-	if ((denom = dx2 * dy1 - dy2 * dx1) == 0.0)
-		// Parallel segments.
-		return 1.0e20f;
+	//if ((denom = dx2 * dy1 - dy2 * dx1) == 0.0)假設不會平行
+	//	// Parallel segments.
+	//	return 1.0e20f;
 
-	s = (s2[0] - s1[0]) * dy1 - (s2[1] - s1[1]) * dx1;
+	s = (s2[0] - s1[0]) * dy1 - (s2[2] - s1[2]) * dx1;
 
-	return s / denom;
+	float percent = s / denom;
+	if (se) {
+		return glm::vec4(s1[0] + percent * (e1[0] - s1[0]), s1[1], s1[2] + percent * (e1[2] - s1[2]), s1[3]);
+	}
+	return glm::vec4(s1[0] + percent * (e1[0] - s1[0]), e1[1], s1[2] + percent * (e1[2] - s1[2]), e1[3]);
 }
 
-void Maze::draw_cell(int camera_cell_index, LineSeg L, LineSeg R,int prev_edge_index) {
-	Cell* now = cells[camera_cell_index];
-	for (int i = 0;i < 4;i++) {
-		if (!now->edges[i]->opaque) continue;
-		LineSeg edge_line(
-			now->edges[i]->endpoints[Edge::START]->posn[Vertex::X],
-			now->edges[i]->endpoints[Edge::START]->posn[Vertex::Y],
-			now->edges[i]->endpoints[Edge::END]->posn[Vertex::X],
-			now->edges[i]->endpoints[Edge::END]->posn[Vertex::Y]);
-		glm::vec4 
-				v0(edge_line.start[1], 1.0f, edge_line.start[0], 1.0f),
-				v1(edge_line.start[1], -1.0f, edge_line.start[0], 1.0f),
-				v2(edge_line.end[1], 1.0f, edge_line.end[0], 1.0f),
-				v3(edge_line.end[1], -1.0f, edge_line.end[0], 1.0f);
-		v0 = global::model_view * v0;
-		v1 = global::model_view * v1;
-		v2 = global::model_view * v2;
-		v3 = global::model_view * v3;
+void Maze::draw_cell(int camera_cell_index,frustum view) {
+	//Cell* now = cells[camera_cell_index];
+	//for (int i = 0;i < 4;i++) {//跑四面牆
+	//	if (!now->edges[i]->opaque) continue;
+	//	LineSeg edge_line(now->edges[i]);
+	//	glm::vec4 start(edge_line.start[1], 1.0f, edge_line.start[0], 1.0f), end(edge_line.end[1], 1.0f, edge_line.end[0], 1.0f);
+	//	start = global::model_view * start;
+	//	end = global::model_view * end;
+	//	bool draw_edge = false;
+	//	for (int j = 0;j < 4;j++) {//跑視錐的四個邊
+	//		char s = view.which_side(j).Point_Side(start[0],start[2]);
+	//		char e = view.which_side(j).Point_Side(end[0], end[2]);
+	//		if (s == Edge::LEFT && e == Edge::LEFT)
+	//		{
+	//			//在視錐外
+	//			continue;
+	//		}
+	//		else if (s == Edge::RIGHT && e == Edge::LEFT)
+	//		{
+	//			draw_edge = true;
+	//			pair<glm::vec4, glm::vec4> frustum_line =  view.pair_vec4_which_side(j);
+	//			end = cross_param(frustum_line.first, frustum_line.second, start, end);
+	//		}
+	//		else if (s == Edge::LEFT && e == Edge::RIGHT)
+	//		{
+	//			draw_edge = true;
+	//			pair<glm::vec4, glm::vec4> frustum_line = view.pair_vec4_which_side(j);
+	//			start = cross_param(frustum_line.first, frustum_line.second, start, end);
+	//		}
 
-		glm::vec4
-			l0(L.start[1], 1.0f, L.start[0], 1.0f),
-			l1(L.start[1], -1.0f, L.start[0], 1.0f),
-			l2(L.end[1], 1.0f, L.end[0], 1.0f),
-			l3(L.end[1], -1.0f, L.end[0], 1.0f);
+	//	}
+	//	//if (!draw_edge) continue;
+	//	start = global::projection * start;
+	//	end = global::projection * end;
 
-		l0 = global::model_view * l0;
-		l1 = global::model_view * l1;
-		l2 = global::model_view * l2;
-		l3 = global::model_view * l3;
+	//	if (now->edges[i]->opaque)
+	//	{
+	//		//start /= start[3];
+	//		//end /= end[3];
+	//		glBegin(GL_POLYGON);
+	//		glColor3fv(now->edges[i]->color);
 
-		glm::vec4
-			r0(R.start[1], 1.0f, R.start[0], 1.0f),
-			r1(R.start[1], -1.0f, R.start[0], 1.0f),
-			r2(R.end[1], 1.0f, R.end[0], 1.0f),
-			r3(R.end[1], -1.0f, R.end[0], 1.0f);
-
-		r0 = global::model_view * r0;
-		r1 = global::model_view * r1;
-		r2 = global::model_view * r2;
-		r3 = global::model_view * r3;
-
-
-		char sr = side(r0[0], r0[1], r2[0], r2[1], v0[0], v0[1]);
-		char er = side(r1[0], r0[1], r2[0], r2[1], v2[0], v2[1]);
-		char sl = side(l0[0], l0[1], l2[0], l2[1], v0[0], v0[1]);
-		char el = side(l0[0], l0[1], l2[0], l2[1], v2[0], v2[1]);
-
-		if (sr == Edge::RIGHT && er == Edge::RIGHT)
-		{
-			//在視錐外
-			continue;
-		}
-		else if (sr == Edge::RIGHT && er == Edge::LEFT)
-		{
-			float percent = cross_param(v0, v2,r0, r2);
-			v0[0] = v0[0] + (v2[0] - v0[0]) * percent;
-			v0[1] = v0[1] + (v2[1] - v0[1]) * percent;
-			v1[]
-		}
-		else if (sr == Edge::LEFT && er == Edge::RIGHT)
-		{
-
-			float percent = cross_param(r0, r2, v0, v2);
-			edge_line.end[0] = edge_line.start[0] + edge_line.x_diff() * percent;
-			edge_line.end[1] = edge_line.start[1] + edge_line.y_diff() * percent;
-		}
+	//		cout << start[0] << ' ' << start[1] << endl;
+	//		cout << end[0] << ' ' << end[1] << endl;
+	//		cout << "----------------------------"<<endl;
+	//		glVertex2f(start[0]/start[3], start[1] / start[3]);
+	//		glVertex2f(end[0] / end[3], end[1]/end[3]);
+	//		glVertex2f(end[0]/ end[3], -end[1]/ end[3]);
+	//		glVertex2f(start[0] / start[3], -start[1] / start[3]);
+	//		glEnd();
+	//	}
+	//}
 
 
-		if (sl == Edge::LEFT && el == Edge::LEFT)
-		{
-			//在視錐外
-			continue;
-		}
-		else if (sl == Edge::LEFT && el == Edge::RIGHT)
-		{
-			float percent = cross_param(l0, l2, v0, v2);
-			edge_line.start[0] = edge_line.start[0] + edge_line.x_diff() * percent;
-			edge_line.start[1] = edge_line.start[1] + edge_line.y_diff() * percent;
 
-		}
-		else if (sl == Edge::RIGHT && el == Edge::LEFT)
-		{
-			float percent = cross_param(l0, l2, v0, v2);
-			edge_line.end[0] = edge_line.start[0] + edge_line.x_diff() * percent;
-			edge_line.end[1] = edge_line.start[1] + edge_line.y_diff() * percent;
-		}
 
-		Draw_Wall(edge_line,now->edges[i]->color);
-	}
+	//Cell* now = cells[camera_cell_index];
+	//vector<tuple<glm::vec4, glm::vec4, float*> > all_draw;
+	//for (int i = 0;i < 4;i++) {
+	//	if (!now->edges[i]->opaque) continue;
+	//	all_draw.push_back(make_tuple(
+	//	glm::vec4(now->edges[i]->endpoints[Edge::START]->posn[Y], 1.0f, now->edges[i]->endpoints[Edge::START]->posn[X], 1.0f),
+	//	glm::vec4(now->edges[i]->endpoints[Edge::END]->posn[Y], 1.0f, now->edges[i]->endpoints[Edge::END]->posn[X], 1.0f), now->edges[i]->color));
+	//	get<0>(all_draw.back()) = global::model_view * get<0>(all_draw.back());
+	//	get<1>(all_draw.back()) = global::model_view * get<1>(all_draw.back());
+	//}
+	//for (int i = 0;i < 4;i++) {//跑視錐的四個邊
+	//	for (int j = 0;j < all_draw.size();j++) {//跑四面牆
+	//		char s = view.which_side(i).Point_Side(get<0>(all_draw[j])[0], get<0>(all_draw[j])[2]);
+	//		char e = view.which_side(i).Point_Side(get<1>(all_draw[j])[0], get<1>(all_draw[j])[2]);
+	//		if (s == Edge::LEFT && e == Edge::LEFT)
+	//		{
+	//			//在視錐外
+	//			all_draw.erase(all_draw.begin()+j);
+	//			j--;
+	//			continue;
+	//		}
+	//		else if (s == Edge::RIGHT && e == Edge::LEFT)
+	//		{
+	//			pair<glm::vec4, glm::vec4> frustum_line = view.pair_vec4_which_side(i);
+	//			get<1>(all_draw[j]) = cross_param(frustum_line.first, frustum_line.second, get<0>(all_draw[j]), get<1>(all_draw[j]));
+	//		}
+	//		else if (s == Edge::LEFT && e == Edge::RIGHT)
+	//		{
+	//			pair<glm::vec4, glm::vec4> frustum_line = view.pair_vec4_which_side(i);
+	//			get<0>(all_draw[j]) = cross_param(frustum_line.first, frustum_line.second, get<0>(all_draw[j]), get<1>(all_draw[j]));
+	//		}
+
+	//	}
+	//	//if (!draw_edge) continue;
+
+	//}
+	//for (int j = 0;j < all_draw.size();j++) {
+	//	get<0>(all_draw[j]) = global::projection * get<0>(all_draw[j]);
+	//	get<1>(all_draw[j]) = global::projection * get<1>(all_draw[j]);
+	//	//start /= start[3];
+	//	//end /= end[3];
+	//	glBegin(GL_POLYGON);
+	//	glColor3fv(get<2>(all_draw[j]));
+
+	//	cout << get<0>(all_draw[j])[0] << ' ' << get<0>(all_draw[j])[1] << endl;
+	//	cout << get<1>(all_draw[j])[0] << ' ' << get<1>(all_draw[j])[1] << endl;
+	//	cout << "----------------------------" << endl;
+	//	glVertex2f(get<0>(all_draw[j])[0] / get<0>(all_draw[j])[3], get<0>(all_draw[j])[1] / get<0>(all_draw[j])[3]);
+	//	glVertex2f(get<1>(all_draw[j])[0] / get<1>(all_draw[j])[3], get<1>(all_draw[j])[1] / get<1>(all_draw[j])[3]);
+	//	glVertex2f(get<1>(all_draw[j])[0] / get<1>(all_draw[j])[3], -get<1>(all_draw[j])[1] / get<1>(all_draw[j])[3]);
+	//	glVertex2f(get<0>(all_draw[j])[0] / get<0>(all_draw[j])[3], -get<0>(all_draw[j])[1] / get<0>(all_draw[j])[3]);
+	//	glEnd();
+	//}
 }
 
 //**********************************************************************

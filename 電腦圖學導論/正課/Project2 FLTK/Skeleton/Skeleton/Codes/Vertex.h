@@ -21,7 +21,14 @@
 
 class Vertex {
 	public:
+		Vertex() {}
 		// Constructor
+		Vertex(const Vertex& copy) {
+			posn[0] = copy.posn[0];
+			posn[1] = copy.posn[1];
+			index = copy.index;
+		}
+		Vertex(float x, float y);
 		Vertex(int index, float x, float y);
 
 	public:

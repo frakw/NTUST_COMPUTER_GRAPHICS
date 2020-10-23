@@ -34,3 +34,11 @@ Vertex(int i, float x, float y)
 	posn[Y] = y;
 }
 
+Vertex::
+Vertex(float x, float y)
+//=================================================================================
+{
+	posn[X] = x;
+	posn[Y] = y;
+}
+

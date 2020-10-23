@@ -17,7 +17,9 @@
 #include <FL/math.h> // Use FLTK's math header because it defines M_PI
 #include "Cell.h"
 #include "LineSeg.h"
+#include "frustum.h"
 
+class MazeWindow;
 //************************************************************************
 //
 // * A class for exceptions. Used by the constructor to pass file I/O errors
@@ -93,7 +95,7 @@ public:
 
 	// Draws the first-person view of the maze. It is passed the focal distance.
 	// THIS IS THE FUINCTION YOU SHOULD MODIFY.
-	void	Draw_View(const float);
+	void	Draw_View(const float, const float);
 
 	// Save the maze to a file of the given name.
 	bool	Save(const char*);
@@ -112,10 +114,9 @@ private:
 	void    Build_Maze(void);
 	void    Set_Extents(void);
 	void    Find_View_Cell(Cell*);
-
-	void draw_cell(int, LineSeg, LineSeg,int);
-
-	void add_edge_to_ndc(Edge&);
+	void  matrix_test_draw_wall(const float start[2], const float end[2], const float color[3]);
+	void draw_cell(int,frustum);
+	
 private:
 	Cell* view_cell;// The cell that currently contains the view
 									  // point. You will need to use this.
@@ -151,8 +152,6 @@ public:
 										// looking. Measured in degrees about the z
 										// axis, in the usual way.
 	float		viewer_fov;			// The horizontal field of view, in degrees.
-	//glm::mat4x4* matrix;
-	vector<glm::vec3> NDC;
 };
 
 

@@ -40,6 +40,7 @@
     <ClInclude Include="Codes\MazeWindow.h" />
     <ClInclude Include="Codes\Point.h" />
     <ClInclude Include="Codes\Vertex.h" />
+    <ClInclude Include="frustum.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

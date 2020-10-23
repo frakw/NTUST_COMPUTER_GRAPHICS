@@ -29,17 +29,6 @@ const char  Edge::START		= 0;
 const char  Edge::END		= 1;
 
 
-//void Edge::draw() {
-//	glColor3f(color[0], color[1], color[2]);
-//	glBegin(GL_POLYGON);
-//	for (auto& point : points) {
-//		glm::vec4 homogeneous(point[1], 0.0f, point[0], 1.0f);
-//		homogeneous = global::MVP * homogeneous;
-//		homogeneous /= homogeneous[3];
-//		glVertex2f(homogeneous[0], homogeneous[1]);
-//	}
-//	glEnd();
-//}
 
 //***********************************************************************
 //
