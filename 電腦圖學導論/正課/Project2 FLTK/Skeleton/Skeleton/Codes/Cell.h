@@ -43,7 +43,6 @@ class Cell {
 		// for clipping edges, so you should try to understand how it works.
 		Cell*   Clip_To_Cell(float &xs, float &ys,
 									float &xe, float &ye, const float buffer);
-
 		void draw();
   public:
     // Constants for accessing edges.

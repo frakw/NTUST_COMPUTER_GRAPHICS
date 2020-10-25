@@ -28,8 +28,14 @@ const char  Edge::NEITHER	= 3;
 const char  Edge::START		= 0;
 const char  Edge::END		= 1;
 
-
-
+Edge::
+Edge(Vertex* s, Vertex* e)
+{
+	endpoints[START] = s;
+	endpoints[END] = e;
+	opaque = true;
+	//*this = Edge(0, s, e, 0, 0, 0);
+}
 //***********************************************************************
 //
 // * Constructor to set up the start and end and the color of the edge

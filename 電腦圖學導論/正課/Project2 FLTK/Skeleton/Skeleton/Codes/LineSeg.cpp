@@ -17,6 +17,14 @@
 
 #include "LineSeg.h"
 
+LineSeg::
+LineSeg(glm::vec4& s, glm::vec4& e,int y_index) {
+	start[0] = s[0];
+	start[1] = s[y_index];
+	end[0] = e[0];
+	end[1] = e[y_index];
+}
+
 //**********************************************************************
 //
 // * Constructor from an edge

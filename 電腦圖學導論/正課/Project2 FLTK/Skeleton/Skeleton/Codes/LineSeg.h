@@ -19,7 +19,7 @@
 #define _LINESEG_H_
 
 #include "Edge.h"
-
+#include "all_glm.h"
 class LineSeg {
 
 	public:
@@ -29,7 +29,17 @@ class LineSeg {
 		// Second constructor takes an edge. The LineSeg created has the same
 		// start and end points as the edge.
 		LineSeg(Edge*);
-
+		LineSeg(glm::vec4&, glm::vec4&,int);
+		LineSeg(const LineSeg& x) {
+			*this = x;
+		}
+		LineSeg& operator=(const LineSeg& x) {
+			start[0] = x.start[0];
+			start[1] = x.start[1];
+			end[0] = x.end[0];
+			end[1] = x.end[1];
+			return *this;
+		}
 	public:
 		// Return the parameter value at which this segment crosses the given
 		// segment. This will return parameter values outside the range 0,1

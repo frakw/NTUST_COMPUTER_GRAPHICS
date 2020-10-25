@@ -19,17 +19,18 @@ public:
 		side[3] = d;
 	}
 	Vertex side[4];
-	Edge which_side(int which) {//which = 0~3
+	Edge which_edge(int which) {//which = 0~3
 		if (which == 3) {
 			return Edge(side + 3, side);
 		}
 		return Edge(side+which, side + which +1);
 	}
-	pair<glm::vec4, glm::vec4> pair_vec4_which_side(int which) {
+	LineSeg which_line(int which) {//which = 0~3
 		if (which == 3) {
-			return make_pair(glm::vec4(side[3].posn[0], 1.0f, side[3].posn[1], 1.0f), glm::vec4(side[0].posn[0], 1.0f, side[0].posn[1], 1.0f));
+			return LineSeg(side[3].posn[0], side[3].posn[1], side[0].posn[0], side[0].posn[1]);
 		}
-		return make_pair(glm::vec4(side[which].posn[0], 1.0f, side[which].posn[1], 1.0f), glm::vec4(side[which + 1].posn[0], 1.0f, side[which + 1].posn[1], 1.0f));
+		return  LineSeg(side[which].posn[0], side[which].posn[1], side[which+1].posn[0], side[which+1].posn[1]);
 	}
+	
 };
 #endif // !_FRUSTUM_H

@@ -34,6 +34,7 @@ MazeWindow(int x, int y, int width, int height, const char* label, Maze* m)
 	// The mouse button isn't down and there is no key pressed.
 	down = false;
 	z_key = 0;
+
 }
 
 

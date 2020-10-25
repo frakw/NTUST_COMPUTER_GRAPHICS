@@ -37,7 +37,7 @@ void print_mat4x4(glm::mat4x4& m) {
 		std::cout << std::endl;
 	}
 }
-glm::vec4 cross_param(glm::vec4& s1, glm::vec4& e1, glm::vec4& s2, glm::vec4& e2,bool);
+bool cross_param(glm::vec4& result, glm::vec4& s1, glm::vec4& e1, glm::vec4& s2, glm::vec4& e2, bool se);
 //**********************************************************************
 //
 // * Constructor for the maze exception
@@ -734,29 +734,75 @@ void LookAt(float eyePosition3DX, float eyePosition3DY, float eyePosition3DZ,
 
 
 }
+
+inline float Det(float a, float b, float c, float d)
+{
+	return a * d - b * c;
+}
+
+///Calculate intersection of two lines.
+///\return true if found, false if not found or error
+bool LineLineIntersect(float x1, float y1, //Line 1 start
+	float x2, float y2, //Line 1 end
+	float x3, float y3, //Line 2 start
+	float x4, float y4, //Line 2 end
+	double& ixOut, double& iyOut) //Output 
+{
+	//http://mathworld.wolfram.com/Line-LineIntersection.html
+
+	double detL1 = Det(x1, y1, x2, y2);
+	double detL2 = Det(x3, y3, x4, y4);
+	double x1mx2 = x1 - x2;
+	double x3mx4 = x3 - x4;
+	double y1my2 = y1 - y2;
+	double y3my4 = y3 - y4;
+
+	double xnom = Det(detL1, x1mx2, detL2, x3mx4);
+	double ynom = Det(detL1, y1my2, detL2, y3my4);
+	double denom = Det(x1mx2, y1my2, x3mx4, y3my4);
+	if (denom == 0.0)//Lines don't seem to cross
+	{
+		ixOut = NAN;
+		iyOut = NAN;
+		return false;
+	}
+
+	ixOut = xnom / denom;
+	iyOut = ynom / denom;
+	if (!isfinite(ixOut) || !isfinite(iyOut)) //Probably a numerical issue
+		return false;
+
+	return true; //All OK
+}
+
 //**********************************************************************
 //
 // * Draws the first-person view of the maze. It is passed the focal distance.
 //   THIS IS THE FUINCTION YOU SHOULD MODIFY.
 //======================================================================
 void Maze::
-Draw_View(const float focal_dist,const float aspect)
+Draw_View(const float focal_dist, const float aspect)
 //======================================================================
 {
 	frame_num++;
 	float my_near = 0.01;
 	float my_far = 200.0f;
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	global::model_view = glm::mat4(1);//填1才會是identity matrix
 	global::projection = glm::mat4(1);//填1才會是identity matrix
 	glClear(GL_DEPTH_BUFFER_BIT);
 	Perspective(viewer_fov, aspect, my_near, my_far);
-	float viewer_pos[3] = {viewer_posn[Maze::Y], 0.0f, viewer_posn[Maze::X] };
+	float viewer_pos[3] = { viewer_posn[Maze::Y], 0.0f, viewer_posn[Maze::X] };
 	LookAt(viewer_pos[Maze::X], viewer_pos[Maze::Y], viewer_pos[Maze::Z],
 		viewer_pos[Maze::X] + sin(Maze::To_Radians(viewer_dir)),
 		viewer_pos[Maze::Y],
 		viewer_pos[Maze::Z] + cos(Maze::To_Radians(viewer_dir)),
 		0.0, 1.0, 0.0);
+	//print_mat4x4(global::projection);
+	//print_mat4x4(global::model_view);
 #ifdef check_matrix
 	glEnable(GL_DEPTH_TEST);
 	for (int i = 0; i < (int)this->num_edges; i++) {
@@ -776,64 +822,93 @@ Draw_View(const float focal_dist,const float aspect)
 	glLoadIdentity();
 
 #else
-
-	//int camera_cell_index;
-	//int i;
-	//for (i = 0; i < this->num_cells; i++) {
-	//	if (cells[i]->Point_In_Cell(viewer_posn[X], viewer_posn[Y])) {
-	//		camera_cell_index = i;
-	//		break;
-	//	}
-	//}
-	//if (i == num_cells) return;
-	frustum view(Vertex(my_near*tan(viewer_fov*0.5), my_near), Vertex(-my_near * tan(viewer_fov * 0.5), my_near), Vertex(-my_far * tan(viewer_fov * 0.5), my_far), Vertex(my_far * tan(viewer_fov * 0.5), my_far));
-	//draw_cell(camera_cell_index, view);
-
-	for (int i = 0;i < 1;i++) {
-		if (!edges[i]->opaque) continue;
+	float camPosX = viewer_posn[Maze::X];
+	float camPosY = viewer_posn[Maze::Y];
+	float camFOV = viewer_fov; //視野大小FOV
+	glm::vec4 frust_vertex[] = {
+	glm::vec4(camPosY + my_far * sin(To_Radians(viewer_dir + camFOV / 2)),1.0f,camPosX + my_far * cos(To_Radians(viewer_dir + camFOV / 2)),1.0f),
+	glm::vec4(camPosY + my_near * sin(To_Radians(viewer_dir + camFOV / 2)),1.0f,camPosX + my_near * cos(To_Radians(viewer_dir + camFOV / 2)),1.0f),
+	glm::vec4(camPosY + my_near * sin(To_Radians(viewer_dir - camFOV / 2)),1.0f,camPosX + my_near * cos(To_Radians(viewer_dir - camFOV / 2)),1.0f),
+	glm::vec4(camPosY + my_far * sin(To_Radians(viewer_dir - camFOV / 2)),1.0f,camPosX + my_far * cos(To_Radians(viewer_dir - camFOV / 2)),1.0f)
+	};
+	int frustum_vertex_num = (sizeof(frust_vertex) / sizeof(frust_vertex[0]));
+	for (int j = 0;j < frustum_vertex_num;j++) frust_vertex[j] = global::model_view * frust_vertex[j];
+	//frustum view(Vertex(-my_far * tan(To_Radians(viewer_fov * 0.5)), my_far), Vertex(-my_near * tan(To_Radians(viewer_fov * 0.5)), my_near), Vertex(my_near * tan(To_Radians(viewer_fov * 0.5)), my_near), Vertex(my_far * tan(To_Radians(viewer_fov * 0.5)), my_far));
+	frustum view(Vertex(frust_vertex[0][0], frust_vertex[0][2]), Vertex(frust_vertex[1][0], frust_vertex[1][2]), Vertex(frust_vertex[2][0], frust_vertex[2][2]), Vertex(frust_vertex[3][0], frust_vertex[3][2]));
+	for (int i = 0;i < num_edges;i++) {
 		LineSeg edge_line(edges[i]);
-		glm::vec4 start(edge_line.start[1], 1.0f, edge_line.start[0], 1.0f), end(edge_line.end[1], 1.0f, edge_line.end[0], 1.0f);
+		glm::vec4	start(edge_line.start[1], 1.0f, edge_line.start[0], 1.0f),
+					end(edge_line.end[1], 1.0f, edge_line.end[0], 1.0f);
 		start = global::model_view * start;
 		end = global::model_view * end;
-		bool draw_edge = false;
-		for (int j = 0;j < 4;j++) {//跑視錐的四個邊
-			char s = view.which_side(j).Point_Side(start[0], start[2]);
-			char e = view.which_side(j).Point_Side(end[0], end[2]);
-			if (s == Edge::LEFT && e == Edge::LEFT)
+		bool draw_edge = true;
+		for (int j = 0;j < 3;j++) {
+			//LineSeg frust_line(frust_vertex[j], frust_vertex[(j + 1) % frustum_vertex_num], 2);
+			//Vertex frust_start(frust_vertex[j], 0, 2);
+			//Vertex frust_end(frust_vertex[(j + 1) % frustum_vertex_num], 0, 2);
+			//Edge frust_edge(&frust_start, &frust_end);
+			char s_side = view.which_edge(j).Point_Side(start[0], start[2]);
+			char e_side = view.which_edge(j).Point_Side(end[0], end[2]);
+			if (s_side == Edge::LEFT && e_side == Edge::LEFT)
 			{
 				//在視錐外
-				//continue;
 				draw_edge = false;
+				cout << i << "號牆 out"<<endl;
 				break;
 			}
-			else if (s == Edge::RIGHT && e == Edge::LEFT)
+			else if (s_side == Edge::RIGHT && e_side == Edge::LEFT)
 			{
-				draw_edge = true;
-				pair<glm::vec4, glm::vec4> frustum_line = view.pair_vec4_which_side(j);
-				end = cross_param(start, end,frustum_line.first, frustum_line.second,false);
-			}
-			else if (s == Edge::LEFT && e == Edge::RIGHT)
-			{
-				draw_edge = true;
-				pair<glm::vec4, glm::vec4> frustum_line = view.pair_vec4_which_side(j);
-				start = cross_param(start, end,frustum_line.first, frustum_line.second,true);
-			}
+				float percent = view.which_line(j).Cross_Param(LineSeg(start,end,2));
+				if (percent != 1.0e20f && percent> 0 && percent < 1) {
+					draw_edge = true;
+					end[0] = view.which_line(j).start[0] + (view.which_line(j).end[0] - view.which_line(j).start[0]) * percent;
+					end[2] = view.which_line(j).start[1] + (view.which_line(j).end[1] - view.which_line(j).start[1]) * percent;
+					cout << i << "號牆 cut end" << endl;
 
+				}
+
+			}
+			else if (s_side == Edge::LEFT && e_side == Edge::RIGHT)
+			{
+				float percent = view.which_line(j).Cross_Param(LineSeg(start, end, 2));
+				if (percent != 1.0e20f && percent> 0 && percent < 1) {
+					draw_edge = true;
+					start[0] = view.which_line(j).start[0] + (view.which_line(j).end[0] - view.which_line(j).start[0]) * percent;
+					start[2] = view.which_line(j).start[1] + (view.which_line(j).end[1] - view.which_line(j).start[1]) * percent;
+					cout << i << "號牆 cut start" << endl;
+
+				}
+			}
+			else {
+				cout << i << "號牆 no cut" << endl;
+			}
 		}
-		//if (!draw_edge) continue;
+		if (!draw_edge) continue;
 		start = global::projection * start;
 		end = global::projection * end;
-
-		if (edges[i]->opaque)
-		{
+		float w_cut = 0.01f;
+		//if (start[3] < w_cut || end[3] < w_cut) continue;
+		//if (start[3] < w_cut) {
+		//	float percent = (-start[3] - w_cut) / (end[3] - start[3]);
+		//	start[0] = start[0] + (end[0] - start[0]) * percent;
+		//	start[1] = start[1] + (end[1] - start[1]) * percent;
+		//	start[2] = start[2] + (end[2] - start[2]) * percent;
+		//	start[3] = w_cut;
+		//	cout << "point 3 :" << start[0] << ' ' << start[1] << ' ' << start[2] << endl;
+		//}
+		//if (end[3] < w_cut) {
+		//	float percent = (-end[3] - w_cut) / (start[3] - end[3]);
+		//	end[0] = end[0] + (end[0] - start[0]) * percent;
+		//	end[1] = end[1] + (end[1] - start[1]) * percent;
+		//	end[2] = end[2] + (end[2] - start[2]) * percent;
+		//	end[3] = w_cut;
+		//	cout << "point 3 :" << end[0] << ' ' << end[1] << ' ' << end[2] << endl;
+		//}
+		if (edges[i]->opaque) {
 			start /= start[3];
-			end /= end[3];
+			end	  /= end[3];
 			glBegin(GL_POLYGON);
 			glColor3fv(edges[i]->color);
-
-			cout << start[0] << ' ' << start[1] << endl;
-			cout << end[0] << ' ' << end[1] << endl;
-			cout << "----------------------------" << endl;
 			glVertex2f(start[0], start[1]);
 			glVertex2f(end[0], end[1]);
 			glVertex2f(end[0], -end[1]);
@@ -842,6 +917,41 @@ Draw_View(const float focal_dist,const float aspect)
 		}
 	}
 #endif
+}
+
+void Maze::draw_cell(Cell* now_cell,frustum view, Cell* prev_cell) {
+	
+}
+bool cross_param(glm::vec4& result, glm::vec4& s1, glm::vec4& e1, glm::vec4& s2, glm::vec4& e2, bool se) {
+	float   dx1, dy1, dx2, dy2;
+	float   denom, s;
+
+	// This computation comes from writing each segment in parametric form,
+	// and solving a simulataneous equation to determine the parameter
+	// value of the intersection point on this LineSeg.
+	dx1 = e2[0] - s2[0];
+	dy1 = e2[2] - s2[2];
+	dx2 = e1[0] - s1[0];
+	dy2 = e1[2] - s1[2];
+
+	if ((denom = dx2 * dy1 - dy2 * dx1) == 0.0) return false;
+	// Parallel segments.
+
+
+	s = (s2[0] - s1[0]) * dy1 - (s2[2] - s1[2]) * dx1;
+
+	float percent = s / denom;
+	if (se) {
+		result = glm::vec4(s1[0] + percent * (e1[0] - s1[0]), s1[1], s1[2] + percent * (e1[2] - s1[2]), s1[3]);
+	}
+	else {
+		result = glm::vec4(s1[0] + percent * (e1[0] - s1[0]), e1[1], s1[2] + percent * (e1[2] - s1[2]), e1[3]);
+	}
+
+	return true;
+}
+void Maze::Draw_Wall(float sx, float sy, float ex, float ey, float rr, float gg, float bb) {
+
 }
 void Maze::
 matrix_test_draw_wall(const float start[2], const float end[2], const float color[3]) {
@@ -854,147 +964,6 @@ matrix_test_draw_wall(const float start[2], const float end[2], const float colo
 	glVertex4f(edge1[X], -1.0f, edge1[Z], 1);
 	glVertex4f(edge0[X], -1.0f, edge0[Z], 1);
 	glEnd();
-}
-
-//char side(float ax, float ay, float bx, float by, float xp, float yp){
-//	float d = (xp - ax) * (by - ay) - (yp - ay) * (bx - ax);
-//	return d < 0 ? Edge::LEFT : Edge::RIGHT;
-//}
-
-glm::vec4 cross_param(glm::vec4& s1, glm::vec4& e1,glm::vec4& s2, glm::vec4& e2,bool se) {
-	float   dx1, dy1, dx2, dy2;
-	float   denom, s;
-
-	// This computation comes from writing each segment in parametric form,
-	// and solving a simulataneous equation to determine the parameter
-	// value of the intersection point on this LineSeg.
-	dx1 = e2[0] - s2[0];
-	dy1 = e2[2] - s2[2];
-	dx2 = e1[0] - s1[0];
-	dy2 = e1[2] - s1[2];
-
-	//if ((denom = dx2 * dy1 - dy2 * dx1) == 0.0)假設不會平行
-	//	// Parallel segments.
-	//	return 1.0e20f;
-
-	s = (s2[0] - s1[0]) * dy1 - (s2[2] - s1[2]) * dx1;
-
-	float percent = s / denom;
-	if (se) {
-		return glm::vec4(s1[0] + percent * (e1[0] - s1[0]), s1[1], s1[2] + percent * (e1[2] - s1[2]), s1[3]);
-	}
-	return glm::vec4(s1[0] + percent * (e1[0] - s1[0]), e1[1], s1[2] + percent * (e1[2] - s1[2]), e1[3]);
-}
-
-void Maze::draw_cell(int camera_cell_index,frustum view) {
-	//Cell* now = cells[camera_cell_index];
-	//for (int i = 0;i < 4;i++) {//跑四面牆
-	//	if (!now->edges[i]->opaque) continue;
-	//	LineSeg edge_line(now->edges[i]);
-	//	glm::vec4 start(edge_line.start[1], 1.0f, edge_line.start[0], 1.0f), end(edge_line.end[1], 1.0f, edge_line.end[0], 1.0f);
-	//	start = global::model_view * start;
-	//	end = global::model_view * end;
-	//	bool draw_edge = false;
-	//	for (int j = 0;j < 4;j++) {//跑視錐的四個邊
-	//		char s = view.which_side(j).Point_Side(start[0],start[2]);
-	//		char e = view.which_side(j).Point_Side(end[0], end[2]);
-	//		if (s == Edge::LEFT && e == Edge::LEFT)
-	//		{
-	//			//在視錐外
-	//			continue;
-	//		}
-	//		else if (s == Edge::RIGHT && e == Edge::LEFT)
-	//		{
-	//			draw_edge = true;
-	//			pair<glm::vec4, glm::vec4> frustum_line =  view.pair_vec4_which_side(j);
-	//			end = cross_param(frustum_line.first, frustum_line.second, start, end);
-	//		}
-	//		else if (s == Edge::LEFT && e == Edge::RIGHT)
-	//		{
-	//			draw_edge = true;
-	//			pair<glm::vec4, glm::vec4> frustum_line = view.pair_vec4_which_side(j);
-	//			start = cross_param(frustum_line.first, frustum_line.second, start, end);
-	//		}
-
-	//	}
-	//	//if (!draw_edge) continue;
-	//	start = global::projection * start;
-	//	end = global::projection * end;
-
-	//	if (now->edges[i]->opaque)
-	//	{
-	//		//start /= start[3];
-	//		//end /= end[3];
-	//		glBegin(GL_POLYGON);
-	//		glColor3fv(now->edges[i]->color);
-
-	//		cout << start[0] << ' ' << start[1] << endl;
-	//		cout << end[0] << ' ' << end[1] << endl;
-	//		cout << "----------------------------"<<endl;
-	//		glVertex2f(start[0]/start[3], start[1] / start[3]);
-	//		glVertex2f(end[0] / end[3], end[1]/end[3]);
-	//		glVertex2f(end[0]/ end[3], -end[1]/ end[3]);
-	//		glVertex2f(start[0] / start[3], -start[1] / start[3]);
-	//		glEnd();
-	//	}
-	//}
-
-
-
-
-	//Cell* now = cells[camera_cell_index];
-	//vector<tuple<glm::vec4, glm::vec4, float*> > all_draw;
-	//for (int i = 0;i < 4;i++) {
-	//	if (!now->edges[i]->opaque) continue;
-	//	all_draw.push_back(make_tuple(
-	//	glm::vec4(now->edges[i]->endpoints[Edge::START]->posn[Y], 1.0f, now->edges[i]->endpoints[Edge::START]->posn[X], 1.0f),
-	//	glm::vec4(now->edges[i]->endpoints[Edge::END]->posn[Y], 1.0f, now->edges[i]->endpoints[Edge::END]->posn[X], 1.0f), now->edges[i]->color));
-	//	get<0>(all_draw.back()) = global::model_view * get<0>(all_draw.back());
-	//	get<1>(all_draw.back()) = global::model_view * get<1>(all_draw.back());
-	//}
-	//for (int i = 0;i < 4;i++) {//跑視錐的四個邊
-	//	for (int j = 0;j < all_draw.size();j++) {//跑四面牆
-	//		char s = view.which_side(i).Point_Side(get<0>(all_draw[j])[0], get<0>(all_draw[j])[2]);
-	//		char e = view.which_side(i).Point_Side(get<1>(all_draw[j])[0], get<1>(all_draw[j])[2]);
-	//		if (s == Edge::LEFT && e == Edge::LEFT)
-	//		{
-	//			//在視錐外
-	//			all_draw.erase(all_draw.begin()+j);
-	//			j--;
-	//			continue;
-	//		}
-	//		else if (s == Edge::RIGHT && e == Edge::LEFT)
-	//		{
-	//			pair<glm::vec4, glm::vec4> frustum_line = view.pair_vec4_which_side(i);
-	//			get<1>(all_draw[j]) = cross_param(frustum_line.first, frustum_line.second, get<0>(all_draw[j]), get<1>(all_draw[j]));
-	//		}
-	//		else if (s == Edge::LEFT && e == Edge::RIGHT)
-	//		{
-	//			pair<glm::vec4, glm::vec4> frustum_line = view.pair_vec4_which_side(i);
-	//			get<0>(all_draw[j]) = cross_param(frustum_line.first, frustum_line.second, get<0>(all_draw[j]), get<1>(all_draw[j]));
-	//		}
-
-	//	}
-	//	//if (!draw_edge) continue;
-
-	//}
-	//for (int j = 0;j < all_draw.size();j++) {
-	//	get<0>(all_draw[j]) = global::projection * get<0>(all_draw[j]);
-	//	get<1>(all_draw[j]) = global::projection * get<1>(all_draw[j]);
-	//	//start /= start[3];
-	//	//end /= end[3];
-	//	glBegin(GL_POLYGON);
-	//	glColor3fv(get<2>(all_draw[j]));
-
-	//	cout << get<0>(all_draw[j])[0] << ' ' << get<0>(all_draw[j])[1] << endl;
-	//	cout << get<1>(all_draw[j])[0] << ' ' << get<1>(all_draw[j])[1] << endl;
-	//	cout << "----------------------------" << endl;
-	//	glVertex2f(get<0>(all_draw[j])[0] / get<0>(all_draw[j])[3], get<0>(all_draw[j])[1] / get<0>(all_draw[j])[3]);
-	//	glVertex2f(get<1>(all_draw[j])[0] / get<1>(all_draw[j])[3], get<1>(all_draw[j])[1] / get<1>(all_draw[j])[3]);
-	//	glVertex2f(get<1>(all_draw[j])[0] / get<1>(all_draw[j])[3], -get<1>(all_draw[j])[1] / get<1>(all_draw[j])[3]);
-	//	glVertex2f(get<0>(all_draw[j])[0] / get<0>(all_draw[j])[3], -get<0>(all_draw[j])[1] / get<0>(all_draw[j])[3]);
-	//	glEnd();
-	//}
 }
 
 //**********************************************************************
