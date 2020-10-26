@@ -87,7 +87,7 @@ Cross_Param(LineSeg e)
 	return s / denom;
 }
 
-char LineSeg::point_on_line_side(float x, float y) {
+char LineSeg::Point_Side(float x, float y) {
 	// Compute the determinant: | xs ys 1 |
 //                          | xe ye 1 |
 //                          | x  y  1 |

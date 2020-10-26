@@ -59,6 +59,7 @@ class Cell {
 										// set it equal to the frame number each time
 										// you draw a cell. You then use it to prvent
 										// drawing cells twice when you recurse.
+	bool foot_print = false;
 };
 
 #endif

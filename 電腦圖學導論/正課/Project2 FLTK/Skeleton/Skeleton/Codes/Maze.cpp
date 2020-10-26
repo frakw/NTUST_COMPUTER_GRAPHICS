@@ -785,8 +785,7 @@ Draw_View(const float focal_dist, const float aspect)
 //======================================================================
 {
 	frame_num++;
-	float my_near = 0.01;
-	float my_far = 200.0f;
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
@@ -827,100 +826,130 @@ Draw_View(const float focal_dist, const float aspect)
 	float camFOV = viewer_fov; //視野大小FOV
 	glm::vec4 frust_vertex[] = {
 	glm::vec4(camPosY + my_far * sin(To_Radians(viewer_dir + camFOV / 2)),1.0f,camPosX + my_far * cos(To_Radians(viewer_dir + camFOV / 2)),1.0f),
-	glm::vec4(camPosY + my_near * sin(To_Radians(viewer_dir + camFOV / 2)),1.0f,camPosX + my_near * cos(To_Radians(viewer_dir + camFOV / 2)),1.0f),
-	glm::vec4(camPosY + my_near * sin(To_Radians(viewer_dir - camFOV / 2)),1.0f,camPosX + my_near * cos(To_Radians(viewer_dir - camFOV / 2)),1.0f),
+	glm::vec4(camPosY,1.0f,camPosX,1.0f),
 	glm::vec4(camPosY + my_far * sin(To_Radians(viewer_dir - camFOV / 2)),1.0f,camPosX + my_far * cos(To_Radians(viewer_dir - camFOV / 2)),1.0f)
 	};
 	int frustum_vertex_num = (sizeof(frust_vertex) / sizeof(frust_vertex[0]));
 	for (int j = 0;j < frustum_vertex_num;j++) frust_vertex[j] = global::model_view * frust_vertex[j];
 	//frustum view(Vertex(-my_far * tan(To_Radians(viewer_fov * 0.5)), my_far), Vertex(-my_near * tan(To_Radians(viewer_fov * 0.5)), my_near), Vertex(my_near * tan(To_Radians(viewer_fov * 0.5)), my_near), Vertex(my_far * tan(To_Radians(viewer_fov * 0.5)), my_far));
-	frustum view(Vertex(frust_vertex[0][0], frust_vertex[0][2]), Vertex(frust_vertex[1][0], frust_vertex[1][2]), Vertex(frust_vertex[2][0], frust_vertex[2][2]), Vertex(frust_vertex[3][0], frust_vertex[3][2]));
-	for (int i = 0;i < num_edges;i++) {
-		LineSeg edge_line(edges[i]);
-		glm::vec4	start(edge_line.start[1], 1.0f, edge_line.start[0], 1.0f),
-					end(edge_line.end[1], 1.0f, edge_line.end[0], 1.0f);
-		start = global::model_view * start;
-		end = global::model_view * end;
-		bool draw_edge = true;
-		for (int j = 0;j < 3;j++) {
-			//LineSeg frust_line(frust_vertex[j], frust_vertex[(j + 1) % frustum_vertex_num], 2);
-			//Vertex frust_start(frust_vertex[j], 0, 2);
-			//Vertex frust_end(frust_vertex[(j + 1) % frustum_vertex_num], 0, 2);
-			//Edge frust_edge(&frust_start, &frust_end);
-			char s_side = view.which_edge(j).Point_Side(start[0], start[2]);
-			char e_side = view.which_edge(j).Point_Side(end[0], end[2]);
-			if (s_side == Edge::LEFT && e_side == Edge::LEFT)
-			{
-				//在視錐外
-				draw_edge = false;
-				cout << i << "號牆 out"<<endl;
-				break;
-			}
-			else if (s_side == Edge::RIGHT && e_side == Edge::LEFT)
-			{
-				float percent = view.which_line(j).Cross_Param(LineSeg(start,end,2));
-				if (percent != 1.0e20f && percent> 0 && percent < 1) {
-					draw_edge = true;
-					end[0] = view.which_line(j).start[0] + (view.which_line(j).end[0] - view.which_line(j).start[0]) * percent;
-					end[2] = view.which_line(j).start[1] + (view.which_line(j).end[1] - view.which_line(j).start[1]) * percent;
-					cout << i << "號牆 cut end" << endl;
+	//frustum view(Vertex(frust_vertex[0][0], frust_vertex[0][2]), Vertex(frust_vertex[1][0], frust_vertex[1][2]), Vertex(frust_vertex[2][0], frust_vertex[2][2]), Vertex(frust_vertex[3][0], frust_vertex[3][2]));
+	//draw_cell(view_cell, view, -1);
+	draw_cell(view_cell,
+		LineSeg(frust_vertex[0], frust_vertex[1], 2),
+		LineSeg(frust_vertex[1], frust_vertex[2], 2));
+	for (int i = 0;i < num_cells;i++)cells[i]->foot_print = false;
+#endif
+}
+
+void Maze::draw_cell(Cell* now_cell, LineSeg L, LineSeg R) {
+	now_cell->foot_print = true;
+	float camPosX = viewer_posn[Maze::X];
+	float camPosY = viewer_posn[Maze::Y];
+	float camFOV = viewer_fov; //視野大小FOV
+	for (int i = 0;i < 4;i++) {
+		LineSeg edge_line(now_cell->edges[i]);
+		if (now_cell->edges[i]->opaque) {
+			LineSeg LR[2] = { L,R };
+			glm::vec4	start(edge_line.start[1], 1.0f, edge_line.start[0], 1.0f),
+				end(edge_line.end[1], 1.0f, edge_line.end[0], 1.0f);
+			start = global::model_view * start;
+			end = global::model_view * end;
+			bool draw_edge = true;
+			for (int j = 0;j < 2;j++) {
+				char s_side = LR[j].Point_Side(start[0], start[2]);
+				char e_side = LR[j].Point_Side(end[0], end[2]);
+				if (s_side == Edge::LEFT && e_side == Edge::LEFT)
+				{
+					//在視錐外
+					draw_edge = false;
+					//cout << i << "號牆 out" << endl;
+					break;
+				}
+				else if (s_side == Edge::RIGHT && e_side == Edge::LEFT)
+				{
+					//float percent = LR[j].Cross_Param(LineSeg(start, end, 2));
+					float percent = LineSeg(start, end, 2).Cross_Param(LR[j]);
+					if (percent != 1.0e20f && percent > 0 && percent < 1) {
+						draw_edge = true;
+						//end[0] = LR[j].start[0] + (LR[j].end[0] - LR[j].start[0]) * percent;
+						//end[2] = LR[j].start[1] + (LR[j].end[1] - LR[j].start[1]) * percent;
+						end[0] = start[0] + (end[0] - start[0]) * percent;
+						end[2] = start[2] + (end[2] - start[2]) * percent;
+
+						//cout << i << "號牆 cut end" << endl;
+
+					}
 
 				}
+				else if (s_side == Edge::LEFT && e_side == Edge::RIGHT)
+				{
+					//float percent = LR[j].Cross_Param(LineSeg(start, end, 2));
+					float percent = LineSeg(start, end, 2).Cross_Param(LR[j]);
+					if (percent != 1.0e20f && percent > 0 && percent < 1) {
+						draw_edge = true;
+						//start[0] = LR[j].start[0] + (LR[j].end[0] - LR[j].start[0]) * percent;
+						//start[2] = LR[j].start[1] + (LR[j].end[1] - LR[j].start[1]) * percent;
+						start[0] = start[0] + (end[0] - start[0]) * percent;
+						start[2] = start[2] + (end[2] - start[2]) * percent;
 
-			}
-			else if (s_side == Edge::LEFT && e_side == Edge::RIGHT)
-			{
-				float percent = view.which_line(j).Cross_Param(LineSeg(start, end, 2));
-				if (percent != 1.0e20f && percent> 0 && percent < 1) {
-					draw_edge = true;
-					start[0] = view.which_line(j).start[0] + (view.which_line(j).end[0] - view.which_line(j).start[0]) * percent;
-					start[2] = view.which_line(j).start[1] + (view.which_line(j).end[1] - view.which_line(j).start[1]) * percent;
-					cout << i << "號牆 cut start" << endl;
+						//cout << i << "號牆 cut start" << endl;
 
+					}
+				}
+				else {
+					//cout << i << "號牆 no cut" << endl;
 				}
 			}
-			else {
-				cout << i << "號牆 no cut" << endl;
+			if (!draw_edge) continue;
+			start = global::projection * start;
+			end = global::projection * end;
+			float w_cut = 0.01f;
+			if (start[3] < w_cut || end[3] < w_cut) continue;
+			if (start[3] < w_cut) {
+				float percent = (-start[3] - w_cut) / (end[3] - start[3]);
+				start[0] = start[0] + (end[0] - start[0]) * percent;
+				start[1] = start[1] + (end[1] - start[1]) * percent;
+				start[2] = start[2] + (end[2] - start[2]) * percent;
+				start[3] = w_cut;
+				//cout << "point 3 :" << start[0] << ' ' << start[1] << ' ' << start[2] << endl;
 			}
-		}
-		if (!draw_edge) continue;
-		start = global::projection * start;
-		end = global::projection * end;
-		float w_cut = 0.01f;
-		//if (start[3] < w_cut || end[3] < w_cut) continue;
-		//if (start[3] < w_cut) {
-		//	float percent = (-start[3] - w_cut) / (end[3] - start[3]);
-		//	start[0] = start[0] + (end[0] - start[0]) * percent;
-		//	start[1] = start[1] + (end[1] - start[1]) * percent;
-		//	start[2] = start[2] + (end[2] - start[2]) * percent;
-		//	start[3] = w_cut;
-		//	cout << "point 3 :" << start[0] << ' ' << start[1] << ' ' << start[2] << endl;
-		//}
-		//if (end[3] < w_cut) {
-		//	float percent = (-end[3] - w_cut) / (start[3] - end[3]);
-		//	end[0] = end[0] + (end[0] - start[0]) * percent;
-		//	end[1] = end[1] + (end[1] - start[1]) * percent;
-		//	end[2] = end[2] + (end[2] - start[2]) * percent;
-		//	end[3] = w_cut;
-		//	cout << "point 3 :" << end[0] << ' ' << end[1] << ' ' << end[2] << endl;
-		//}
-		if (edges[i]->opaque) {
+			if (end[3] < w_cut) {
+				float percent = (-end[3] - w_cut) / (start[3] - end[3]);
+				end[0] = end[0] + (end[0] - start[0]) * percent;
+				end[1] = end[1] + (end[1] - start[1]) * percent;
+				end[2] = end[2] + (end[2] - start[2]) * percent;
+				end[3] = w_cut;
+				//cout << "point 3 :" << end[0] << ' ' << end[1] << ' ' << end[2] << endl;
+			}
+
 			start /= start[3];
-			end	  /= end[3];
+			end /= end[3];
 			glBegin(GL_POLYGON);
-			glColor3fv(edges[i]->color);
+			glColor3fv(now_cell->edges[i]->color);
 			glVertex2f(start[0], start[1]);
 			glVertex2f(end[0], end[1]);
 			glVertex2f(end[0], -end[1]);
 			glVertex2f(start[0], -start[1]);
 			glEnd();
 		}
-	}
-#endif
-}
+		else {
+			Cell* next = now_cell != now_cell->edges[i]->neighbors[Edge::LEFT] ? now_cell->edges[i]->neighbors[Edge::LEFT] : now_cell->edges[i]->neighbors[Edge::RIGHT];
+			if (next->foot_print) continue;
+			LineSeg newL, newR;
+			if (LineSeg(camPosX, camPosY, edge_line.start[0], edge_line.start[1]).Point_Side(edge_line.end[0], edge_line.end[1]) == Edge::LEFT)
+			{
+				newR.set(camPosX, camPosY, edge_line.start[0], edge_line.start[1]);
+				newL.set(edge_line.end[0], edge_line.end[1],camPosX, camPosY);
 
-void Maze::draw_cell(Cell* now_cell,frustum view, Cell* prev_cell) {
-	
+			}
+			else
+			{
+				newL.set(camPosX, camPosY, edge_line.start[0], edge_line.start[1]);
+				newR.set(edge_line.end[0], edge_line.end[1], camPosX, camPosY);
+			}
+			draw_cell(next,newL,newR);
+		}
+	}
 }
 bool cross_param(glm::vec4& result, glm::vec4& s1, glm::vec4& e1, glm::vec4& s2, glm::vec4& e2, bool se) {
 	float   dx1, dy1, dx2, dy2;

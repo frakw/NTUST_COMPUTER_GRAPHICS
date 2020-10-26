@@ -18,6 +18,12 @@ public:
 		side[2] = c;
 		side[3] = d;
 	}
+	void set(Vertex a, Vertex b, Vertex c, Vertex d) {
+		side[0] = a;
+		side[1] = b;
+		side[2] = c;
+		side[3] = d;
+	}
 	Vertex side[4];
 	Edge which_edge(int which) {//which = 0~3
 		if (which == 3) {

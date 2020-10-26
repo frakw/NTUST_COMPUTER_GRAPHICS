@@ -25,7 +25,7 @@ class LineSeg {
 	public:
 		// First constructor takes the endpoints.
 		LineSeg(float xs, float ys, float xe, float ye);
-
+		LineSeg() {}
 		// Second constructor takes an edge. The LineSeg created has the same
 		// start and end points as the edge.
 		LineSeg(Edge*);
@@ -48,8 +48,13 @@ class LineSeg {
 		// But you can use tests like Edge::Point_Side() to figure that out.
 		float   Cross_Param(LineSeg);
 
-		char point_on_line_side(float, float);
-
+		char Point_Side(float, float);
+		void set(float xs, float ys, float xe, float ye) {
+			start[0] = xs;
+			start[1] = ys;
+			end[0] = xe;
+			end[1] = ye;
+		}
 		float x_diff() { return end[0] - start[0]; }//end - start
 		float y_diff() { return end[1] - start[1]; }//end - start
 	public:

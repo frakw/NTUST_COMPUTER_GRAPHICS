@@ -115,7 +115,7 @@ private:
 	void    Set_Extents(void);
 	void    Find_View_Cell(Cell*);
 	void  matrix_test_draw_wall(const float start[2], const float end[2], const float color[3]);
-	void draw_cell(Cell*, frustum, Cell*);
+	void draw_cell(Cell*,LineSeg,LineSeg);
 	
 private:
 	Cell* view_cell;// The cell that currently contains the view
@@ -152,6 +152,9 @@ public:
 										// looking. Measured in degrees about the z
 										// axis, in the usual way.
 	float		viewer_fov;			// The horizontal field of view, in degrees.
+
+	float my_near = 0.01;
+	float my_far = 200.0f;
 };
 
 
