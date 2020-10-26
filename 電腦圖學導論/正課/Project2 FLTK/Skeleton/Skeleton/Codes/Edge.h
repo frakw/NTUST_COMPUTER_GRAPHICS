@@ -97,5 +97,8 @@ class Edge {
 
 };
 
+// 判斷(xp,yp)在ab向量的哪一惻
+
+
 #endif
 

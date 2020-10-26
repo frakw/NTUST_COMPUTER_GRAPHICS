@@ -116,6 +116,8 @@ private:
 	void    Find_View_Cell(Cell*);
 	void  matrix_test_draw_wall(const float start[2], const float end[2], const float color[3]);
 	void draw_cell(Cell*,LineSeg,LineSeg);
+	//void draw_cell(int, LineSeg, LineSeg, int);
+	//void draw_cell(int,frustum,int);
 	
 private:
 	Cell* view_cell;// The cell that currently contains the view

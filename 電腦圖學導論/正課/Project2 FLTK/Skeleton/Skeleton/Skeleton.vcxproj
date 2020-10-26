@@ -98,7 +98,7 @@
     <LibraryPath>C:\lib\MazeVisibility-master\build\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\lib\MazeVisibility-master\source\include;C:\Users\t4w32\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project2 FLTK\Skeleton\Skeleton;$(IncludePath)</IncludePath>
+    <IncludePath>C:\lib\MazeVisibility-master\source\include;C:\Users\frakw-notebook\source\repos\frakw\NTUST_COMPUTER_GRAPHICS\電腦圖學導論\正課\Project2 FLTK\Skeleton\Skeleton;$(IncludePath)</IncludePath>
     <LibraryPath>C:\lib\MazeVisibility-master\source\lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
