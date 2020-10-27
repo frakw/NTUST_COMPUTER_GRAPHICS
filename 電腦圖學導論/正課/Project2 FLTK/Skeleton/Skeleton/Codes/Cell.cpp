@@ -130,7 +130,7 @@ Clip_To_Cell(float &xs, float &ys,
 	// If the nearest crossing is within the segment...
 	if ( min_crossing < 1.0 ) {
 		if ( edges[min_cross_edge]->opaque )	{
-			min_crossing -= 1.0e-3f; // Make sure we stay inside.
+			min_crossing -= 1.0e-1f; // Make sure we stay inside.
 			if ( min_crossing < 0.0 )	
 				min_crossing = 0.0f;
 			xe = xs + min_crossing * ( xe - xs );
@@ -139,7 +139,7 @@ Clip_To_Cell(float &xs, float &ys,
 		}
 		else
 		{
-			min_crossing += 1.0e-3f; // Make sure the new point is outside.
+			min_crossing += 1.0e-2f; // Make sure the new point is outside.
 			if ( min_crossing > 1.0 )
 				min_crossing = 1.0f;
 			xs = xs + min_crossing * ( xe - xs );

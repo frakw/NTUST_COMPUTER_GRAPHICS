@@ -90,7 +90,7 @@ class Edge {
 												// be 0 if the edge is on the
 												// boundary of the maze
 
-    bool		opaque = true;	// True is this edge cannot be seen or
+    bool		opaque;	// True is this edge cannot be seen or
     						// walked through, false otherwise.
 
     float	color[3]; // The color for this edge / wall.
