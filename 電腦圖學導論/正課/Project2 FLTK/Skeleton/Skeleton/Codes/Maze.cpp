@@ -775,16 +775,6 @@ bool LineLineIntersect(float x1, float y1, //Line 1 start
 }
 char pAtWhichSide(float ax, float ay, float bx, float by, float xp, float yp)
 {
-	//float A = by - ay, B = ax - bx, C = bx * ay - ax * by; //直線方程為Ax+By+C=0
-	//float D = A * xp + B * yp + C;
-
-	//if (D < 0)
-	//	return Side::LEFT;
-	//else if (D > 0)
-	//	return Side::RIGHT;
-	//else if (D == 0)
-	//	return Side::ON;
-
 	float d = (xp - ax) * (by - ay) - (yp - ay) * (bx - ax);
 
 	return d < 0 ? Edge::LEFT : Edge::RIGHT;
@@ -851,6 +841,9 @@ Draw_View(const float focal_dist, const float aspect)
 	draw_cell(view_cell,
 		LineSeg(frust_vertex[0], frust_vertex[1], 2),
 		LineSeg(frust_vertex[1], frust_vertex[2], 2));
+		//draw_cell(view_cell,
+		//LineSeg(frust_vertex[1], frust_vertex[2], 2),
+		//LineSeg(frust_vertex[1], frust_vertex[2], 2));
 	for (int i = 0;i < num_cells;i++)cells[i]->foot_print = false;
 #endif
 }
@@ -868,16 +861,10 @@ void Maze::draw_cell(Cell* now_cell, LineSeg L, LineSeg R) {
 
 		start = global::model_view * start;
 		end = global::model_view * end;
-		edge_line.start[0] = start[0];
-		edge_line.start[1] = start[2];
-		edge_line.end[0] = end[0];
-		edge_line.end[1] = end[2];
 		bool draw_edge = true;
 		for (int j = 0;j < 2;j++) {
-			//char s_side = LR[j].Point_Side(start[0], start[2]);
-			//char e_side = LR[j].Point_Side(end[0], end[2]);
-			char s_side = pAtWhichSide(LR[j].start[0], LR[j].start[1], LR[j].end[0], LR[j].end[1], start[0], start[2]);
-			char e_side = pAtWhichSide(LR[j].start[0], LR[j].start[1], LR[j].end[0], LR[j].end[1], end[0], end[2]);
+			char s_side = LR[j].Point_Side(start[0], start[2]);
+			char e_side = LR[j].Point_Side(end[0], end[2]);
 			if (s_side == Edge::LEFT && e_side == Edge::LEFT)
 			{
 				//在視錐外
@@ -888,16 +875,9 @@ void Maze::draw_cell(Cell* now_cell, LineSeg L, LineSeg R) {
 			else if (s_side == Edge::RIGHT && e_side == Edge::LEFT)
 			{
 				float percent = LR[j].Cross_Param(LineSeg(start, end, 2));
-				//float percent = LineSeg(start, end, 2).Cross_Param(LR[j]);
 				if (percent != 1.0e20f && percent > 0 && percent < 1) {
-					draw_edge = true;
 					end[0] = LR[j].start[0] + (LR[j].end[0] - LR[j].start[0]) * percent;
 					end[2] = LR[j].start[1] + (LR[j].end[1] - LR[j].start[1]) * percent;
-					//end[0] = start[0] + (end[0] - start[0]) * percent;
-					//end[2] = start[2] + (end[2] - start[2]) * percent;
-					edge_line.end[0] = end[0];
-					edge_line.end[1] = end[2];
-					//cout << i << "號牆 cut end" << endl;
 
 				}
 
@@ -905,28 +885,39 @@ void Maze::draw_cell(Cell* now_cell, LineSeg L, LineSeg R) {
 			else if (s_side == Edge::LEFT && e_side == Edge::RIGHT)
 			{
 				float percent = LR[j].Cross_Param(LineSeg(start, end, 2));
-				//float percent = LineSeg(start, end, 2).Cross_Param(LR[j]);
 				if (percent != 1.0e20f && percent > 0 && percent < 1) {
-					draw_edge = true;
 					start[0] = LR[j].start[0] + (LR[j].end[0] - LR[j].start[0]) * percent;
 					start[2] = LR[j].start[1] + (LR[j].end[1] - LR[j].start[1]) * percent;
-					//start[0] = start[0] + (end[0] - start[0]) * percent;
-					//start[2] = start[2] + (end[2] - start[2]) * percent;
-					edge_line.start[0] = start[0];
-					edge_line.start[1] = start[2];
-					//cout << i << "號牆 cut start" << endl;
 				}
 			}
 			else {
-				//cout << i << "號牆 no cut" << endl;
+
 			}
 		}
 		if (!draw_edge) continue;
+		edge_line.start[0] = start[0];//把切過後的丟回來
+		edge_line.start[1] = start[2];//把切過後的丟回來
+		edge_line.end[0] = end[0];//把切過後的丟回來
+		edge_line.end[1] = end[2];//把切過後的丟回來
 		if (now_cell->edges[i]->opaque) {
 			start = global::projection * start;
 			end = global::projection * end;
 			float w_cut = 0.01f;
 			if (start[3] < w_cut || end[3] < w_cut) continue;
+			//if (start[3] < w_cut) {
+			//	float percent = (-start[3] - w_cut) / (end[3] - start[3]);
+			//	start[0] = start[0] + (end[0] - start[0]) * percent;
+			//	start[1] = start[1] + (end[1] - start[1]) * percent;
+			//	start[2] = start[2] + (end[2] - start[2]) * percent;
+			//	start[3] = w_cut;
+			//}
+			//if (end[3] < w_cut) {
+			//	float percent = (-end[3] - w_cut) / (start[3] - end[3]);
+			//	end[0] = end[0] + (end[0] - start[0]) * percent;
+			//	end[1] = end[1] + (end[1] - start[1]) * percent;
+			//	end[2] = end[2] + (end[2] - start[2]) * percent;
+			//	end[3] = w_cut;
+			//}
 			start /= start[3];
 			end /= end[3];
 			glBegin(GL_POLYGON);
@@ -939,20 +930,26 @@ void Maze::draw_cell(Cell* now_cell, LineSeg L, LineSeg R) {
 		}
 		else {
 			Cell* next = now_cell != now_cell->edges[i]->neighbors[Edge::LEFT] ? now_cell->edges[i]->neighbors[Edge::LEFT] : now_cell->edges[i]->neighbors[Edge::RIGHT];
-			if (next->foot_print) continue;
-			LineSeg newL, newR;
-			if (pAtWhichSide(camPosX, camPosY, edge_line.start[0], edge_line.start[1],edge_line.end[0], edge_line.end[1]) == Edge::LEFT)
-			{
-				newL.set(camPosX, camPosY, edge_line.start[0], edge_line.start[1]);
-				newR.set(edge_line.end[0], edge_line.end[1], camPosX, camPosY);
-
+			if (!next->foot_print) {
+				//edge_line => 切完後的牆
+				float L_x_dis, R_x_dis, y_dis = edge_line.start[1];
+				if (LineSeg(0, 0, edge_line.start[0], edge_line.start[1]).Point_Side(edge_line.end[0], edge_line.end[1]) == Edge::LEFT)
+				{
+					L_x_dis = edge_line.end[0];
+					R_x_dis = edge_line.start[0];//neg
+				}
+				else
+				{
+					L_x_dis = edge_line.start[0];
+					R_x_dis = edge_line.end[0];//neg
+				}
+				float L_resultX = L_x_dis * my_far / y_dis;//相似三角形
+				float R_resultX = R_x_dis * my_far / y_dis;//相似三角形
+				float resultY = my_far;//my_far == 200.0f
+				LineSeg newL(L_resultX, resultY, 0.0f, 0.0f);
+				LineSeg newR(0.0f, 0.0f, R_resultX, resultY);
+				draw_cell(next, newL, newR);
 			}
-			else
-			{
-				newR.set(camPosX, camPosY, edge_line.start[0], edge_line.start[1]);
-				newL.set(edge_line.end[0], edge_line.end[1], camPosX, camPosY);
-			}
-			draw_cell(next, newL, newR);
 		}
 	
 	}
