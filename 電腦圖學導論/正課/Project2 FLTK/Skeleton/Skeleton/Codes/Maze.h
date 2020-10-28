@@ -83,7 +83,6 @@ public:
 	// corners of the window in which to draw.
 	void	Draw_Map(int, int, int, int);
 
-	void Draw_Wall(float sx, float sy, float ex, float ey, float rr, float gg, float bb);
 	// Draws the viewer's cell and its neighbors in the map view of the maze.
 	// It is passed the minimum and maximum corners of the window in which
 	// to draw.
@@ -95,7 +94,7 @@ public:
 
 	// Draws the first-person view of the maze. It is passed the focal distance.
 	// THIS IS THE FUINCTION YOU SHOULD MODIFY.
-	void	Draw_View(const float,const float);
+	void	Draw_View(const float);
 
 	// Save the maze to a file of the given name.
 	bool	Save(const char*);
@@ -114,10 +113,7 @@ private:
 	void    Build_Maze(void);
 	void    Set_Extents(void);
 	void    Find_View_Cell(Cell*);
-	void  matrix_test_draw_wall(const float start[2], const float end[2], const float color[3]);
-	void draw_cell(Cell*,LineSeg,LineSeg);
-	//void draw_cell(int, LineSeg, LineSeg, int);
-	//void draw_cell(int,frustum,int);
+	void	draw_cell(Cell*,LineSeg,LineSeg);
 	
 private:
 	Cell* view_cell;// The cell that currently contains the view

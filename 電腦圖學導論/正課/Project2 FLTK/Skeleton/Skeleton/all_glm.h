@@ -11,6 +11,7 @@
 void print_mat4x4(glm::mat4x4&);
 class global{
 public:
+	static float aspect;
 	static glm::mat4x4 model_view;
 	static glm::mat4x4 projection;
 };

@@ -18,7 +18,7 @@
 #include <array>
 #include "all_glm.h"
 
-
+float global::aspect = 0.0f;
 
 //*************************************************************************
 //
@@ -34,7 +34,7 @@ MazeWindow(int x, int y, int width, int height, const char* label, Maze* m)
 	// The mouse button isn't down and there is no key pressed.
 	down = false;
 	z_key = 0;
-
+	global::aspect = w() / h();
 }
 
 
@@ -77,7 +77,11 @@ draw(void)
 		// Sets the clear color to black.
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 	}
-
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glClear(GL_DEPTH_BUFFER_BIT);
 	// Clear the screen.
 	glClear(GL_COLOR_BUFFER_BIT);
 	glBegin(GL_QUADS);
@@ -102,7 +106,7 @@ draw(void)
 	glVertex2f(w() * 0.5f, 0.0);
 	glEnd();
 	if (maze) {
-		maze->Draw_View(focal_length,(float)w()/h());
+		maze->Draw_View(focal_length);
 	}
 
 }
@@ -128,7 +132,7 @@ Drag(float dt)
 
 		// Set the viewer's linear motion based on a speed (derived from
 		// vertical mouse motion), the elapsed time and the viewing direction.
-		dist = 10.0f * dt * dy / (float)h();
+		dist = 10.0f * dt * dy / (float)h();//½ÕÆF±Ó«×
 		x_move = dist * (float)cos(Maze::To_Radians(maze->viewer_dir));
 		y_move = dist * (float)sin(Maze::To_Radians(maze->viewer_dir));
 	}
