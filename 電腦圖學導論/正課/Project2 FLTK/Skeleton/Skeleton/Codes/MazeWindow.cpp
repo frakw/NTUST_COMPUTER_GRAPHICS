@@ -132,7 +132,7 @@ Drag(float dt)
 
 		// Set the viewer's linear motion based on a speed (derived from
 		// vertical mouse motion), the elapsed time and the viewing direction.
-		dist = 10.0f * dt * dy / (float)h();//調靈敏度
+		dist = 50.0f * dt * dy / (float)h();//調靈敏度
 		x_move = dist * (float)cos(Maze::To_Radians(maze->viewer_dir));
 		y_move = dist * (float)sin(Maze::To_Radians(maze->viewer_dir));
 	}
