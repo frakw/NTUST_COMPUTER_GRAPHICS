@@ -97,8 +97,8 @@
     <LibraryPath>D:\maochinn\Lib\FLTK\build\lib\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>D:\maochinn\Lib\FLTK\build\include;include\glad4.6\include;include\glm-0.9.8.5\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\maochinn\Lib\FLTK\build\lib\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\lib\RollerCoasters-master\source\lib\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\lib\RollerCoasters-master\source\include;C:\lib\RollerCoasters-master\source\include\glad4.6\include;C:\lib\RollerCoasters-master\source\include\glm-0.9.8.5\glm;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
