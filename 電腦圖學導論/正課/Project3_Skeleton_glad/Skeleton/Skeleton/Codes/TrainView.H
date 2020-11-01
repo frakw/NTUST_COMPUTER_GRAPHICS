@@ -66,6 +66,8 @@ class TrainView : public Fl_Gl_Window
 		// we're drawing shadows (no colors, for example)
 		void drawStuff(bool doingShadows=false);
 
+		void draw_track(bool);
+		void draw_train();
 		// setup the projection - assuming that the projection stack has been
 		// cleared for you
 		void setProjection();
@@ -82,4 +84,6 @@ class TrainView : public Fl_Gl_Window
 
 		TrainWindow*	tw;				// The parent of this display window
 		CTrack*			m_pTrack;		// The track of the entire scene
+		float DIVIDE_LINE = 10.0f;
+		float t_time = 0.0f;
 };

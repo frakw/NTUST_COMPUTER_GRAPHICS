@@ -37,7 +37,12 @@ class Pnt3f {
 
 		// Constructor
 		// if we have 1, we need the default 
-		Pnt3f();			
+		Pnt3f();
+		Pnt3f(const Pnt3f& I) {
+			x = I.x;
+			y = I.y;
+			z = I.z;
+		}
 		// say where
 		explicit Pnt3f(const float x,const float y,const float z);	
 		// from an array 
@@ -53,6 +58,7 @@ class Pnt3f {
 		Pnt3f operator * (const Pnt3f&) const;	/* cross product */
 		Pnt3f operator * (const float)	const;  /* scale by scalar */
 		Pnt3f operator + (const Pnt3f&) const;	/* create a temp */
+		Pnt3f operator - (const Pnt3f&) const;	/* create a temp */
 
 		// make sure that we're unit length - vertical in the error case (0 length)
 		void normalize();
@@ -114,6 +120,12 @@ operator + (const Pnt3f& p) const
 //=============================================================================
 {
 	return Pnt3f(x+p.x, y+p.y, z+p.z);
+};
+inline Pnt3f Pnt3f::
+operator - (const Pnt3f& p) const
+//=============================================================================
+{
+	return Pnt3f(x - p.x, y - p.y, z - p.z);
 };
 
 //*****************************************************************************
