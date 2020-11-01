@@ -343,7 +343,9 @@ setProjection()
 #endif
 	}
 }
-
+void glvertex_vec(Pnt3f in) {
+	glVertex3f(in.x,in.y,in.z);
+}
 Pnt3f GMT(const Pnt3f& p0, const Pnt3f& p1, const Pnt3f& p2, const Pnt3f& p3,int matrix_type,float t) {
 	glm::mat4x4 M;
 	if (matrix_type == 1) {
@@ -420,20 +422,57 @@ void TrainView::drawStuff(bool doingShadows)
 		ControlPoint& p1 = m_pTrack->points[(i + cp_size) % cp_size];
 		ControlPoint& p2 = m_pTrack->points[(i + 1 + cp_size) % cp_size];
 		ControlPoint& p3 = m_pTrack->points[(i + 2 + cp_size) % cp_size];
-		//Pnt3f train_center = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
-		Pnt3f train_front = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t + 0.5);
-		Pnt3f train_back = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t - 0.5);
-		Pnt3f train_ori = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), t);
-		train_ori.normalize();
-		Pnt3f cross_t = (train_back - train_front) * train_ori;
+		Pnt3f train_center = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
+		Pnt3f train_front = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t + 0.15);
+		Pnt3f train_back = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t - 0.15);
+		Pnt3f train_ori_center = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), t);
+		Pnt3f train_ori_front = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), t + 0.15);
+		Pnt3f train_ori_back = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), t - 0.15);
+		train_ori_center.normalize();
+		train_ori_front.normalize();
+		train_ori_back.normalize();
+		Pnt3f cross_t = (train_back - train_front) * train_ori_center;
 		cross_t.normalize();
-		//cross_t = cross_t * length;
+		cross_t = cross_t * 5.0f;
+		Pnt3f train_up_front = train_front + train_ori_front * 10.0f;
+		Pnt3f train_up_back = train_back + train_ori_back * 10.0f;
 		//std::cout << train_pos.x << ' ' << train_pos.y << ' ' << train_pos.z << std::endl;
-		glBegin(GL_QUADS);
-		glVertex3f(train_front.x + cross_t.x, train_front.y + cross_t.y, train_front.z + cross_t.z);
-		glVertex3f(train_back.x + cross_t.x, train_back.y + cross_t.y, train_back.z + cross_t.z);
-		glVertex3f(train_back.x - cross_t.x, train_back.y - cross_t.y, train_back.z - cross_t.z);
-		glVertex3f(train_front.x - cross_t.x, train_front.y - cross_t.y, train_front.z - cross_t.z);
+		glColor3ub(23, 122, 222);
+		glBegin(GL_QUADS);//下
+		glvertex_vec(train_front + cross_t);
+		glvertex_vec(train_back + cross_t);
+		glvertex_vec(train_back - cross_t);
+		glvertex_vec(train_front - cross_t);
+		glEnd();
+		glBegin(GL_QUADS);//上
+		glvertex_vec(train_up_front + cross_t);
+		glvertex_vec(train_up_back + cross_t);
+		glvertex_vec(train_up_back - cross_t);
+		glvertex_vec(train_up_front - cross_t);
+		glEnd();
+		glBegin(GL_QUADS);//左
+		glvertex_vec(train_front - cross_t);
+		glvertex_vec(train_up_front - cross_t);
+		glvertex_vec(train_up_back - cross_t);
+		glvertex_vec(train_back - cross_t);
+		glEnd();
+		glBegin(GL_QUADS);//右
+		glvertex_vec(train_front + cross_t);
+		glvertex_vec(train_up_front + cross_t);
+		glvertex_vec(train_up_back + cross_t);
+		glvertex_vec(train_back + cross_t);
+		glEnd();
+		glBegin(GL_QUADS);//前
+		glvertex_vec(train_front - cross_t);
+		glvertex_vec(train_front + cross_t);
+		glvertex_vec(train_up_front + cross_t);
+		glvertex_vec(train_up_front - cross_t);
+		glEnd();
+		glBegin(GL_QUADS);//後
+		glvertex_vec(train_back - cross_t);
+		glvertex_vec(train_back + cross_t);
+		glvertex_vec(train_up_back + cross_t);
+		glvertex_vec(train_up_back - cross_t);
 		glEnd();
 	}
 
@@ -481,6 +520,7 @@ void TrainView::draw_track(bool doingShadows) {
 			glEnd();
 			if (j % 2) {
 				cross_t = cross_t * 2.0f;
+				glColor3ub(47, 22, 159);
 				glBegin(GL_QUADS);
 				glVertex3f(qt0.x + cross_t.x, qt0.y + cross_t.y, qt0.z + cross_t.z);
 				glVertex3f(qt1.x + cross_t.x, qt1.y + cross_t.y, qt1.z + cross_t.z);
