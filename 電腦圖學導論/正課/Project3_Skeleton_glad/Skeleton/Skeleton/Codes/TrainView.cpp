@@ -44,7 +44,7 @@
 #	include "TrainExample/TrainExample.H"
 #endif
 
-
+Pnt3f GMT(const Pnt3f& p0, const Pnt3f& p1, const Pnt3f& p2, const Pnt3f& p3, int matrix_type, float t);
 //************************************************************************
 //
 // * Constructor to set up the GL window
@@ -297,7 +297,7 @@ setProjection()
 {
 	// Compute the aspect ratio (we'll need it)
 	float aspect = static_cast<float>(w()) / static_cast<float>(h());
-
+	int cp_size = m_pTrack->points.size();
 	// Check whether we use the world camp
 	if (tw->worldCam->value())
 		arcball.setProjection(false);
@@ -326,18 +326,30 @@ setProjection()
 	// TODO: 
 	// put code for train view projection here!	
 	//####################################################################
-	else {
+	else if(tw->trainCam->value()){
+		glClear(GL_DEPTH_BUFFER_BIT);
 		glMatrixMode(GL_PROJECTION);
-		gluPerspective(120, aspect, 1, 200); glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		//arcball->
-		//this->centerPosition.normalize();
-		//this->upPosition.normalize();
-		//gluLookAt(arcball.eyeX, arcball.eyeY + 5, arcball.eyeZ,
-		//	this->eyePosition.x + this->centerPosition.x,
-		//	this->eyePosition.y + this->centerPosition.y + 5,
-		//	this->eyePosition.z + this->centerPosition.z,
-		//	this->upPosition.x, this->upPosition.y + 5, this->upPosition.z);
+		gluPerspective(120, aspect, 1, 500);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		float t = m_pTrack->trainU;
+		int i = floor(t);
+		t -= i;
+		ControlPoint& p0 = m_pTrack->points[(i - 1 + cp_size) % cp_size];
+		ControlPoint& p1 = m_pTrack->points[(i + cp_size) % cp_size];
+		ControlPoint& p2 = m_pTrack->points[(i + 1 + cp_size) % cp_size];
+		ControlPoint& p3 = m_pTrack->points[(i + 2 + cp_size) % cp_size];
+		Pnt3f train_ori_center = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), t);
+		Pnt3f train_ori_front = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), t + 0.15);
+		Pnt3f train_center = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t) + train_ori_center*2.0f;
+		Pnt3f train_front = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t + 0.15) + train_ori_front*2.0f;
+		Pnt3f dir = train_front - train_center;
+		Pnt3f up = train_front * dir;
+		up.normalize();
+		gluLookAt(train_center.x, train_center.y, train_center.z,
+			train_front.x, train_front.y, train_front.z, up.x, -up.y, up.z);
+
 #ifdef EXAMPLE_SOLUTION
 		trainCamView(this,aspect);
 #endif
@@ -414,7 +426,6 @@ void TrainView::drawStuff(bool doingShadows)
 	draw_track(doingShadows);
 	int cp_size = m_pTrack->points.size();
 	if (!tw->trainCam->value()) {
-		float length = 2.5f;
 		float t = m_pTrack->trainU;
 		int i = floor(t);
 		t -= i;
