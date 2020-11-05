@@ -49,7 +49,12 @@ class Pnt3f {
 		Pnt3f(const float*);			
 		// copy constructor created by default
 		// Pnt3f(const Pnt3f&);		
-
+		Pnt3f& operator=(const Pnt3f& I) {
+			x = I.x;
+			y = I.y;
+			z = I.z;
+			return *this;
+		}
 	public:
 		// if you want to treat this thing as a C vector (point to float)
 		float* v();
@@ -62,7 +67,7 @@ class Pnt3f {
 
 		// make sure that we're unit length - vertical in the error case (0 length)
 		void normalize();
-
+		float length();
 		// note - the operators above are for Pnt3f*scalar, here we have scalar*Pnt3f
 		friend Pnt3f operator * (const float s, const Pnt3f& p );
 
