@@ -67,8 +67,8 @@ class TrainView : public Fl_Gl_Window
 		void drawStuff(bool doingShadows=false);
 
 		void draw_track(bool);
-		void draw_track2(bool);
 		void draw_train(bool);
+		void draw_first_sleeper(bool);
 		// setup the projection - assuming that the projection stack has been
 		// cleared for you
 		void setProjection();
@@ -88,7 +88,10 @@ class TrainView : public Fl_Gl_Window
 		float DIVIDE_LINE = 1000.0f;
 		float t_time = 0.0f;
 		float arc_length = 0.0f;
-		float sleeper_length = 5.0f;
+		float sleeper_length = 3.0f;
+		float sleeper_width = 5.0f;
+		float space_length = 3.0f;
 		int train_i = 0;
 		float train_t = 0.0f;
+		float rail_width = 2.5f;
 };

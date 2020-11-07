@@ -64,7 +64,7 @@ Pnt3f(const float _x, const float _y, const float _z) : x(_x), y(_y), z(_z)
 //
 // *
 //=============================================================================
-void Pnt3f::
+Pnt3f& Pnt3f::
 normalize()
 //=============================================================================
 {
@@ -80,6 +80,7 @@ normalize()
 		y /= l;
 		z /= l;
 	}
+	return *this;
 }
 
 float Pnt3f::length() {
