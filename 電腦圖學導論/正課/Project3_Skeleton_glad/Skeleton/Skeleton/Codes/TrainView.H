@@ -85,12 +85,12 @@ class TrainView : public Fl_Gl_Window
 
 		TrainWindow*	tw;				// The parent of this display window
 		CTrack*			m_pTrack;		// The track of the entire scene
-		float DIVIDE_LINE = 1000.0f;
+		float DIVIDE_LINE = 300.0f;
 		float t_time = 0.0f;
 		float arc_length = 0.0f;
 		float sleeper_length = 3.0f;
 		float sleeper_width = 5.0f;
-		float space_length = 3.0f;
+		float space_length = 6.0f;
 		int train_i = 0;
 		float train_t = 0.0f;
 		float rail_width = 2.5f;

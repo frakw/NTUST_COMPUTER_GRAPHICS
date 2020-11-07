@@ -198,14 +198,20 @@ advanceTrain(float dir)
 	//#####################################################################
 	// TODO: make this work for your train
 	//#####################################################################
-	//trainView->m_pTrack->trainU += 0.03f * speed->value();
-	//if (trainView->m_pTrack->trainU > trainView->m_pTrack->points.size()) {
-	//	trainView->m_pTrack->trainU -= trainView->m_pTrack->points.size();
-	//}
-	trainView->m_pTrack->trainU += 2.0f * speed->value();
-	if (trainView->m_pTrack->trainU > trainView->arc_length) {
-		trainView->m_pTrack->trainU -= trainView->arc_length;
+	if (arcLength->value()) {
+		trainView->m_pTrack->trainU += 1.0f * speed->value();
+		if (trainView->m_pTrack->trainU > trainView->arc_length) {
+			trainView->m_pTrack->trainU -= trainView->arc_length;
+		}
 	}
+	else {
+		trainView->m_pTrack->trainU += 0.03f * speed->value();
+		if (trainView->m_pTrack->trainU > trainView->m_pTrack->points.size()) {
+			trainView->m_pTrack->trainU -= trainView->m_pTrack->points.size();
+			}
+	}
+
+
 #ifdef EXAMPLE_SOLUTION
 	// note - we give a little bit more example code here than normal,
 	// so you can see how this works
