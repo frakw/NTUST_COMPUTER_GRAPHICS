@@ -343,9 +343,9 @@ setProjection()
 		int i = floor(t);
 		t -= i;
 		ControlPoint& p0 = m_pTrack->points[(i - 1 + cp_size) % cp_size];
-		ControlPoint& p1 = m_pTrack->points[(i + cp_size) % cp_size];
-		ControlPoint& p2 = m_pTrack->points[(i + 1 + cp_size) % cp_size];
-		ControlPoint& p3 = m_pTrack->points[(i + 2 + cp_size) % cp_size];
+		ControlPoint& p1 = m_pTrack->points[i % cp_size];
+		ControlPoint& p2 = m_pTrack->points[(i + 1) % cp_size];
+		ControlPoint& p3 = m_pTrack->points[(i + 2) % cp_size];
 		Pnt3f orient = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), t);
 		Pnt3f train_pos = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
 		Pnt3f train_next = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t + 1.0f / DIVIDE_LINE);
@@ -458,9 +458,9 @@ void TrainView::draw_track(bool doingShadows) {
 	for (size_t i = 0; i < m_pTrack->points.size(); ++i) {
 		float t = 0.0f;
 		ControlPoint& p0 = m_pTrack->points[(i - 1 + cp_size) % cp_size];
-		ControlPoint& p1 = m_pTrack->points[(i + cp_size) % cp_size];
-		ControlPoint& p2 = m_pTrack->points[(i + 1 + cp_size) % cp_size];
-		ControlPoint& p3 = m_pTrack->points[(i + 2 + cp_size) % cp_size];
+		ControlPoint& p1 = m_pTrack->points[i % cp_size];
+		ControlPoint& p2 = m_pTrack->points[(i + 1) % cp_size];
+		ControlPoint& p3 = m_pTrack->points[(i + 2) % cp_size];
 		for (size_t j = 0; j < DIVIDE_LINE; j++) {
 			Pnt3f qt0 = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
 			Pnt3f orient_t = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), t);
@@ -526,29 +526,74 @@ void TrainView::draw_track(bool doingShadows) {
 		}
 	}
 }
+void draw_sleeper(Pnt3f front,Pnt3f back,Pnt3f cross_t,Pnt3f up,bool doingShadows) {
+	if (!doingShadows)
+		glColor3ub(94, 38, 18);
+	Pnt3f sleeper_up0 = front - up;
+	Pnt3f sleeper_up1 = back - up;
+	glBegin(GL_QUADS);
+	glvertex_vec(front + cross_t);
+	glvertex_vec(back + cross_t);
+	glvertex_vec(back - cross_t);
+	glvertex_vec(front - cross_t);
+	glEnd();
+	glBegin(GL_QUADS);
+	glvertex_vec(sleeper_up0 + cross_t);
+	glvertex_vec(sleeper_up1 + cross_t);
+	glvertex_vec(sleeper_up1 - cross_t);
+	glvertex_vec(sleeper_up0 - cross_t);
+	glEnd();
+	glBegin(GL_QUADS);
+	glvertex_vec(sleeper_up0 - cross_t);
+	glvertex_vec(front - cross_t);
+	glvertex_vec(back - cross_t);
+	glvertex_vec(sleeper_up1 - cross_t);
+	glEnd();
+	glBegin(GL_QUADS);
+	glvertex_vec(sleeper_up0 + cross_t);
+	glvertex_vec(front + cross_t);
+	glvertex_vec(back + cross_t);
+	glvertex_vec(sleeper_up1 + cross_t);
+	glEnd();
+	glBegin(GL_QUADS);
+	glvertex_vec(front - cross_t);
+	glvertex_vec(front + cross_t);
+	glvertex_vec(sleeper_up0 + cross_t);
+	glvertex_vec(sleeper_up0 - cross_t);
+	glEnd();
+	glBegin(GL_QUADS);
+	glvertex_vec(back - cross_t);
+	glvertex_vec(back + cross_t);
+	glvertex_vec(sleeper_up1 + cross_t);
+	glvertex_vec(sleeper_up1 - cross_t);
+	glEnd();
+}
 void TrainView::draw_track2(bool doingShadows) {
 	int cp_size = m_pTrack->points.size();
 	arc_length = 0.0f;
-	vector<pair<Pnt3f, Pnt3f> > middle;
 	Pnt3f cross_t;
 	float T = 0.0f;
-	sleeper_length = 0.0f;
-	Pnt3f preQ(m_pTrack->points.back().pos);
-	//Pnt3f pre_sleeper(m_pTrack->points.back().pos);
+	Pnt3f preQ(m_pTrack->points.front().pos);
+	bool sleeper = false;
+	bool get_train_pos = false;
+	float percent = 1.0f / DIVIDE_LINE;
 	for (int i = 0;i < cp_size;i++) {
 		ControlPoint& p0 = m_pTrack->points[(i - 1 + cp_size) % cp_size];
-		ControlPoint& p1 = m_pTrack->points[(i + cp_size) % cp_size];
-		ControlPoint& p2 = m_pTrack->points[(i + 1 + cp_size) % cp_size];
-		ControlPoint& p3 = m_pTrack->points[(i + 2 + cp_size) % cp_size];
-		bool draw_sleeper = false;
+		ControlPoint& p1 = m_pTrack->points[i % cp_size];
+		ControlPoint& p2 = m_pTrack->points[(i + 1) % cp_size];
+		ControlPoint& p3 = m_pTrack->points[(i + 2) % cp_size];
+		float t = 0.0f;
 		for (int j = 0;j < DIVIDE_LINE;j++) {
-			float t = j / DIVIDE_LINE;
+			t += percent;
 			Pnt3f Q = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
 			Pnt3f O = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), t);
 			O.normalize();
 			Pnt3f cross_t = (Q - preQ) * O;
 			cross_t.normalize();
-			middle.push_back(make_pair(Q,cross_t));
+			Pnt3f backward = (Q - preQ);
+			Pnt3f up = backward * cross_t;
+			up.normalize();
+			cross_t = cross_t * 2.5f;
 			glLineWidth(5);
 			if (!doingShadows)glColor3ub(192, 192, 192);
 			glBegin(GL_LINES);
@@ -557,61 +602,37 @@ void TrainView::draw_track2(bool doingShadows) {
 			glvertex_vec(preQ - cross_t);
 			glvertex_vec(Q - cross_t);
 			glEnd();
-			arc_length += (Q - preQ).length();
-			T += (Q - preQ).length();
-			//std::cout << (Q - preQ).length() << std::endl;
+
+			arc_length += backward.length();
+			if (!get_train_pos && arc_length > m_pTrack->trainU) {
+				get_train_pos = true;
+				train_i = i;
+				train_t = t;
+			}
+			T += backward.length();
 			if (T >= sleeper_length) {
 				T -= sleeper_length;
 				if (draw_sleeper) {
-					cross_t = cross_t * 2.5f;
-					Pnt3f pre_sleeper = Q - (Q - preQ) * 0.5f;
-					glBegin(GL_QUADS);
-					glvertex_vec(pre_sleeper + cross_t);
-					glvertex_vec(Q + cross_t);
-					glvertex_vec(Q - cross_t);
-					glvertex_vec(pre_sleeper - cross_t);
-					glEnd();
+					cross_t = cross_t * 2.0f;
+					backward.normalize();
+					Pnt3f pre_sleeper = Q - backward * 3.0f;
+					draw_sleeper(Q,pre_sleeper,cross_t,up,doingShadows);
 				}
-				draw_sleeper = !draw_sleeper;
+				sleeper = !sleeper;
 			}
 			preQ = Q;
 		}
 	}
-	//std::cout << arc_length << std::endl;
-	//for (int i = 0;i < middle.size() - 1;i++) {
-	//	glLineWidth(5);
-	//	if (!doingShadows)glColor3ub(192, 192, 192);
-	//	glBegin(GL_LINES);
-	//	glvertex_vec(middle[i].first + middle[i].second);
-	//	glvertex_vec(middle[i + 1].first + middle[i].second);
-	//	glvertex_vec(middle[i].first - middle[i].second);
-	//	glvertex_vec(middle[i + 1].first - middle[i].second);
-	//	glEnd();
-
-	//	if (i % 2) {
-	//		glBegin(GL_QUADS);
-	//		glvertex_vec(middle[i].first + middle[i].second);
-	//		glvertex_vec(middle[i + 1].first + middle[i].second);
-	//		glvertex_vec(middle[i + 1].first - middle[i].second);
-	//		glvertex_vec(middle[i].first - middle[i].second);
-	//		glEnd();
-	//	}
-	//}
-	//glvertex_vec(middle.back().first + middle.back().second);
-	//glvertex_vec(middle.front().first + middle.front().second);
 }
 void TrainView::draw_train(bool doingShadows) {
 	int cp_size = m_pTrack->points.size();
-	float t = m_pTrack->trainU;
-	int i = floor(t);
-	t -= i;
-	ControlPoint& p0 = m_pTrack->points[(i - 1 + cp_size) % cp_size];
-	ControlPoint& p1 = m_pTrack->points[(i + cp_size) % cp_size];
-	ControlPoint& p2 = m_pTrack->points[(i + 1 + cp_size) % cp_size];
-	ControlPoint& p3 = m_pTrack->points[(i + 2 + cp_size) % cp_size];
-	Pnt3f train_pos = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
-	Pnt3f train_next = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t + 1.0f / DIVIDE_LINE);
-	Pnt3f train_ori = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), t);
+	ControlPoint& p0 = m_pTrack->points[(train_i - 1 + cp_size) % cp_size];
+	ControlPoint& p1 = m_pTrack->points[train_i % cp_size];
+	ControlPoint& p2 = m_pTrack->points[(train_i + 1) % cp_size];
+	ControlPoint& p3 = m_pTrack->points[(train_i + 2) % cp_size];
+	Pnt3f train_pos = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), train_t);
+	Pnt3f train_next = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), train_t + 1.0f / DIVIDE_LINE);
+	Pnt3f train_ori = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), train_t);
 	Pnt3f forward = train_next - train_pos;
 	forward.normalize();//加這個才不會變彈跳床
 	Pnt3f cross_t = forward * train_ori;

@@ -202,7 +202,7 @@ advanceTrain(float dir)
 	//if (trainView->m_pTrack->trainU > trainView->m_pTrack->points.size()) {
 	//	trainView->m_pTrack->trainU -= trainView->m_pTrack->points.size();
 	//}
-	trainView->m_pTrack->trainU += 0.03f * speed->value();
+	trainView->m_pTrack->trainU += 2.0f * speed->value();
 	if (trainView->m_pTrack->trainU > trainView->arc_length) {
 		trainView->m_pTrack->trainU -= trainView->arc_length;
 	}
