@@ -336,7 +336,7 @@ setProjection()
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(60, aspect, 0.01f, 1000.0f);
+		gluPerspective(45, aspect, 0.01f, 1000.0f);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		ControlPoint& p0 = m_pTrack->points[(train_i - 1 + cp_size) % cp_size];
@@ -418,6 +418,20 @@ Pnt3f GMT(const Pnt3f& p0, const Pnt3f& p1, const Pnt3f& p2, const Pnt3f& p3, in
 //========================================================================
 void TrainView::drawStuff(bool doingShadows)
 {
+	//float noAmbient[] = { 0.0f,0.0f,0.0f ,0.0f ,1.0f };
+	//float whiteDiffuse[] = { 1.0,1.0f ,1.0f ,1.0f };
+	//float position[] = { 1.0,1.0f ,0.0f ,0.0f };
+
+	//glLightfv(GL_LIGHT0, GL_AMBIENT, noAmbient);
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteDiffuse);
+	//glLightfv(GL_LIGHT0, GL_POSITION, position);
+
+	//float yellowAmbientDiffuse[] = { 1.0f,1.0f ,0.0f ,1.0f };
+	//float position2[] = { -2.0,2.0f ,-5.0f ,1.0f };
+
+	//glLightfv(GL_LIGHT1, GL_AMBIENT, yellowAmbientDiffuse);
+	//glLightfv(GL_LIGHT1, GL_DIFFUSE, yellowAmbientDiffuse);
+	//glLightfv(GL_LIGHT1, GL_POSITION, position2);
 	// Draw the control points
 	// don't draw the control points if you're driving 
 	// (otherwise you get sea-sick as you drive through them)
@@ -554,6 +568,9 @@ void TrainView::draw_track(bool doingShadows) {
 	float percent = 1.0f / DIVIDE_LINE;
 	Pnt3f prepreQ = GMT(m_pTrack->points[cp_size - 2].pos, m_pTrack->points.back().pos, m_pTrack->points.front().pos, m_pTrack->points[1].pos, tw->splineBrowser->value(), 1.0f - percent);
 	Pnt3f preQ = GMT(m_pTrack->points.back().pos, m_pTrack->points.front().pos, m_pTrack->points[1].pos, m_pTrack->points[2].pos, tw->splineBrowser->value(), 0.0f);
+	Pnt3f preO = GMT(m_pTrack->points.back().orient, m_pTrack->points.front().orient, m_pTrack->points[1].orient, m_pTrack->points[2].orient, tw->splineBrowser->value(), 0.0f);
+	Pnt3f pre_cross = (preQ - prepreQ) * preO.normalize();
+	pre_cross = pre_cross.normalize() * rail_width;
 	draw_first_sleeper(doingShadows);//磷材回び
 	bool sleeper = false;
 	bool get_train_pos = false;
@@ -566,13 +583,12 @@ void TrainView::draw_track(bool doingShadows) {
 		for (int j = 1;j < DIVIDE_LINE;j++) {
 			Pnt3f Q = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
 			Pnt3f O = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), t);
-			O.normalize();
-			Pnt3f cross_t = (Q - preQ) * O;
-			cross_t.normalize();
 			Pnt3f backward = (Q - preQ);
+			Pnt3f cross_t = backward * O.normalize();
+			cross_t.normalize();
 			Pnt3f up = backward * cross_t;
-			up.normalize();
 			cross_t = cross_t * rail_width;
+			up.normalize();
 			glLineWidth(5);
 			if (!doingShadows)glColor3ub(192, 192, 192);
 			glBegin(GL_LINES);
@@ -580,12 +596,12 @@ void TrainView::draw_track(bool doingShadows) {
 			glvertex_vec(Q + cross_t);
 			glvertex_vec(preQ - cross_t);
 			glvertex_vec(Q - cross_t);
-			glvertex_vec(prepreQ - cross_t);//干奔羅回
+			glvertex_vec(prepreQ - pre_cross);//干奔羅回
 			glvertex_vec(preQ - cross_t);//干奔羅回
-			glvertex_vec(prepreQ + cross_t);//干奔羅回
+			glvertex_vec(prepreQ + pre_cross);//干奔羅回
 			glvertex_vec(preQ + cross_t);//干奔羅回
 			glEnd();
-
+			pre_cross = cross_t;
 			arc_length += backward.length();
 			if (!get_train_pos && arc_length > m_pTrack->trainU) {
 				get_train_pos = true;
@@ -677,6 +693,28 @@ void TrainView::draw_train(bool doingShadows) {
 	glvertex_vec(train_up_back + cross_t);
 	glvertex_vec(train_up_back - cross_t);
 	glEnd();
+}
+
+void TrainView::no_arc_to_arc() {
+	int cp_size = m_pTrack->points.size();
+	float percent = 1.0f / DIVIDE_LINE;
+	train_i = floor(m_pTrack->trainU);
+	train_t = m_pTrack->trainU - train_i;
+	m_pTrack->trainU = 0.0f;
+	Pnt3f preQ = GMT(m_pTrack->points.back().pos, m_pTrack->points.front().pos, m_pTrack->points[1].pos, m_pTrack->points[2].pos, tw->splineBrowser->value(), 0.0f);
+	for (int i = 0;i <= train_i;i++) {
+		ControlPoint& p0 = m_pTrack->points[(i - 1 + cp_size) % cp_size];
+		ControlPoint& p1 = m_pTrack->points[i % cp_size];
+		ControlPoint& p2 = m_pTrack->points[(i + 1) % cp_size];
+		ControlPoint& p3 = m_pTrack->points[(i + 2) % cp_size];
+		float t = percent;
+		float t_DIVIDE_LINE = i != train_i ? DIVIDE_LINE : train_t;
+		for (int j = 1;j < t_DIVIDE_LINE;j++) {
+			Pnt3f Q = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
+			Pnt3f backward = (Q - preQ);
+			m_pTrack->trainU += backward.length();
+		}
+	}
 }
 // 
 //************************************************************************

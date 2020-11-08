@@ -50,7 +50,7 @@ class CTrack;
 
 // this uses the old ArcBall Code
 #include "Utilities/ArcBallCam.H"
-
+#include "Utilities/Pnt3f.H"
 class TrainView : public Fl_Gl_Window
 {
 	public:
@@ -69,6 +69,7 @@ class TrainView : public Fl_Gl_Window
 		void draw_track(bool);
 		void draw_train(bool);
 		void draw_first_sleeper(bool);
+		void no_arc_to_arc();
 		// setup the projection - assuming that the projection stack has been
 		// cleared for you
 		void setProjection();
@@ -93,5 +94,7 @@ class TrainView : public Fl_Gl_Window
 		float space_length = 6.0f;
 		int train_i = 0;
 		float train_t = 0.0f;
-		float rail_width = 2.5f;
+		float rail_width = 2.50f;
 };
+
+Pnt3f GMT(const Pnt3f& p0, const Pnt3f& p1, const Pnt3f& p2, const Pnt3f& p3, int matrix_type, float t);

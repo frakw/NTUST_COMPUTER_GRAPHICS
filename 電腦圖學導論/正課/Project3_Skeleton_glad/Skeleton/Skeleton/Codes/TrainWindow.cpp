@@ -198,19 +198,30 @@ advanceTrain(float dir)
 	//#####################################################################
 	// TODO: make this work for your train
 	//#####################################################################
+	static bool pre_arc_state = arcLength->value();
+
+	if (pre_arc_state != arcLength->value()) {
+		if (arcLength->value()) {
+			trainView->no_arc_to_arc();
+		}
+		else {
+			m_Track.trainU = trainView->train_i + trainView->train_t;
+		}
+	}
+	
 	if (arcLength->value()) {
-		trainView->m_pTrack->trainU += 1.0f * speed->value();
-		if (trainView->m_pTrack->trainU > trainView->arc_length) {
-			trainView->m_pTrack->trainU -= trainView->arc_length;
+		m_Track.trainU += 1.0f * speed->value();
+		if (m_Track.trainU > trainView->arc_length) {
+			m_Track.trainU -= trainView->arc_length;
 		}
 	}
 	else {
-		trainView->m_pTrack->trainU += 0.03f * speed->value();
-		if (trainView->m_pTrack->trainU > trainView->m_pTrack->points.size()) {
-			trainView->m_pTrack->trainU -= trainView->m_pTrack->points.size();
-			}
+		m_Track.trainU += 0.03f * speed->value();
+		if (m_Track.trainU > trainView->m_pTrack->points.size()) {
+			m_Track.trainU -= trainView->m_pTrack->points.size();
+		}
 	}
-
+	pre_arc_state = arcLength->value();
 
 #ifdef EXAMPLE_SOLUTION
 	// note - we give a little bit more example code here than normal,
@@ -219,8 +230,9 @@ advanceTrain(float dir)
 	if (arcLength->value()) {
 		float vel = ew.physics->value() ? physicsSpeed(this) : dir * (float)speed->value();
 		world.trainU += arclenVtoV(world.trainU, vel, this);
-	} else {
-		world.trainU +=  dir * ((float)speed->value() * .1f);
+	}
+	else {
+		world.trainU += dir * ((float)speed->value() * .1f);
 	}
 
 	float nct = static_cast<float>(world.points.size());
