@@ -339,13 +339,24 @@ setProjection()
 		gluPerspective(45, aspect, 0.01f, 1000.0f);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		ControlPoint& p0 = m_pTrack->points[(train_i - 1 + cp_size) % cp_size];
-		ControlPoint& p1 = m_pTrack->points[train_i % cp_size];
-		ControlPoint& p2 = m_pTrack->points[(train_i + 1) % cp_size];
-		ControlPoint& p3 = m_pTrack->points[(train_i + 2) % cp_size];
-		Pnt3f orient = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), train_t);
-		Pnt3f train_pos = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), train_t);
-		Pnt3f train_next = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), train_t + 1.0f / DIVIDE_LINE);
+		int i;
+		float t;
+		if (tw->arcLength->value()) {
+			i = train_i;
+			t = train_t;
+		}
+		else {
+			t = m_pTrack->trainU;
+			i = floor(t);
+			t -= i;
+		}
+		ControlPoint& p0 = m_pTrack->points[(i - 1 + cp_size) % cp_size];
+		ControlPoint& p1 = m_pTrack->points[i % cp_size];
+		ControlPoint& p2 = m_pTrack->points[(i + 1) % cp_size];
+		ControlPoint& p3 = m_pTrack->points[(i + 2) % cp_size];
+		Pnt3f orient = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), t);
+		Pnt3f train_pos = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
+		Pnt3f train_next = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t + 1.0f / DIVIDE_LINE);
 		Pnt3f forward = train_next - train_pos;
 		forward.normalize();
 		Pnt3f cross = forward * orient;
@@ -708,11 +719,13 @@ void TrainView::no_arc_to_arc() {
 		ControlPoint& p2 = m_pTrack->points[(i + 1) % cp_size];
 		ControlPoint& p3 = m_pTrack->points[(i + 2) % cp_size];
 		float t = percent;
-		float t_DIVIDE_LINE = i != train_i ? DIVIDE_LINE : train_t;
+		float t_DIVIDE_LINE = i != train_i ? DIVIDE_LINE : train_t * DIVIDE_LINE;
 		for (int j = 1;j < t_DIVIDE_LINE;j++) {
 			Pnt3f Q = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
 			Pnt3f backward = (Q - preQ);
 			m_pTrack->trainU += backward.length();
+			preQ = Q;
+			t += percent;
 		}
 	}
 }
