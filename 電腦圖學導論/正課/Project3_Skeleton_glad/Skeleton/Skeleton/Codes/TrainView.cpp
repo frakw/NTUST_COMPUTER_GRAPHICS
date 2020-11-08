@@ -429,20 +429,24 @@ Pnt3f GMT(const Pnt3f& p0, const Pnt3f& p1, const Pnt3f& p2, const Pnt3f& p3, in
 //========================================================================
 void TrainView::drawStuff(bool doingShadows)
 {
-	//float noAmbient[] = { 0.0f,0.0f,0.0f ,0.0f ,1.0f };
-	//float whiteDiffuse[] = { 1.0,1.0f ,1.0f ,1.0f };
-	//float position[] = { 1.0,1.0f ,0.0f ,0.0f };
+	float noAmbient[] = { 0.0f,0.0f,0.0f ,0.0f ,1.0f };
+	float whiteDiffuse[] = { 1.0,1.0f ,1.0f ,1.0f };
+	float position[] = { 1.0,1.0f ,0.0f ,0.0f };
 
-	//glLightfv(GL_LIGHT0, GL_AMBIENT, noAmbient);
-	//glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteDiffuse);
-	//glLightfv(GL_LIGHT0, GL_POSITION, position);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, noAmbient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteDiffuse);
+	glLightfv(GL_LIGHT0, GL_POSITION, position);
 
-	//float yellowAmbientDiffuse[] = { 1.0f,1.0f ,0.0f ,1.0f };
-	//float position2[] = { -2.0,2.0f ,-5.0f ,1.0f };
+	float yellowAmbientDiffuse[] = { 1.0f,1.0f ,0.0f ,1.0f };
+	float position2[] = { -2.0,2.0f ,-5.0f ,1.0f };
 
-	//glLightfv(GL_LIGHT1, GL_AMBIENT, yellowAmbientDiffuse);
-	//glLightfv(GL_LIGHT1, GL_DIFFUSE, yellowAmbientDiffuse);
-	//glLightfv(GL_LIGHT1, GL_POSITION, position2);
+	glLightfv(GL_LIGHT1, GL_AMBIENT, yellowAmbientDiffuse);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, yellowAmbientDiffuse);
+	glLightfv(GL_LIGHT1, GL_POSITION, position2);
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
 	// Draw the control points
 	// don't draw the control points if you're driving 
 	// (otherwise you get sea-sick as you drive through them)
@@ -636,6 +640,7 @@ void TrainView::draw_track(bool doingShadows) {
 			t += percent;
 		}
 	}
+	//std::cout << arc_length << std::endl;
 }
 void TrainView::draw_train(bool doingShadows) {
 	int i;

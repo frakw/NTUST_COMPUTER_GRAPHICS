@@ -216,7 +216,7 @@ advanceTrain(float dir)
 		}
 	}
 	else {
-		m_Track.trainU += 0.03f * speed->value();
+		m_Track.trainU += 0.02f * speed->value();
 		if (m_Track.trainU > trainView->m_pTrack->points.size()) {
 			m_Track.trainU -= trainView->m_pTrack->points.size();
 		}
