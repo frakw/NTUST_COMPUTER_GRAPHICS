@@ -243,23 +243,23 @@ void TrainView::draw()
 	// * set the light parameters
 	//
 	//**********************************************************************
-	GLfloat lightPosition1[]	= {0,1,1,0}; // {50, 200.0, 50, 1.0};
-	GLfloat lightPosition2[]	= {1, 0, 0, 0};
-	GLfloat lightPosition3[]	= {0, -1, 0, 0};
-	GLfloat yellowLight[]		= {0.5f, 0.5f, .1f, 1.0};
-	GLfloat whiteLight[]			= {1.0f, 1.0f, 1.0f, 1.0};
-	GLfloat blueLight[]			= {.1f,.1f,.3f,1.0};
-	GLfloat grayLight[]			= {.3f, .3f, .3f, 1.0};
+	//GLfloat lightPosition1[]	= {0,1,1,0}; // {50, 200.0, 50, 1.0};
+	//GLfloat lightPosition2[]	= {1, 0, 0, 0};
+	//GLfloat lightPosition3[]	= {0, -1, 0, 0};
+	//GLfloat yellowLight[]		= {0.5f, 0.5f, .1f, 1.0};
+	//GLfloat whiteLight[]			= {1.0f, 1.0f, 1.0f, 1.0};
+	//GLfloat blueLight[]			= {.1f,.1f,.3f,1.0};
+	//GLfloat grayLight[]			= {.3f, .3f, .3f, 1.0};
 
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition1);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteLight);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, grayLight);
+	//glLightfv(GL_LIGHT0, GL_POSITION, lightPosition1);
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteLight);
+	//glLightfv(GL_LIGHT0, GL_AMBIENT, grayLight);
 
-	glLightfv(GL_LIGHT1, GL_POSITION, lightPosition2);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, yellowLight);
+	//glLightfv(GL_LIGHT1, GL_POSITION, lightPosition2);
+	//glLightfv(GL_LIGHT1, GL_DIFFUSE, yellowLight);
 
-	glLightfv(GL_LIGHT2, GL_POSITION, lightPosition3);
-	glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);
+	//glLightfv(GL_LIGHT2, GL_POSITION, lightPosition3);
+	//glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);
 
 
 
@@ -434,14 +434,15 @@ void TrainView::drawStuff(bool doingShadows)
 {
 	float noAmbient[] = { 0.0f,0.0f,0.0f ,0.0f ,1.0f };
 	float whiteDiffuse[] = { 1.0,1.0f ,1.0f ,1.0f };
-	float position[] = { 1.0,1.0f ,0.0f ,0.0f };
+	float position[] = { 0.0f,40.0f ,0.0f ,0.0f };
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, noAmbient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteDiffuse);
 	glLightfv(GL_LIGHT0, GL_POSITION, position);
 
 	float yellowAmbientDiffuse[] = { 1.0f,1.0f ,0.0f ,1.0f };
-	float position2[] = { -2.0,2.0f ,-5.0f ,1.0f };
+	float position2[] = { 0.0f,40.0f ,0.0f ,1.0f };
+	//float position2[] = { m_pTrack->points[0].pos.x,m_pTrack->points[0].pos.y ,m_pTrack->points[0].pos.z ,1.0f };
 	glLightfv(GL_LIGHT1, GL_AMBIENT, yellowAmbientDiffuse);
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, yellowAmbientDiffuse);
 	glLightfv(GL_LIGHT1, GL_POSITION, position2);
@@ -590,7 +591,7 @@ void TrainView::draw_first_sleeper(bool doingShadows) {
 	Pnt3f first_pre_sleeper = preQ - firstbackward * sleeper_length;
 	draw_sleeper(preQ, first_pre_sleeper, firstcross, firstup, doingShadows);
 }
-/*
+
 void TrainView::draw_track(bool doingShadows) {
 	int cp_size = m_pTrack->points.size();
 	arc_length = 0.0f;
@@ -654,67 +655,67 @@ void TrainView::draw_track(bool doingShadows) {
 		}
 	}
 	//std::cout << arc_length << std::endl;
-}*/
-
-void TrainView::draw_track(bool doingShadows) {
-	float T = 0.0f;
-	float percent = 1.0f / DIVIDE_LINE;
-	Pnt3f lastqt;
-	for (size_t i = 0; i < m_pTrack->points.size(); i++) {
-		ControlPoint& p1 = m_pTrack->points[(i - 1 + m_pTrack->points.size()) % m_pTrack->points.size()];
-		ControlPoint& p2 = m_pTrack->points[(i + m_pTrack->points.size()) % m_pTrack->points.size()];
-		ControlPoint& p3 = m_pTrack->points[(i + 1 + m_pTrack->points.size()) % m_pTrack->points.size()];
-		ControlPoint& p4 = m_pTrack->points[(i + 2 + m_pTrack->points.size()) % m_pTrack->points.size()];
-		float t = percent;
-		for (size_t j = 0; j < DIVIDE_LINE; j++) {
-			Pnt3f qt0 = GMT(p1.pos, p2.pos, p3.pos, p4.pos,tw->splineBrowser->value(), t);
-			Pnt3f orient_t = GMT(p1.orient, p2.orient, p3.orient, p4.orient, tw->splineBrowser->value(), t);
-			t += percent;
-			Pnt3f qt1 = GMT(p1.pos, p2.pos, p3.pos, p4.pos, tw->splineBrowser->value(), t);
-			Pnt3f forward = qt1 - qt0;
-			Pnt3f cross_t = forward * orient_t;
-			cross_t.normalize();
-			orient_t = cross_t * forward;
-			orient_t.normalize();
-			cross_t = cross_t * 2.5f;
-
-			//if (!doingShadows) {
-			//	glColor3ub(77, 19, 0);
-			//}
-			//glLineWidth(4);
-			//glBegin(GL_LINES);
-			//glVertex3f_Simplify(qt0 + cross_t);
-			//glVertex3f_Simplify(qt1 + cross_t);
-			//glVertex3f_Simplify(qt0 - cross_t);
-			//glVertex3f_Simplify(qt1 - cross_t);
-			//glEnd();
-			////¸ÉµeÅK­yÂ_µõ³B
-			//if (j != 0) {
-			//	glBegin(GL_LINES);
-			//	glVertex3f_Simplify(lastqt + cross_t);
-			//	glVertex3f_Simplify(qt1 + cross_t);
-			//	glVertex3f_Simplify(lastqt - cross_t);
-			//	glVertex3f_Simplify(qt1 - cross_t);
-			//	glEnd();
-			//}	
-
-			T += sqrtf(forward.x * forward.x + forward.y * forward.y + forward.z * forward.z);
-			if (T >= sleeper_length) {
-				if (!doingShadows) {
-					glColor3ub(101, 50, 0);
-				}
-				forward.normalize();
-				draw_sleeper(qt0 - forward * sleeper_length, qt0, cross_t, orient_t,doingShadows);
-				T -= sleeper_length;
-			}
-			/*else if (!sleeper && T >= track_interval) {
-				T -= track_interval;
-				sleeper = !sleeper;
-			}*/
-			lastqt = qt0;
-		}
-	}
 }
+
+//void TrainView::draw_track(bool doingShadows) {
+//	float T = 0.0f;
+//	float percent = 1.0f / DIVIDE_LINE;
+//	Pnt3f lastqt;
+//	for (size_t i = 0; i < m_pTrack->points.size(); i++) {
+//		ControlPoint& p1 = m_pTrack->points[(i - 1 + m_pTrack->points.size()) % m_pTrack->points.size()];
+//		ControlPoint& p2 = m_pTrack->points[(i + m_pTrack->points.size()) % m_pTrack->points.size()];
+//		ControlPoint& p3 = m_pTrack->points[(i + 1 + m_pTrack->points.size()) % m_pTrack->points.size()];
+//		ControlPoint& p4 = m_pTrack->points[(i + 2 + m_pTrack->points.size()) % m_pTrack->points.size()];
+//		float t = percent;
+//		for (size_t j = 0; j < DIVIDE_LINE; j++) {
+//			Pnt3f qt0 = GMT(p1.pos, p2.pos, p3.pos, p4.pos,tw->splineBrowser->value(), t);
+//			Pnt3f orient_t = GMT(p1.orient, p2.orient, p3.orient, p4.orient, tw->splineBrowser->value(), t);
+//			t += percent;
+//			Pnt3f qt1 = GMT(p1.pos, p2.pos, p3.pos, p4.pos, tw->splineBrowser->value(), t);
+//			Pnt3f forward = qt1 - qt0;
+//			Pnt3f cross_t = forward * orient_t;
+//			cross_t.normalize();
+//			orient_t = cross_t * forward;
+//			orient_t.normalize();
+//			cross_t = cross_t * 2.5f;
+//
+//			//if (!doingShadows) {
+//			//	glColor3ub(77, 19, 0);
+//			//}
+//			//glLineWidth(4);
+//			//glBegin(GL_LINES);
+//			//glVertex3f_Simplify(qt0 + cross_t);
+//			//glVertex3f_Simplify(qt1 + cross_t);
+//			//glVertex3f_Simplify(qt0 - cross_t);
+//			//glVertex3f_Simplify(qt1 - cross_t);
+//			//glEnd();
+//			////¸ÉµeÅK­yÂ_µõ³B
+//			//if (j != 0) {
+//			//	glBegin(GL_LINES);
+//			//	glVertex3f_Simplify(lastqt + cross_t);
+//			//	glVertex3f_Simplify(qt1 + cross_t);
+//			//	glVertex3f_Simplify(lastqt - cross_t);
+//			//	glVertex3f_Simplify(qt1 - cross_t);
+//			//	glEnd();
+//			//}	
+//
+//			T += sqrtf(forward.x * forward.x + forward.y * forward.y + forward.z * forward.z);
+//			if (T >= sleeper_length) {
+//				if (!doingShadows) {
+//					glColor3ub(101, 50, 0);
+//				}
+//				forward.normalize();
+//				draw_sleeper(qt0 - forward * sleeper_length, qt0, cross_t, orient_t,doingShadows);
+//				T -= sleeper_length;
+//			}
+//			/*else if (!sleeper && T >= track_interval) {
+//				T -= track_interval;
+//				sleeper = !sleeper;
+//			}*/
+//			lastqt = qt0;
+//		}
+//	}
+//}
 void TrainView::draw_train(bool doingShadows) {
 	int i;
 	float t;
@@ -768,7 +769,7 @@ void TrainView::draw_train(bool doingShadows) {
 	glvertex_vec(train_up_front - cross_t);
 	glEnd();
 	glBegin(GL_QUADS);//¥ª
-	glnormal_vec(-1 * cross_nor);
+	glnormal_vec(-1*cross_nor);
 	glvertex_vec(train_down_front - cross_t);
 	glvertex_vec(train_up_front - cross_t);
 	glvertex_vec(train_up_back - cross_t);
