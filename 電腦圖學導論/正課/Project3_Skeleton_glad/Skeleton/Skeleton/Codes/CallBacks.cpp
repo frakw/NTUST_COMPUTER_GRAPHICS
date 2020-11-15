@@ -252,14 +252,14 @@ void add_car(Fl_Widget*, TrainWindow* tw)
 //===========================================================================
 {
 	tw->trainView->car_amount++;
-	tw->trainView->draw_track(false);
-	tw->trainView->draw_train(false);
+	tw->trainView->drawStuff(false);
+	tw->damageMe();
 }
 void del_car(Fl_Widget*, TrainWindow* tw)
 //===========================================================================
 {
 	if (tw->trainView->car_amount > 1)
 		tw->trainView->car_amount--;
-	tw->trainView->draw_track(false);
-	tw->trainView->draw_train(false);
+	tw->trainView->drawStuff(false);
+	tw->damageMe();
 }
