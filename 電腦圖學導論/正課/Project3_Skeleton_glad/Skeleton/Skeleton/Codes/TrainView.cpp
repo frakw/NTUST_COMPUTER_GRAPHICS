@@ -177,6 +177,24 @@ int TrainView::handle(int event)
 	return Fl_Gl_Window::handle(event);
 }
 
+void dir_light() {
+	float noAmbient[] = { 0.0f,0.0f,0.0f ,0.0f ,1.0f };
+	float whiteDiffuse[] = { 1.0,0.0f ,0.0f ,1.0f };
+	float position[] = { 0.0f,1.0f ,0.0f ,0.0f };
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, noAmbient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteDiffuse);
+	glLightfv(GL_LIGHT0, GL_POSITION, position);
+}
+void point_light() {
+	float yellowAmbientDiffuse[] = { 1.0f,1.0f ,1.0f ,1.0f };
+	float whiteDiffuse[] = { 0.0,0.0f ,1.0f ,1.0f };
+	float position[] = { 0.0f,40.0f ,0.0f ,1.0f };
+
+	glLightfv(GL_LIGHT1, GL_AMBIENT, yellowAmbientDiffuse);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, whiteDiffuse);
+	glLightfv(GL_LIGHT1, GL_POSITION, position);
+}
 //************************************************************************
 //
 // * this is the code that actually draws the window
@@ -237,7 +255,16 @@ void TrainView::draw()
 		glEnable(GL_LIGHT1);
 		glEnable(GL_LIGHT2);
 	}
-
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
+	//dir_light();
+	point_light();
+	GLUquadric* n = gluNewQuadric();
+	glTranslatef(0,40,0);
+	glColor3ub(255, 255, 0);
+	gluSphere(n, 5.0f, 30, 30);
+	glTranslatef(0,-40, 0);
 	//*********************************************************************
 	//
 	// * set the light parameters
@@ -270,7 +297,7 @@ void TrainView::draw()
 	glUseProgram(0);
 
 	setupFloor();
-	glDisable(GL_LIGHTING);
+	//glDisable(GL_LIGHTING);
 	drawFloor(200,10);
 
 
@@ -432,24 +459,9 @@ Pnt3f GMT(const Pnt3f& p0, const Pnt3f& p1, const Pnt3f& p2, const Pnt3f& p3, in
 //========================================================================
 void TrainView::drawStuff(bool doingShadows)
 {
-	float noAmbient[] = { 0.0f,0.0f,0.0f ,0.0f ,1.0f };
-	float whiteDiffuse[] = { 1.0,1.0f ,1.0f ,1.0f };
-	float position[] = { 0.0f,40.0f ,0.0f ,0.0f };
 
-	glLightfv(GL_LIGHT0, GL_AMBIENT, noAmbient);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteDiffuse);
-	glLightfv(GL_LIGHT0, GL_POSITION, position);
 
-	float yellowAmbientDiffuse[] = { 1.0f,1.0f ,0.0f ,1.0f };
-	float position2[] = { 0.0f,40.0f ,0.0f ,1.0f };
-	//float position2[] = { m_pTrack->points[0].pos.x,m_pTrack->points[0].pos.y ,m_pTrack->points[0].pos.z ,1.0f };
-	glLightfv(GL_LIGHT1, GL_AMBIENT, yellowAmbientDiffuse);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, yellowAmbientDiffuse);
-	glLightfv(GL_LIGHT1, GL_POSITION, position2);
 
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	glEnable(GL_LIGHT1);
 	// Draw the control points
 	// don't draw the control points if you're driving 
 	// (otherwise you get sea-sick as you drive through them)
@@ -657,65 +669,6 @@ void TrainView::draw_track(bool doingShadows) {
 	//std::cout << arc_length << std::endl;
 }
 
-//void TrainView::draw_track(bool doingShadows) {
-//	float T = 0.0f;
-//	float percent = 1.0f / DIVIDE_LINE;
-//	Pnt3f lastqt;
-//	for (size_t i = 0; i < m_pTrack->points.size(); i++) {
-//		ControlPoint& p1 = m_pTrack->points[(i - 1 + m_pTrack->points.size()) % m_pTrack->points.size()];
-//		ControlPoint& p2 = m_pTrack->points[(i + m_pTrack->points.size()) % m_pTrack->points.size()];
-//		ControlPoint& p3 = m_pTrack->points[(i + 1 + m_pTrack->points.size()) % m_pTrack->points.size()];
-//		ControlPoint& p4 = m_pTrack->points[(i + 2 + m_pTrack->points.size()) % m_pTrack->points.size()];
-//		float t = percent;
-//		for (size_t j = 0; j < DIVIDE_LINE; j++) {
-//			Pnt3f qt0 = GMT(p1.pos, p2.pos, p3.pos, p4.pos,tw->splineBrowser->value(), t);
-//			Pnt3f orient_t = GMT(p1.orient, p2.orient, p3.orient, p4.orient, tw->splineBrowser->value(), t);
-//			t += percent;
-//			Pnt3f qt1 = GMT(p1.pos, p2.pos, p3.pos, p4.pos, tw->splineBrowser->value(), t);
-//			Pnt3f forward = qt1 - qt0;
-//			Pnt3f cross_t = forward * orient_t;
-//			cross_t.normalize();
-//			orient_t = cross_t * forward;
-//			orient_t.normalize();
-//			cross_t = cross_t * 2.5f;
-//
-//			//if (!doingShadows) {
-//			//	glColor3ub(77, 19, 0);
-//			//}
-//			//glLineWidth(4);
-//			//glBegin(GL_LINES);
-//			//glVertex3f_Simplify(qt0 + cross_t);
-//			//glVertex3f_Simplify(qt1 + cross_t);
-//			//glVertex3f_Simplify(qt0 - cross_t);
-//			//glVertex3f_Simplify(qt1 - cross_t);
-//			//glEnd();
-//			////補畫鐵軌斷裂處
-//			//if (j != 0) {
-//			//	glBegin(GL_LINES);
-//			//	glVertex3f_Simplify(lastqt + cross_t);
-//			//	glVertex3f_Simplify(qt1 + cross_t);
-//			//	glVertex3f_Simplify(lastqt - cross_t);
-//			//	glVertex3f_Simplify(qt1 - cross_t);
-//			//	glEnd();
-//			//}	
-//
-//			T += sqrtf(forward.x * forward.x + forward.y * forward.y + forward.z * forward.z);
-//			if (T >= sleeper_length) {
-//				if (!doingShadows) {
-//					glColor3ub(101, 50, 0);
-//				}
-//				forward.normalize();
-//				draw_sleeper(qt0 - forward * sleeper_length, qt0, cross_t, orient_t,doingShadows);
-//				T -= sleeper_length;
-//			}
-//			/*else if (!sleeper && T >= track_interval) {
-//				T -= track_interval;
-//				sleeper = !sleeper;
-//			}*/
-//			lastqt = qt0;
-//		}
-//	}
-//}
 void TrainView::draw_train(bool doingShadows) {
 	int i;
 	float t;
@@ -729,73 +682,93 @@ void TrainView::draw_train(bool doingShadows) {
 		t -= i;
 	}
 	int cp_size = m_pTrack->points.size();
-	ControlPoint& p0 = m_pTrack->points[(i - 1 + cp_size) % cp_size];
-	ControlPoint& p1 = m_pTrack->points[i % cp_size];
-	ControlPoint& p2 = m_pTrack->points[(i + 1) % cp_size];
-	ControlPoint& p3 = m_pTrack->points[(i + 2) % cp_size];
-	Pnt3f train_pos = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
-	Pnt3f train_next = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t + 1.0f / DIVIDE_LINE);
-	Pnt3f train_ori = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), t);
-	Pnt3f forward = train_next - train_pos;
-	forward.normalize();//加這個才不會變彈跳床
-	Pnt3f cross_t = forward * train_ori;
-	cross_t.normalize();
-	cross_t = cross_t * 10.0f;
-	Pnt3f up = -1 * forward * cross_t;
-	Pnt3f train_down_front = train_pos + forward * 10.0f;
-	Pnt3f train_down_back = train_pos - forward * 10.0f;
-	Pnt3f train_up_front = train_down_front + up * 2.0f;
-	Pnt3f train_up_back = train_down_back + up * 2.0f;
-
-	Pnt3f forward_nor = (train_next - train_pos);
-	forward_nor.normalize();
-	Pnt3f cross_nor = cross_t;
-	cross_nor.normalize();
-	Pnt3f up_nor = up;
-	up_nor.normalize();
-	if (!doingShadows)glColor3ub(23, 122, 222);
-	glBegin(GL_QUADS);//下
-	glnormal_vec(-1 * up_nor);
-	glvertex_vec(train_down_front + cross_t);
-	glvertex_vec(train_down_back + cross_t);
-	glvertex_vec(train_down_back - cross_t);
-	glvertex_vec(train_down_front - cross_t);
-	glEnd();
-	glBegin(GL_QUADS);//上
-	glnormal_vec(up_nor);
-	glvertex_vec(train_up_front + cross_t);
-	glvertex_vec(train_up_back + cross_t);
-	glvertex_vec(train_up_back - cross_t);
-	glvertex_vec(train_up_front - cross_t);
-	glEnd();
-	glBegin(GL_QUADS);//左
-	glnormal_vec(-1*cross_nor);
-	glvertex_vec(train_down_front - cross_t);
-	glvertex_vec(train_up_front - cross_t);
-	glvertex_vec(train_up_back - cross_t);
-	glvertex_vec(train_down_back - cross_t);
-	glEnd();
-	glBegin(GL_QUADS);//右
-	glnormal_vec(cross_nor);
-	glvertex_vec(train_down_front + cross_t);
-	glvertex_vec(train_up_front + cross_t);
-	glvertex_vec(train_up_back + cross_t);
-	glvertex_vec(train_down_back + cross_t);
-	glEnd();
-	glBegin(GL_QUADS);//前
-	glnormal_vec(forward_nor);
-	glvertex_vec(train_down_front - cross_t);
-	glvertex_vec(train_down_front + cross_t);
-	glvertex_vec(train_up_front + cross_t);
-	glvertex_vec(train_up_front - cross_t);
-	glEnd();
-	glBegin(GL_QUADS);//後
-	glnormal_vec(-1 * forward_nor);
-	glvertex_vec(train_down_back - cross_t);
-	glvertex_vec(train_down_back + cross_t);
-	glvertex_vec(train_up_back + cross_t);
-	glvertex_vec(train_up_back - cross_t);
-	glEnd();
+	float percent = 1.0f / DIVIDE_LINE;
+	ControlPoint p0 = m_pTrack->points[(i - 1 + cp_size) % cp_size];
+	ControlPoint p1 = m_pTrack->points[i % cp_size];
+	ControlPoint p2 = m_pTrack->points[(i + 1) % cp_size];
+	ControlPoint p3 = m_pTrack->points[(i + 2) % cp_size];
+	for (int j = 0;j < car_amount;j++) {
+		Pnt3f train_pos = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
+		Pnt3f train_next = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t + percent);
+		Pnt3f train_ori = GMT(p0.orient, p1.orient, p2.orient, p3.orient, tw->splineBrowser->value(), t);
+		Pnt3f forward = train_next - train_pos;
+		forward.normalize();//加這個才不會變彈跳床
+		Pnt3f cross_t = forward * train_ori;
+		cross_t.normalize();
+		cross_t = cross_t * 10.0f;
+		Pnt3f up = -1 * forward * cross_t;
+		Pnt3f train_down_front = train_pos + forward * 10.0f;
+		Pnt3f train_down_back = train_pos - forward * 10.0f;
+		Pnt3f train_up_front = train_down_front + up * 2.0f;
+		Pnt3f train_up_back = train_down_back + up * 2.0f;
+		float car_length = (train_down_front - train_down_back).length();
+		Pnt3f forward_nor = (train_next - train_pos);
+		forward_nor.normalize();
+		Pnt3f cross_nor = cross_t;
+		cross_nor.normalize();
+		Pnt3f up_nor = up;
+		up_nor.normalize();
+		if (!doingShadows)glColor3ub(23, 122, 222);
+		glBegin(GL_QUADS);//下
+		glnormal_vec(-1 * up_nor);
+		glvertex_vec(train_down_front + cross_t);
+		glvertex_vec(train_down_back + cross_t);
+		glvertex_vec(train_down_back - cross_t);
+		glvertex_vec(train_down_front - cross_t);
+		glEnd();
+		glBegin(GL_QUADS);//上
+		glnormal_vec(up_nor);
+		glvertex_vec(train_up_front + cross_t);
+		glvertex_vec(train_up_back + cross_t);
+		glvertex_vec(train_up_back - cross_t);
+		glvertex_vec(train_up_front - cross_t);
+		glEnd();
+		glBegin(GL_QUADS);//左
+		glnormal_vec(-1 * cross_nor);
+		glvertex_vec(train_down_front - cross_t);
+		glvertex_vec(train_up_front - cross_t);
+		glvertex_vec(train_up_back - cross_t);
+		glvertex_vec(train_down_back - cross_t);
+		glEnd();
+		glBegin(GL_QUADS);//右
+		glnormal_vec(cross_nor);
+		glvertex_vec(train_down_front + cross_t);
+		glvertex_vec(train_up_front + cross_t);
+		glvertex_vec(train_up_back + cross_t);
+		glvertex_vec(train_down_back + cross_t);
+		glEnd();
+		glBegin(GL_QUADS);//前
+		glnormal_vec(forward_nor);
+		glvertex_vec(train_down_front - cross_t);
+		glvertex_vec(train_down_front + cross_t);
+		glvertex_vec(train_up_front + cross_t);
+		glvertex_vec(train_up_front - cross_t);
+		glEnd();
+		glBegin(GL_QUADS);//後
+		glnormal_vec(-1 * forward_nor);
+		glvertex_vec(train_down_back - cross_t);
+		glvertex_vec(train_down_back + cross_t);
+		glvertex_vec(train_up_back + cross_t);
+		glvertex_vec(train_up_back - cross_t);
+		glEnd();
+		float collect_len = 0.0f;
+		while (1) {
+			for (t;t >= 0;t -= percent) {
+				train_pos = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
+				train_next = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t + percent);
+				collect_len += (train_next - train_pos).length();
+				if (collect_len >= car_length + car_space) goto find_next_car;
+			}
+			t = 1.0f;
+			--i;
+			if (i < 0) i = cp_size - 1;
+			p0 = m_pTrack->points[(i - 1 + cp_size) % cp_size];
+			p1 = m_pTrack->points[i % cp_size];
+			p2 = m_pTrack->points[(i + 1) % cp_size];
+			p3 = m_pTrack->points[(i + 2) % cp_size];
+		}
+	find_next_car:;
+	}
 }
 
 void TrainView::no_arc_to_arc() {
@@ -887,7 +860,7 @@ doPick()
 }
 
 
-/*
+/*舊的畫鐵軌function
 void TrainView::draw_track(bool doingShadows) {
 	float percent = 1.0f / DIVIDE_LINE;
 	int cp_size = m_pTrack->points.size();//how much control point
