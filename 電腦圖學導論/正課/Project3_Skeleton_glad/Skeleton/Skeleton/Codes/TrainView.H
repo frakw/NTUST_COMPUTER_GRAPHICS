@@ -97,7 +97,7 @@ class TrainView : public Fl_Gl_Window
 		float rail_width = 2.50f;
 
 		int car_amount = 1;
-		float car_space = 4.0f;
+		float car_to_car_distance = 4.0f;
 };
 
 Pnt3f GMT(const Pnt3f& p0, const Pnt3f& p1, const Pnt3f& p2, const Pnt3f& p3, int matrix_type, float t);

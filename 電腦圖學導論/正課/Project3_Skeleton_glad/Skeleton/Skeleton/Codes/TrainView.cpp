@@ -44,7 +44,7 @@ using std::make_pair;
 #include "TrainView.H"
 #include "TrainWindow.H"
 #include "Utilities/3DUtils.H"
-
+#include "assimp/anim.h"
 
 #ifdef EXAMPLE_SOLUTION
 #	include "TrainExample/TrainExample.H"
@@ -762,22 +762,21 @@ void TrainView::draw_train(bool doingShadows) {
 		glvertex_vec(train_up_back - cross_t);
 		glEnd();
 		float collect_len = 0.0f;
-		while (1) {
-			for (t;t >= 0;t -= percent) {
-				train_pos = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
-				train_next = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t + percent);
-				collect_len += (train_next - train_pos).length();
-				if (collect_len >= car_length + car_space) goto find_next_car;
+		for (;;t-=percent) {
+			train_pos = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
+			train_next = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t + percent);
+			collect_len += (train_next - train_pos).length();
+			if (collect_len >= car_length + car_to_car_distance) break;
+			if (t < 0.0f) {
+				t = 1.0f;
+				--i;
+				if (i < 0) i = cp_size - 1;
+				p0 = m_pTrack->points[(i - 1 + cp_size) % cp_size];
+				p1 = m_pTrack->points[i % cp_size];
+				p2 = m_pTrack->points[(i + 1) % cp_size];
+				p3 = m_pTrack->points[(i + 2) % cp_size];
 			}
-			t = 1.0f;
-			--i;
-			if (i < 0) i = cp_size - 1;
-			p0 = m_pTrack->points[(i - 1 + cp_size) % cp_size];
-			p1 = m_pTrack->points[i % cp_size];
-			p2 = m_pTrack->points[(i + 1) % cp_size];
-			p3 = m_pTrack->points[(i + 2) % cp_size];
 		}
-	find_next_car:;
 	}
 }
 
