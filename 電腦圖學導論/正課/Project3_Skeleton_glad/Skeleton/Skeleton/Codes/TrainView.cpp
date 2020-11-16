@@ -179,20 +179,19 @@ int TrainView::handle(int event)
 
 void dir_light() {
 	float noAmbient[] = { 0.0f,0.0f,0.0f ,0.0f ,1.0f };
-	float whiteDiffuse[] = { 1.0,0.0f ,0.0f ,1.0f };
-	float position[] = { 0.0f,1.0f ,0.0f ,0.0f };
+	float whiteDiffuse[] = { 1.0,1.0f ,1.0f ,1.0f };
+	float position[] = { 0.0f,1.0f,0.0f ,0.0f };
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, noAmbient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteDiffuse);
 	glLightfv(GL_LIGHT0, GL_POSITION, position);
 }
 void point_light() {
-	float yellowAmbientDiffuse[] = { 1.0f,1.0f ,1.0f ,1.0f };
-	float whiteDiffuse[] = { 0.0,0.0f ,1.0f ,1.0f };
-	float position[] = { 0.0f,40.0f ,0.0f ,1.0f };
+	float yellowAmbientDiffuse[] = { 0.0f,1.0f ,1.0f ,1.0f };
+	float position[] = { 0.0f,1.0f ,0.0f ,1.0f };
 
 	glLightfv(GL_LIGHT1, GL_AMBIENT, yellowAmbientDiffuse);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, whiteDiffuse);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, yellowAmbientDiffuse);
 	glLightfv(GL_LIGHT1, GL_POSITION, position);
 }
 //************************************************************************
@@ -258,13 +257,24 @@ void TrainView::draw()
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHT1);
-	//dir_light();
-	point_light();
+	if (tw->dir_L->value()) {
+		dir_light();
+	}
+	else {
+		glDisable(GL_LIGHT0);
+	} 
+	if (tw->point_L->value()) {
+		point_light();
+	}
+	else {
+		glDisable(GL_LIGHT1);
+	}
 	GLUquadric* n = gluNewQuadric();
 	glTranslatef(0,40,0);
 	glColor3ub(255, 255, 0);
 	gluSphere(n, 5.0f, 30, 30);
 	glTranslatef(0,-40, 0);
+	delete[] n;
 	//*********************************************************************
 	//
 	// * set the light parameters

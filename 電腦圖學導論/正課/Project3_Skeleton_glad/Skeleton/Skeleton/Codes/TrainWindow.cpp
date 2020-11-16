@@ -147,6 +147,12 @@ TrainWindow(const int x, const int y)
 		_add_car->callback((Fl_Callback*)add_car, this);
 		Fl_Button* _del_car = new Fl_Button(675, pty, 75, 20, "Delete Car");
 		_del_car->callback((Fl_Callback*)del_car, this);
+		pty += 30;
+		dir_L = new Fl_Button(605, pty, 60, 20, "dir light");
+		togglify(dir_L);
+		point_L = new Fl_Button(675, pty, 75, 20, "point light");
+		togglify(point_L);
+
 #ifdef EXAMPLE_SOLUTION
 		makeExampleWidgets(this,pty);
 #endif

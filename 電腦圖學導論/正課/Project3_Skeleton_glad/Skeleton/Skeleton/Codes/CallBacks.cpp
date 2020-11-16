@@ -263,3 +263,7 @@ void del_car(Fl_Widget*, TrainWindow* tw)
 	tw->trainView->drawStuff(false);
 	tw->damageMe();
 }
+
+void dir_L_CB() {
+	
+}
