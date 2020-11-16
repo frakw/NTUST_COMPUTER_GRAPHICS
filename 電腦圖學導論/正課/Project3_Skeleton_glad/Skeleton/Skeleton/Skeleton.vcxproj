@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Codes\CallBacks.cpp" />
     <ClCompile Include="Codes\ControlPoint.cpp" />
+    <ClCompile Include="Codes\glad.c" />
     <ClCompile Include="Codes\main.cpp" />
     <ClCompile Include="Codes\Track.cpp" />
     <ClCompile Include="Codes\TrainView.cpp" />
@@ -28,7 +29,6 @@
     <ClCompile Include="Codes\Utilities\3DUtils.cpp" />
     <ClCompile Include="Codes\Utilities\ArcBallCam.cpp" />
     <ClCompile Include="Codes\Utilities\Pnt3f.cpp" />
-    <ClCompile Include="include\glad4.6\src\glad.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\CallBacks.H" />
@@ -93,12 +93,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\maochinn\Lib\FLTK\build\include;include\glad4.6\include;include\glm-0.9.8.5\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\maochinn\Lib\FLTK\build\lib\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>include\;include\glad\;include\glm\;$(IncludePath)</IncludePath>
+    <LibraryPath>lib\Debug\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LibraryPath>lib\;$(LibraryPath)</LibraryPath>
-    <IncludePath>include\</IncludePath>
+    <LibraryPath>lib\Release\;$(LibraryPath)</LibraryPath>
+    <IncludePath>include\;include\glad\;include\glm\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -121,7 +121,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>fltk_formsd.lib;fltk_gld.lib;fltk_imagesd.lib;fltk_jpegd.lib;fltk_pngd.lib;fltk_zd.lib;fltkd.lib;%(AdditionalDependencies);OpenGL32.lib;glu32.lib</AdditionalDependencies>
+      <AdditionalDependencies>fltkd.lib;fltk_gld.lib;fltk_formsd.lib;fltk_imagesd.lib;fltk_jpegd.lib;fltk_pngd.lib;fltk_zd.lib;%(AdditionalDependencies);OpenGL32.lib;glu32.lib;assimp-vc142-mt.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

@@ -45,7 +45,7 @@
     <ClCompile Include="Codes\Utilities\Pnt3f.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="include\glad4.6\src\glad.c">
+    <ClCompile Include="Codes\glad.c">
       <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>

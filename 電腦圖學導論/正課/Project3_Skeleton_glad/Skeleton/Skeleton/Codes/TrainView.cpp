@@ -274,7 +274,8 @@ void TrainView::draw()
 	glColor3ub(255, 255, 0);
 	gluSphere(n, 5.0f, 30, 30);
 	glTranslatef(0,-40, 0);
-	delete[] n;
+	gluDeleteQuadric(n);
+	//delete[] n;
 	//*********************************************************************
 	//
 	// * set the light parameters
