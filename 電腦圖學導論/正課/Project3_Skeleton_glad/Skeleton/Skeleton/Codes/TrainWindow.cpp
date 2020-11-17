@@ -152,7 +152,16 @@ TrainWindow(const int x, const int y)
 		togglify(dir_L);
 		point_L = new Fl_Button(675, pty, 75, 20, "point light");
 		togglify(point_L);
-
+		pty += 25;
+		tension = new Fl_Value_Slider(655, pty, 140, 20, "tension");
+		tension->range(0, 1);
+		tension->value(0.5);
+		tension->align(FL_ALIGN_LEFT);
+		tension->type(FL_HORIZONTAL);
+		tension->callback((Fl_Callback*)change_tension,this);
+		pty += 30;
+		physics = new Fl_Button(605, pty, 60, 20, "physics");
+		togglify(physics);
 #ifdef EXAMPLE_SOLUTION
 		makeExampleWidgets(this,pty);
 #endif
@@ -221,12 +230,14 @@ advanceTrain(float dir)
 	
 	if (arcLength->value()) {
 		m_Track.trainU += 1.0f * speed->value();
+		if (physics->value()) m_Track.trainU += trainView->physics_add;
 		if (m_Track.trainU > trainView->arc_length) {
 			m_Track.trainU -= trainView->arc_length;
 		}
 	}
 	else {
 		m_Track.trainU += 0.02f * speed->value();
+		if (physics->value()) m_Track.trainU += trainView->physics_add * 0.4;
 		if (m_Track.trainU > trainView->m_pTrack->points.size()) {
 			m_Track.trainU -= trainView->m_pTrack->points.size();
 		}

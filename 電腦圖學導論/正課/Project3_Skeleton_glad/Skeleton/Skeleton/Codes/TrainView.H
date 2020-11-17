@@ -47,6 +47,8 @@ class CTrack;
 #pragma warning(disable:4311)
 #include <Fl/Fl_Gl_Window.h>
 #pragma warning(pop)
+class Shader;
+class Model;
 
 // this uses the old ArcBall Code
 #include "Utilities/ArcBallCam.H"
@@ -70,6 +72,7 @@ class TrainView : public Fl_Gl_Window
 		void draw_train(bool);
 		void draw_first_sleeper(bool);
 		void no_arc_to_arc();
+		void draw_pillar(float);
 		// setup the projection - assuming that the projection stack has been
 		// cleared for you
 		void setProjection();
@@ -79,6 +82,7 @@ class TrainView : public Fl_Gl_Window
 
 		// pick a point (for when the mouse goes down)
 		void doPick();
+		Pnt3f GMT(const Pnt3f& p0, const Pnt3f& p1, const Pnt3f& p2, const Pnt3f& p3, int matrix_type, float t);
 
 	public:
 		ArcBallCam		arcball;			// keep an ArcBall for the UI
@@ -98,6 +102,8 @@ class TrainView : public Fl_Gl_Window
 
 		int car_amount = 1;
 		float car_to_car_distance = 4.0f;
+
+		float physics_add = 1.0f;
 };
 
-Pnt3f GMT(const Pnt3f& p0, const Pnt3f& p1, const Pnt3f& p2, const Pnt3f& p3, int matrix_type, float t);
+

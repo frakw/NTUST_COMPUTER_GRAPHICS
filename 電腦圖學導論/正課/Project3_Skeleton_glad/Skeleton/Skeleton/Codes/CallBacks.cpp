@@ -252,7 +252,6 @@ void add_car(Fl_Widget*, TrainWindow* tw)
 //===========================================================================
 {
 	tw->trainView->car_amount++;
-	tw->trainView->drawStuff(false);
 	tw->damageMe();
 }
 void del_car(Fl_Widget*, TrainWindow* tw)
@@ -260,10 +259,9 @@ void del_car(Fl_Widget*, TrainWindow* tw)
 {
 	if (tw->trainView->car_amount > 1)
 		tw->trainView->car_amount--;
-	tw->trainView->drawStuff(false);
 	tw->damageMe();
 }
 
-void dir_L_CB() {
-	
+void change_tension(Fl_Widget*, TrainWindow* tw) {
+	tw->damageMe();
 }

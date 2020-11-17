@@ -20,6 +20,7 @@
 *************************************************************************/
 #pragma once
 
+
 // Preclarify to prevent the compiler error
 class TrainWindow;
 class Fl_Widget;
@@ -61,3 +62,4 @@ void rmzCB(Fl_Widget*, TrainWindow* tw);
 
 void add_car(Fl_Widget*, TrainWindow* tw);
 void del_car(Fl_Widget*, TrainWindow* tw);
+void change_tension(Fl_Widget*, TrainWindow* tw);

@@ -28,17 +28,21 @@
 #include <tuple>
 #include <utility>
 #include <Fl/fl.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
 using std::tuple;
 using std::make_tuple;
 using std::get;
 using std::pair;
 using std::make_pair;
+
 // we will need OpenGL, and OpenGL needs windows.h
 #include <windows.h>
 //#include "GL/gl.h"
 //#include "../include/glad4.6/include/glad/glad.h"
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "GL/glu.h"
 
 #include "TrainView.H"
@@ -49,8 +53,8 @@ using std::make_pair;
 #ifdef EXAMPLE_SOLUTION
 #	include "TrainExample/TrainExample.H"
 #endif
+#include "model.h"
 
-Pnt3f GMT(const Pnt3f& p0, const Pnt3f& p1, const Pnt3f& p2, const Pnt3f& p3, int matrix_type, float t);
 //************************************************************************
 //
 // * Constructor to set up the GL window
@@ -275,6 +279,9 @@ void TrainView::draw()
 	gluSphere(n, 5.0f, 30, 30);
 	glTranslatef(0,-40, 0);
 	gluDeleteQuadric(n);
+	//backpack_sh = new Shader("shader/test.vs", "shader/test.fs");
+	//backpack = new Model("backpack/backpack.obj");
+
 	//delete[] n;
 	//*********************************************************************
 	//
@@ -327,6 +334,8 @@ void TrainView::draw()
 		drawStuff(true);
 		unsetupShadows();
 	}
+	//delete[] backpack_sh;
+	//delete[] backpack;
 }
 
 //************************************************************************
@@ -371,10 +380,15 @@ setProjection()
 	// put code for train view projection here!	
 	//####################################################################
 	else if(tw->trainCam->value()){
+		//backpack_sh.use();
+		GLfloat projection[16];
+		GLfloat model_view[16];
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		gluPerspective(45, aspect, 0.01f, 1000.0f);
+		glGetFloatv(GL_PROJECTION_MATRIX, projection);
+		//backpack_sh.setMat4("projection", glm::make_mat4(projection));
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		int i;
@@ -404,7 +418,9 @@ setProjection()
 		Pnt3f next_pos = train_next + up * 5.0f;
 		gluLookAt(my_pos.x, my_pos.y, my_pos.z,
 			next_pos.x, next_pos.y, next_pos.z, orient.x, orient.y, orient.z);
-
+		glGetFloatv(GL_MODELVIEW_MATRIX, model_view);
+		//backpack_sh.setMat4("model_view", glm::make_mat4(model_view));
+		//backpack.Draw(backpack_sh);
 #ifdef EXAMPLE_SOLUTION
 		trainCamView(this,aspect);
 #endif
@@ -416,8 +432,10 @@ void glvertex_vec(Pnt3f in) {
 void glnormal_vec(Pnt3f in) {
 	glNormal3f(in.x, in.y, in.z);
 }
-Pnt3f GMT(const Pnt3f& p0, const Pnt3f& p1, const Pnt3f& p2, const Pnt3f& p3, int matrix_type, float t) {
+Pnt3f TrainView::GMT(const Pnt3f& p0, const Pnt3f& p1, const Pnt3f& p2, const Pnt3f& p3, int matrix_type, float t) {
 	glm::mat4x4 M;
+	float tesion = tw->tension->value();
+	if (tesion < 0.01) tesion = 0.01;
 	switch (matrix_type)
 	{
 	case 1: {		
@@ -430,11 +448,11 @@ Pnt3f GMT(const Pnt3f& p0, const Pnt3f& p1, const Pnt3f& p2, const Pnt3f& p3, in
 	case 2: {
 		M = {
 			-1,2,-1,0,
-			3,-5,0,2,
-			-3,4,1,0,
+			2/ tesion - 1,1 - 3/ tesion,0,1/ tesion,
+			1-2/ tesion,3/ tesion-2,1,0,
 			1,-1,0,0
 		};
-		M /= 2.0f;
+		M *= tesion;
 	}break;
 	case 3: default: {
 		M = {
@@ -487,6 +505,8 @@ void TrainView::drawStuff(bool doingShadows)
 			m_pTrack->points[i].draw();
 		}
 	}
+	if(!doingShadows) glColor3ub(115, 148, 214);
+	draw_pillar(2.0f);
 	draw_track(doingShadows);
 	if (!tw->trainCam->value()) {
 		draw_train(doingShadows);
@@ -516,7 +536,7 @@ void draw_sleeper(Pnt3f front,Pnt3f back,Pnt3f cross_t,Pnt3f up,bool doingShadow
 	forward_nor.normalize();
 	Pnt3f cross_nor = cross_t;
 	cross_nor.normalize();
-	Pnt3f up_nor = up;
+	Pnt3f up_nor = -1 * up;//不知道為甚麼要乘-1
 	up_nor.normalize();
 	if (!doingShadows) glColor3ub(25, 25, 25);
 	glLineWidth(1);
@@ -640,6 +660,7 @@ void TrainView::draw_track(bool doingShadows) {
 			Pnt3f backward = (Q - preQ);
 			Pnt3f cross_t = backward * O.normalize();
 			Pnt3f up = backward * cross_t.normalize();
+			//up = up * -1;
 			up.normalize();
 			cross_t = cross_t * rail_width;
 			glLineWidth(5);
@@ -660,6 +681,7 @@ void TrainView::draw_track(bool doingShadows) {
 				get_train_pos = true;
 				train_i = i;
 				train_t = t;
+				physics_add = (preQ.y - Q.y) * 30.0f;
 			}
 			T += backward.length();
 			if (sleeper && T >= sleeper_length) {
@@ -779,6 +801,7 @@ void TrainView::draw_train(bool doingShadows) {
 			}
 		}
 	}
+	
 }
 
 void TrainView::no_arc_to_arc() {
@@ -804,6 +827,47 @@ void TrainView::no_arc_to_arc() {
 		}
 	}
 }
+//void draw_wheel(Pnt3f center,Pnt3f cross,Pnt3f up,float r,float thickness,int color_pos,bool doingShadows) {
+//	int divide = 19;
+//	glm::vec3 circle[19];
+//	int color[19][3] = {
+//		{98,95,100},{89,75,100},{81,55,100},{75,35,100},{64,15,100},{55,0,96},{49,0,84},{43,0,74},{37,0,64},{31,0,54},
+//		{0,0,50},{0,0,60},{0,0,70},{0,0,80},{0,0,90},{3,3,100},{23,23,100},{43,43,100},{64,64,100}
+//	};
+//	up.normalize();
+//	Pnt3f left = center + cross.normalize() * thickness;
+//	Pnt3f right = center - cross.normalize() * thickness;
+//	for (size_t i = 0; i < divide; ++i) {
+//		circle[i][0] = r * up.x * cos(2 * M_PI / divide) * circle[i][0];
+//		circle[i][1] = r * up.y * cos(2 * M_PI / divide) * circle[i][1];
+//	}
+//
+//	glBegin(GL_TRIANGLES);
+//	for (int i = 0;i < divide;i++) {
+//		if (!doingShadows) glColor3b(color[(color_pos + i)%divide][1], color[(color_pos + i) % divide][0], color[(color_pos + i) % divide][2]);
+//		glVertex3f(left.x + );
+//		glVertex3f();
+//		glvertex_vec(left);
+//	}
+//	glEnd();
+//}
+void TrainView::draw_pillar(float r){
+	glm::vec2 circle[19] = { glm::vec2(1.000, 0.000),glm::vec2(0.940, 0.342),glm::vec2(0.766, 0.643),glm::vec2(0.500, 0.866),
+		glm::vec2(0.174, 0.985),glm::vec2(-0.173, 0.985),glm::vec2(-0.499, 0.867),glm::vec2(-0.765, 0.644),glm::vec2(-0.939, 0.343),
+		glm::vec2(-1.000, 0.002),glm::vec2(-0.940, -0.340),glm::vec2(-0.767, -0.641),glm::vec2(-0.502, -0.865),glm::vec2(-0.176, -0.984),
+		glm::vec2(0.171, -0.985),glm::vec2(0.498, -0.867),glm::vec2(0.764, -0.645),glm::vec2(0.939, -0.345),glm::vec2(1.000, -0.003) };
+	for (size_t i = 0; i < 19; ++i) circle[i] *= r;
+	for (ControlPoint cp : m_pTrack->points){
+		Pnt3f pos = cp.pos;
+		glBegin(GL_QUAD_STRIP);
+		for (size_t i = 0; i < 19; ++i){
+			glVertex3f(pos.x + circle[i][0], pos.y, pos.z + circle[i][1]);
+			glVertex3f(pos.x + circle[i][0], 0.0f, pos.z + circle[i][1]);
+		}
+		glEnd();
+	}
+}
+
 // 
 //************************************************************************
 //
