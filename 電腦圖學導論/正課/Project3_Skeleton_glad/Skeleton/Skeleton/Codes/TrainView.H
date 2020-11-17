@@ -73,6 +73,7 @@ class TrainView : public Fl_Gl_Window
 		void draw_first_sleeper(bool);
 		void no_arc_to_arc();
 		void draw_pillar(float);
+		void draw_wheel(Pnt3f center, Pnt3f forward, Pnt3f cross, Pnt3f up, float r, float thickness, int color_pos, bool doingShadows);
 		// setup the projection - assuming that the projection stack has been
 		// cleared for you
 		void setProjection();
@@ -104,6 +105,7 @@ class TrainView : public Fl_Gl_Window
 		float car_to_car_distance = 4.0f;
 
 		float physics_add = 1.0f;
+		int color_pos = 0;
 };
 
 

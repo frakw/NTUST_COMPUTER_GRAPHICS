@@ -33,11 +33,6 @@
   <ItemGroup>
     <ClInclude Include="Codes\CallBacks.H" />
     <ClInclude Include="Codes\ControlPoint.H" />
-    <ClInclude Include="Codes\mesh.h" />
-    <ClInclude Include="Codes\model.h" />
-    <ClInclude Include="Codes\Object.H" />
-    <ClInclude Include="Codes\shader.h" />
-    <ClInclude Include="Codes\stb_image.h" />
     <ClInclude Include="Codes\Track.H" />
     <ClInclude Include="Codes\TrainView.H" />
     <ClInclude Include="Codes\TrainWindow.H" />

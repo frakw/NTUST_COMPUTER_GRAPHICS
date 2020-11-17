@@ -59,9 +59,6 @@
     <ClInclude Include="Codes\ControlPoint.H">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\Object.H">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\Track.H">
       <Filter>標頭檔</Filter>
     </ClInclude>
@@ -76,18 +73,6 @@
     </ClInclude>
     <ClInclude Include="Codes\Utilities\ArcBallCam.H">
       <Filter>Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="Codes\model.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="Codes\mesh.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="Codes\shader.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
-    <ClInclude Include="Codes\stb_image.h">
-      <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

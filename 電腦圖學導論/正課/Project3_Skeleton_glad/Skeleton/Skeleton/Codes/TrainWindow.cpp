@@ -149,7 +149,7 @@ TrainWindow(const int x, const int y)
 		_del_car->callback((Fl_Callback*)del_car, this);
 		pty += 30;
 		dir_L = new Fl_Button(605, pty, 60, 20, "dir light");
-		togglify(dir_L);
+		togglify(dir_L,1);
 		point_L = new Fl_Button(675, pty, 75, 20, "point light");
 		togglify(point_L);
 		pty += 25;
@@ -234,16 +234,18 @@ advanceTrain(float dir)
 		if (m_Track.trainU > trainView->arc_length) {
 			m_Track.trainU -= trainView->arc_length;
 		}
+		else if (m_Track.trainU < 0) {
+			m_Track.trainU += trainView->arc_length;
+		}
 	}
 	else {
 		m_Track.trainU += 0.02f * speed->value();
-		if (physics->value()) m_Track.trainU += trainView->physics_add * 0.4;
-		if (m_Track.trainU > trainView->m_pTrack->points.size()) {
-			m_Track.trainU -= trainView->m_pTrack->points.size();
+		if (m_Track.trainU > m_Track.points.size()) {
+			m_Track.trainU -= m_Track.points.size();
 		}
 	}
 	pre_arc_state = arcLength->value();
-
+	trainView->color_pos++;
 #ifdef EXAMPLE_SOLUTION
 	// note - we give a little bit more example code here than normal,
 	// so you can see how this works
