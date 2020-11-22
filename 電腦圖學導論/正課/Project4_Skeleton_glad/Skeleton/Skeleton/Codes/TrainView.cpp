@@ -193,9 +193,9 @@ void TrainView::draw()
 		if (!this->shader)
 			this->shader = new
 			Shader(
-				"../WaterSurface/src/shaders/simple.vert", 
+				"./Codes/shaders/simple.vert", 
 				nullptr, nullptr, nullptr, 
-				"../WaterSurface/src/shaders/simple.frag");
+				"./Codes/shaders/simple.frag");
 
 		if (!this->commom_matrices)
 			this->commom_matrices = new UBO();
@@ -260,7 +260,7 @@ void TrainView::draw()
 		}
 
 		if (!this->texture)
-			this->texture = new Texture2D("../WaterSurface/Images/church.png");
+			this->texture = new Texture2D("./Images/church.png");
 
 		if (!this->device){
 			//Tutorial: https://ffainelli.github.io/openal-example/
@@ -300,7 +300,7 @@ void TrainView::draw()
 			ALboolean loop = AL_TRUE;
 
 			//Material from: ThinMatrix
-			alutLoadWAVFile((ALbyte*)"../WaterSurface/Audios/bounce.wav", &format, &data, &size, &freq, &loop);
+			alutLoadWAVFile((ALbyte*)"./Audios/bounce.wav", &format, &data, &size, &freq, &loop);
 			alBufferData(this->buffer, format, data, size, freq);
 			alSourcei(this->source, AL_BUFFER, this->buffer);
 
