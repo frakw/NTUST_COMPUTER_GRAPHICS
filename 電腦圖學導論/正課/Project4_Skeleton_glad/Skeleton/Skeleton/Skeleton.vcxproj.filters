@@ -59,9 +59,6 @@
     <ClInclude Include="Codes\ControlPoint.H">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\Object.H">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
     <ClInclude Include="Codes\Track.H">
       <Filter>標頭檔</Filter>
     </ClInclude>

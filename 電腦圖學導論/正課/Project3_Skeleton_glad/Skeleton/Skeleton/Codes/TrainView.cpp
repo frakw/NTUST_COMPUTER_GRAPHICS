@@ -784,8 +784,8 @@ void TrainView::draw_train(bool doingShadows) {
 		glvertex_vec(train_up_back + cross_t);
 		glvertex_vec(train_up_back - cross_t);
 		glEnd();
-		draw_wheel(train_pos - cross_nor * sleeper_width + up_nor * 5.0f, forward_nor, cross_nor, up_nor, 1.0f, 0.1f, color_pos + j + 5, doingShadows);
-		draw_wheel(train_pos + cross_nor * sleeper_width + up_nor * 5.0f, forward_nor, cross_nor, up_nor, 1.0f, 0.1f, color_pos + j + 5, doingShadows);
+		draw_wheel(train_pos - cross_nor * sleeper_width + up_nor * 5.0f, forward_nor, cross_nor, up_nor, 0.5f, 0.1f, color_pos + j * 3, doingShadows);
+		draw_wheel(train_pos + cross_nor * sleeper_width + up_nor * 5.0f, forward_nor, cross_nor, up_nor, 0.5f, 0.1f, color_pos + j * 3, doingShadows);
 		float collect_len = 0.0f;
 		for (;;t-=percent) {
 			train_pos = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
