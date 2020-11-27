@@ -33,12 +33,19 @@
   <ItemGroup>
     <ClInclude Include="Codes\CallBacks.H" />
     <ClInclude Include="Codes\ControlPoint.H" />
+    <ClInclude Include="Codes\RenderUtilities\BufferObject.h" />
+    <ClInclude Include="Codes\RenderUtilities\Shader.h" />
+    <ClInclude Include="Codes\RenderUtilities\Texture.h" />
     <ClInclude Include="Codes\Track.H" />
     <ClInclude Include="Codes\TrainView.H" />
     <ClInclude Include="Codes\TrainWindow.H" />
     <ClInclude Include="Codes\Utilities\3DUtils.h" />
     <ClInclude Include="Codes\Utilities\ArcBallCam.H" />
     <ClInclude Include="Codes\Utilities\Pnt3f.H" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Codes\shaders\simple.frag" />
+    <None Include="Codes\shaders\simple.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -152,7 +159,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>fltk.lib;fltk_gl.lib;fltk_forms.lib;fltk_images.lib;fltk_jpeg.lib;fltk_png.lib;fltk_z.lib;%(AdditionalDependencies);OpenGL32.lib;glu32.lib;opencv_world341.lib;alut.lib;alut_static.lib;common.lib;ex-common.lib;GlU32.lib;OpenAL32.lib</AdditionalDependencies>
+      <AdditionalDependencies>fltk.lib;fltk_gl.lib;fltk_forms.lib;fltk_images.lib;fltk_jpeg.lib;fltk_png.lib;fltk_z.lib;%(AdditionalDependencies);OpenGL32.lib;opencv_world341.lib;alut.lib;alut_static.lib;common.lib;ex-common.lib;GlU32.lib;OpenAL32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

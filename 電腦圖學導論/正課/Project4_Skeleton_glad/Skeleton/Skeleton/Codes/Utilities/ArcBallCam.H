@@ -172,7 +172,7 @@ class ArcBallCam {
 		// assume the window does it
 		void getMouseNDC(float& x, float& y);
 
-	private:
+	//private:
 		// This keeps track of the rotation - the current rotation is
 		// start*now
 		Quat				start;	// orientation at the start of drag

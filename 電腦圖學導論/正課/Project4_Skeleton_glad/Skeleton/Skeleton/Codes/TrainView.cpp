@@ -385,18 +385,18 @@ void TrainView::draw()
 
 	glLightfv(GL_LIGHT2, GL_POSITION, lightPosition3);
 	glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);
-
+	//先註解掉 lib有問題
 	// set linstener position 
-	if(selectedCube >= 0)
-		alListener3f(AL_POSITION, 
-			m_pTrack->points[selectedCube].pos.x,
-			m_pTrack->points[selectedCube].pos.y,
-			m_pTrack->points[selectedCube].pos.z);
-	else
-		alListener3f(AL_POSITION, 
-			this->source_pos.x, 
-			this->source_pos.y,
-			this->source_pos.z);
+	//if(selectedCube >= 0)
+	//	alListener3f(AL_POSITION, 
+	//		m_pTrack->points[selectedCube].pos.x,
+	//		m_pTrack->points[selectedCube].pos.y,
+	//		m_pTrack->points[selectedCube].pos.z);
+	//else
+	//	alListener3f(AL_POSITION, 
+	//		this->source_pos.x, 
+	//		this->source_pos.y,
+	//		this->source_pos.z);
 
 
 	//*********************************************************************
@@ -430,16 +430,94 @@ void TrainView::draw()
 	glBindBufferRange(
 		GL_UNIFORM_BUFFER, /*binding point*/0, this->commom_matrices->ubo, 0, this->commom_matrices->size);
 
-	//bind shader
-	this->shader->Use();
+	GLfloat view[16];
+	GLfloat projection[16];
+	float aspect = static_cast<float>(w()) / static_cast<float>(h());
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glGetFloatv(GL_PROJECTION_MATRIX, projection);
+	gluPerspective(45, aspect, 0.01f, 1000.0f);
+	glUniform4fv(glGetUniformLocation(this->shader->Program, "projection"), 1, projection);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	// Use the transformation in the ArcBall
+	glTranslatef(-arcball.eyeX, -arcball.eyeY, -arcball.eyeZ);
+	arcball.multMatrix();
+	glGetFloatv(GL_MODELVIEW_MATRIX, view);
+	glUniform4fv(glGetUniformLocation(this->shader->Program, "view"), 1, view);
 
 	glm::mat4 model_matrix = glm::mat4();
 	model_matrix = glm::translate(model_matrix, this->source_pos);
 	model_matrix = glm::scale(model_matrix, glm::vec3(10.0f, 10.0f, 10.0f));
-	glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "u_model"), 1, GL_FALSE, &model_matrix[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "model"), 1, GL_FALSE, &model_matrix[0][0]);
 	glUniform3fv(glGetUniformLocation(this->shader->Program, "u_color"), 1, &glm::vec3(0.0f, 1.0f, 0.0f)[0]);
 	this->texture->bind(0);
 	glUniform1i(glGetUniformLocation(this->shader->Program, "u_texture"), 0);
+	
+
+	//bind shader
+	glUniform1i(glGetUniformLocation(this->shader->Program, "material.diffuse"), 0);
+	glUniform1i(glGetUniformLocation(this->shader->Program, "material.specular"), 1);
+	this->shader->Use();
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "viewPos"), 1, &glm::vec3(arcball.eyeX, arcball.eyeY, arcball.eyeZ)[0]);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "material.shininess"), 32.0f);
+	//dir light
+	glm::vec3 pointLightPositions[] = {
+	glm::vec3(0.7f,  0.2f,  2.0f),
+	glm::vec3(2.3f, -3.3f, -4.0f),
+	glm::vec3(-4.0f,  2.0f, -12.0f),
+	glm::vec3(0.0f,  0.0f, -3.0f)
+	};
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "dirLight.direction"), 1, &glm::vec3(-0.2f, -1.0f, -0.3f)[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "dirLight.ambient"), 1, &glm::vec3(-0.2f, -1.0f, -0.3f)[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "dirLight.diffuse"), 1, &glm::vec3(0.4f, 0.4f, 0.4f)[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "dirLight.specular"), 1, &glm::vec3(0.5f, 0.5f, 0.5f)[0]);
+	//point light 1
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[0].position"), 1, &glm::vec3(pointLightPositions[0])[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[0].ambient"), 1, &glm::vec3(0.05f, 0.05f, 0.05f)[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[0].diffuse"), 1, &glm::vec3(0.8f, 0.8f, 0.8f)[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[0].specular"), 1, &glm::vec3(1.0f, 1.0f, 1.0f)[0]);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[0].constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[0].linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[0].quadratic"), 0.032f);
+	//point light 2
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[1].position"), 1, &glm::vec3(pointLightPositions[1])[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[1].ambient"), 1, &glm::vec3(0.05f, 0.05f, 0.05f)[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[1].diffuse"), 1, &glm::vec3(0.8f, 0.8f, 0.8f)[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[1].specular"), 1, &glm::vec3(1.0f, 1.0f, 1.0f)[0]);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[1].constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[1].linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[1].quadratic"), 0.032f);
+
+	//point light 3
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[2].position"), 1, &glm::vec3(pointLightPositions[2])[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[2].ambient"), 1, &glm::vec3(0.05f, 0.05f, 0.05f)[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[2].diffuse"), 1, &glm::vec3(0.8f, 0.8f, 0.8f)[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[2].specular"), 1, &glm::vec3(1.0f, 1.0f, 1.0f)[0]);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[2].constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[2].linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[2].quadratic"), 0.032f);
+	//point light 4
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[3].position"), 1, &glm::vec3(pointLightPositions[3])[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[3].ambient"), 1, &glm::vec3(0.05f, 0.05f, 0.05f)[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[3].diffuse"), 1, &glm::vec3(0.8f, 0.8f, 0.8f)[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[3].specular"), 1, &glm::vec3(1.0f, 1.0f, 1.0f)[0]);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[3].constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[3].linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[3].quadratic"), 0.032f);
+	//spot light
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "spotLight.position"), 1, &glm::vec3(arcball.eyeX, arcball.eyeY, arcball.eyeZ)[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "spotLight.direction"), 1, &glm::vec3(0, 0, 0)[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "spotLight.ambient"), 1, &glm::vec3(0, 0, 0)[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "spotLight.diffuse"), 1, &glm::vec3(1.0f, 1.0f, 1.0f)[0]);
+	glUniform3fv(glGetUniformLocation(this->shader->Program, "spotLight.specular"), 1, &glm::vec3(1.0f, 1.0f, 1.0f)[0]);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.quadratic"), 0.032f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.cutOff"), glm::cos(glm::radians(12.5f)));
+	glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.outerCutOff"), glm::cos(glm::radians(15.0f)));
+	
 	
 	//bind VAO
 	glBindVertexArray(this->plane->vao);
