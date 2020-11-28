@@ -25,6 +25,8 @@
 *************************************************************************/
 
 #include <iostream>
+#include <FileSystem>
+#include <fstream>
 #include <Fl/fl.h>
 
 // we will need OpenGL, and OpenGL needs windows.h
@@ -33,13 +35,14 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <GL/glu.h>
-
+#include <filesystem>
 #include "TrainView.H"
 #include "TrainWindow.H"
 #include "Utilities/3DUtils.H"
 
-
+#include "model.h"
 
 #ifdef EXAMPLE_SOLUTION
 #	include "TrainExample/TrainExample.H"
@@ -58,6 +61,9 @@ TrainView(int x, int y, int w, int h, const char* l)
 	mode( FL_RGB|FL_ALPHA|FL_DOUBLE | FL_STENCIL );
 
 	resetArcball();
+	
+	stbi_set_flip_vertically_on_load(true);
+
 }
 
 //************************************************************************
@@ -179,13 +185,12 @@ int TrainView::handle(int event)
 //========================================================================
 void TrainView::draw()
 {
-
 	//*********************************************************************
-	//
-	// * Set up basic opengl informaiton
-	//
-	//**********************************************************************
-	//initialized glad
+//
+// * Set up basic opengl informaiton
+//
+//**********************************************************************
+//initialized glad
 	if (gladLoadGL())
 	{
 		//initiailize VAO, VBO, Shader...
@@ -193,18 +198,19 @@ void TrainView::draw()
 		if (!this->shader)
 			this->shader = new
 			Shader(
-				"./Codes/shaders/simple.vert", 
-				nullptr, nullptr, nullptr, 
+				"./Codes/shaders/simple.vert",
+				nullptr, nullptr, nullptr,
 				"./Codes/shaders/simple.frag");
 
 		if (!this->commom_matrices)
 			this->commom_matrices = new UBO();
-			this->commom_matrices->size = 2 * sizeof(glm::mat4);
-			glGenBuffers(1, &this->commom_matrices->ubo);
-			glBindBuffer(GL_UNIFORM_BUFFER, this->commom_matrices->ubo);
-			glBufferData(GL_UNIFORM_BUFFER, this->commom_matrices->size, NULL, GL_STATIC_DRAW);
-			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		this->commom_matrices->size = 2 * sizeof(glm::mat4);
+		glGenBuffers(1, &this->commom_matrices->ubo);
+		glBindBuffer(GL_UNIFORM_BUFFER, this->commom_matrices->ubo);
+		glBufferData(GL_UNIFORM_BUFFER, this->commom_matrices->size, NULL, GL_STATIC_DRAW);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+		
 		if (!this->plane) {
 			GLfloat  vertices[] = {
 				-0.5f ,0.0f , -0.5f,
@@ -218,9 +224,15 @@ void TrainView::draw()
 				0.0f, 1.0f, 0.0f };
 			GLfloat  texture_coordinate[] = {
 				0.0f, 0.0f,
+				0.5f, 0.0f,
 				1.0f, 0.0f,
+				1.0f, 0.5f,
 				1.0f, 1.0f,
-				0.0f, 1.0f };
+				0.5f, 1.0f,
+				0.0f, 1.0f,
+				0.0f, 0.5f,
+				//0.5f, 0.5f,
+			};
 			GLuint element[] = {
 				0, 1, 2,
 				0, 2, 3, };
@@ -259,10 +271,14 @@ void TrainView::draw()
 			glBindVertexArray(0);
 		}
 
-		if (!this->texture)
-			this->texture = new Texture2D("./Images/church.png");
 
-		if (!this->device){
+		if (!this->texture) {
+			//this->texture = new Texture2D("./Images/church.png");
+			//this->texture = new Texture2D("./Images/water_surface.png");
+			this->texture = new Texture2D("./Images/water.png");
+		}
+
+		if (!this->device) {
 			//Tutorial: https://ffainelli.github.io/openal-example/
 			this->device = alcOpenDevice(NULL);
 			if (!this->device)
@@ -324,10 +340,10 @@ void TrainView::draw()
 		throw std::runtime_error("Could not initialize GLAD!");
 
 	// Set up the view port
-	glViewport(0,0,w(),h());
+	glViewport(0, 0, w(), h());
 
 	// clear the window, be sure to clear the Z-Buffer too
-	glClearColor(0,0,.3f,0);		// background should be blue
+	glClearColor(0, 0, .3f, 0);		// background should be blue
 
 	// we need to clear out the stencil buffer since we'll use
 	// it for shadows
@@ -336,7 +352,7 @@ void TrainView::draw()
 	glEnable(GL_DEPTH);
 
 	// Blayne prefers GL_DIFFUSE
-    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
 	// prepare for projection
 	glMatrixMode(GL_PROJECTION);
@@ -358,7 +374,8 @@ void TrainView::draw()
 	if (tw->topCam->value()) {
 		glDisable(GL_LIGHT1);
 		glDisable(GL_LIGHT2);
-	} else {
+	}
+	else {
 		glEnable(GL_LIGHT1);
 		glEnable(GL_LIGHT2);
 	}
@@ -368,33 +385,34 @@ void TrainView::draw()
 	// * set the light parameters
 	//
 	//**********************************************************************
-	GLfloat lightPosition1[]	= {0,1,1,0}; // {50, 200.0, 50, 1.0};
-	GLfloat lightPosition2[]	= {1, 0, 0, 0};
-	GLfloat lightPosition3[]	= {0, -1, 0, 0};
-	GLfloat yellowLight[]		= {0.5f, 0.5f, .1f, 1.0};
-	GLfloat whiteLight[]			= {1.0f, 1.0f, 1.0f, 1.0};
-	GLfloat blueLight[]			= {.1f,.1f,.3f,1.0};
-	GLfloat grayLight[]			= {.3f, .3f, .3f, 1.0};
+	GLfloat lightPosition1[] = { 0,1,1,0 }; // {50, 200.0, 50, 1.0};
+	GLfloat lightPosition2[] = { 1, 0, 0, 0 };
+	GLfloat lightPosition3[] = { 0, -1, 0, 0 };
+	GLfloat yellowLight[] = { 0.5f, 0.5f, .1f, 1.0 };
+	GLfloat whiteLight[] = { 1.0f, 1.0f, 1.0f, 1.0 };
+	GLfloat blueLight[] = { .1f,.1f,.3f,1.0 };
+	GLfloat grayLight[] = { .3f, .3f, .3f, 1.0 };
+	//initDirLight();
+	//initPosLight();
 
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition1);
+
+	/*glLightfv(GL_LIGHT0, GL_POSITION, lightPosition1);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, whiteLight);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, grayLight);
-
 	glLightfv(GL_LIGHT1, GL_POSITION, lightPosition2);
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, yellowLight);
-
 	glLightfv(GL_LIGHT2, GL_POSITION, lightPosition3);
-	glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);
-	//先註解掉 lib有問題
+	glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);*/
+
 	// set linstener position 
-	//if(selectedCube >= 0)
-	//	alListener3f(AL_POSITION, 
+	//if (selectedCube >= 0)
+	//	alListener3f(AL_POSITION,
 	//		m_pTrack->points[selectedCube].pos.x,
 	//		m_pTrack->points[selectedCube].pos.y,
 	//		m_pTrack->points[selectedCube].pos.z);
 	//else
-	//	alListener3f(AL_POSITION, 
-	//		this->source_pos.x, 
+	//	alListener3f(AL_POSITION,
+	//		this->source_pos.x,
 	//		this->source_pos.y,
 	//		this->source_pos.z);
 
@@ -407,7 +425,7 @@ void TrainView::draw()
 
 	setupFloor();
 	glDisable(GL_LIGHTING);
-	drawFloor(200,10);
+	drawFloor(200, 10);
 
 
 	//*********************************************************************
@@ -430,95 +448,96 @@ void TrainView::draw()
 	glBindBufferRange(
 		GL_UNIFORM_BUFFER, /*binding point*/0, this->commom_matrices->ubo, 0, this->commom_matrices->size);
 
-	GLfloat view[16];
+	if (backpack == nullptr) {
+		backpack = new Model("backpack/backpack.obj");
+		//bind shader
+		if (backpack) {
+			cout << "success load obj";
+		}
+	}
+
+	// render the loaded model
+	GLfloat model_view[16];
 	GLfloat projection[16];
-	float aspect = static_cast<float>(w()) / static_cast<float>(h());
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 	glGetFloatv(GL_PROJECTION_MATRIX, projection);
-	gluPerspective(45, aspect, 0.01f, 1000.0f);
-	glUniform4fv(glGetUniformLocation(this->shader->Program, "projection"), 1, projection);
+	glGetFloatv(GL_MODELVIEW_MATRIX, model_view);
+	//glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "projection"), 1, GL_FALSE, projection);
+	//glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "model_view"), 1, GL_FALSE, model_view);
+	glPushMatrix();
+	glTranslatef(0, 20, 0);
+	glScalef(10, 10, 10);
+	glm::mat4 model_matrix = glm::mat4();
+	model_matrix = glm::translate(model_matrix, glm::vec3(0, 100, 0));
+	model_matrix = glm::scale(model_matrix, glm::vec3(1, 1, 1));
+	glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "u_model"), 1, GL_FALSE, &model_matrix[0][0]);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	// Use the transformation in the ArcBall
-	glTranslatef(-arcball.eyeX, -arcball.eyeY, -arcball.eyeZ);
-	arcball.multMatrix();
-	glGetFloatv(GL_MODELVIEW_MATRIX, view);
-	glUniform4fv(glGetUniformLocation(this->shader->Program, "view"), 1, view);
 
+
+
+	backpack->Draw(*shader);
+	this->shader->Use();//這要放draw後面，原因不明
+	glPopMatrix();
+	/*
 	glm::mat4 model_matrix = glm::mat4();
 	model_matrix = glm::translate(model_matrix, this->source_pos);
-	model_matrix = glm::scale(model_matrix, glm::vec3(10.0f, 10.0f, 10.0f));
-	glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "model"), 1, GL_FALSE, &model_matrix[0][0]);
+	model_matrix = glm::scale(model_matrix, glm::vec3(50.0f, 50.0f, 50.0f));
+	glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "u_model"), 1, GL_FALSE, &model_matrix[0][0]);
 	glUniform3fv(glGetUniformLocation(this->shader->Program, "u_color"), 1, &glm::vec3(0.0f, 1.0f, 0.0f)[0]);
 	this->texture->bind(0);
+
 	glUniform1i(glGetUniformLocation(this->shader->Program, "u_texture"), 0);
-	
 
-	//bind shader
-	glUniform1i(glGetUniformLocation(this->shader->Program, "material.diffuse"), 0);
-	glUniform1i(glGetUniformLocation(this->shader->Program, "material.specular"), 1);
-	this->shader->Use();
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "viewPos"), 1, &glm::vec3(arcball.eyeX, arcball.eyeY, arcball.eyeZ)[0]);
-	glUniform1f(glGetUniformLocation(this->shader->Program, "material.shininess"), 32.0f);
-	//dir light
-	glm::vec3 pointLightPositions[] = {
-	glm::vec3(0.7f,  0.2f,  2.0f),
-	glm::vec3(2.3f, -3.3f, -4.0f),
-	glm::vec3(-4.0f,  2.0f, -12.0f),
-	glm::vec3(0.0f,  0.0f, -3.0f)
-	};
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "dirLight.direction"), 1, &glm::vec3(-0.2f, -1.0f, -0.3f)[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "dirLight.ambient"), 1, &glm::vec3(-0.2f, -1.0f, -0.3f)[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "dirLight.diffuse"), 1, &glm::vec3(0.4f, 0.4f, 0.4f)[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "dirLight.specular"), 1, &glm::vec3(0.5f, 0.5f, 0.5f)[0]);
-	//point light 1
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[0].position"), 1, &glm::vec3(pointLightPositions[0])[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[0].ambient"), 1, &glm::vec3(0.05f, 0.05f, 0.05f)[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[0].diffuse"), 1, &glm::vec3(0.8f, 0.8f, 0.8f)[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[0].specular"), 1, &glm::vec3(1.0f, 1.0f, 1.0f)[0]);
-	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[0].constant"), 1.0f);
-	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[0].linear"), 0.09f);
-	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[0].quadratic"), 0.032f);
-	//point light 2
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[1].position"), 1, &glm::vec3(pointLightPositions[1])[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[1].ambient"), 1, &glm::vec3(0.05f, 0.05f, 0.05f)[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[1].diffuse"), 1, &glm::vec3(0.8f, 0.8f, 0.8f)[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[1].specular"), 1, &glm::vec3(1.0f, 1.0f, 1.0f)[0]);
-	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[1].constant"), 1.0f);
-	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[1].linear"), 0.09f);
-	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[1].quadratic"), 0.032f);
+	GLfloat view[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, view);
+	glm::mat4 view_inv = glm::inverse(glm::make_mat4(view));
+	glm::vec3 my_pos(view_inv[3][0], view_inv[3][1], view_inv[3][2]);
+	std::cout << view_inv[3][0] << ' ' << view_inv[3][1] << ' ' << view_inv[3][2] << std::endl;
+	//glm::vec3 my_pos(view_inv[0][3], view_inv[1][3], view_inv[2][3]);
 
-	//point light 3
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[2].position"), 1, &glm::vec3(pointLightPositions[2])[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[2].ambient"), 1, &glm::vec3(0.05f, 0.05f, 0.05f)[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[2].diffuse"), 1, &glm::vec3(0.8f, 0.8f, 0.8f)[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[2].specular"), 1, &glm::vec3(1.0f, 1.0f, 1.0f)[0]);
-	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[2].constant"), 1.0f);
-	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[2].linear"), 0.09f);
-	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[2].quadratic"), 0.032f);
-	//point light 4
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[3].position"), 1, &glm::vec3(pointLightPositions[3])[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[3].ambient"), 1, &glm::vec3(0.05f, 0.05f, 0.05f)[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[3].diffuse"), 1, &glm::vec3(0.8f, 0.8f, 0.8f)[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "pointLights[3].specular"), 1, &glm::vec3(1.0f, 1.0f, 1.0f)[0]);
-	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[3].constant"), 1.0f);
-	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[3].linear"), 0.09f);
-	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights[3].quadratic"), 0.032f);
+	glUniform3f(glGetUniformLocation(this->shader->Program, "viewPos"), my_pos[0], my_pos[1], my_pos[2]);
+	//Direction light
+	glUniform3f(glGetUniformLocation(this->shader->Program, "dirLight.direction"), 0.0f, 1.5f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->shader->Program, "dirLight.ambient"), 1.0f, 1.0f, 0.00f);
+	glUniform3f(glGetUniformLocation(this->shader->Program, "dirLight.diffuse"), 0.4f, 0.4f, 0.4f);
+	glUniform3f(glGetUniformLocation(this->shader->Program, "dirLight.specular"), 0.5f, 0.5f, 0.5f);
+	//Point light
+	glUniform3f(glGetUniformLocation(this->shader->Program, "pointLights.position"), 0, 3, 0);
+	glUniform3f(glGetUniformLocation(this->shader->Program, "pointLights.direction"), 1.0f, 0.5f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->shader->Program, "pointLights.ambient"), 1.0f, 0.0f, 0.00f);
+	glUniform3f(glGetUniformLocation(this->shader->Program, "pointLights.diffuse"), 0.8f, 0.8f, 0.8f);
+	glUniform3f(glGetUniformLocation(this->shader->Program, "pointLights.specular"), 1.0f, 1.0f, 1.0f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights.constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights.linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "pointLights.quadratic"), 0.032f);
 	//spot light
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "spotLight.position"), 1, &glm::vec3(arcball.eyeX, arcball.eyeY, arcball.eyeZ)[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "spotLight.direction"), 1, &glm::vec3(0, 0, 0)[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "spotLight.ambient"), 1, &glm::vec3(0, 0, 0)[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "spotLight.diffuse"), 1, &glm::vec3(1.0f, 1.0f, 1.0f)[0]);
-	glUniform3fv(glGetUniformLocation(this->shader->Program, "spotLight.specular"), 1, &glm::vec3(1.0f, 1.0f, 1.0f)[0]);
+
+	//glUniform3f(glGetUniformLocation(this->shader->Program, "spotLight.position"), 0.0f, 5.0f, 0.0f);
+	//glUniform3f(glGetUniformLocation(this->shader->Program, "spotLight.direction"), 0.0f, -1.0f, 0.0f);
+	//glUniform3f(glGetUniformLocation(this->shader->Program, "spotLight.ambient"), 1.0f, 0.0f, 0.0f);
+	//glUniform3f(glGetUniformLocation(this->shader->Program, "spotLight.diffuse"), 1.0f, 1.0f, 1.0f);
+	//glUniform3f(glGetUniformLocation(this->shader->Program, "spotLight.specular"), 1.0f, 1.0f, 1.0f);
+	//glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.constant"), 1.0f);
+	//glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.linear"), 0.09f);
+	//glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.quadratic"), 0.032f);
+	//glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.cutOff"), 0.09f);
+	//glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.quadratic"), glm::cos(glm::radians(12.5f)));
+	//glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.outerCutOff"), glm::cos(glm::radians(12.5f)));
+	glUniform3f(glGetUniformLocation(this->shader->Program, "spotLight.position"),0,5,0);
+	glUniform3f(glGetUniformLocation(this->shader->Program, "spotLight.direction"),0, 1, 0);
+	glUniform3f(glGetUniformLocation(this->shader->Program, "spotLight.ambient"),1, 0, 0);
+	glUniform3f(glGetUniformLocation(this->shader->Program, "spotLight.diffuse"),1.0f,1.0f,1.0f);
+	glUniform3f(glGetUniformLocation(this->shader->Program, "spotLight.specular"),1.0f, 1.0f, 1.0f);
 	glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.constant"), 1.0f);
 	glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.linear"), 0.09f);
 	glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.quadratic"), 0.032f);
 	glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.cutOff"), glm::cos(glm::radians(12.5f)));
 	glUniform1f(glGetUniformLocation(this->shader->Program, "spotLight.outerCutOff"), glm::cos(glm::radians(15.0f)));
-	
-	
+
+	glUniform1f(glGetUniformLocation(this->shader->Program, "material.diffuse"), 0.0f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "material.specular"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->shader->Program, "material.shininess"), 32.0f);
+	*/
+
 	//bind VAO
 	glBindVertexArray(this->plane->vao);
 
@@ -526,6 +545,8 @@ void TrainView::draw()
 
 	//unbind VAO
 	glBindVertexArray(0);
+
+
 
 	//unbind shader(switch to fixed pipeline)
 	glUseProgram(0);

@@ -25,7 +25,8 @@
 *************************************************************************/
 
 #pragma once
-
+#include <vector>
+#include <tuple>
 #include "RenderUtilities/BufferObject.h"
 #include "RenderUtilities/Shader.h"
 #include "RenderUtilities/Texture.h"
@@ -59,6 +60,9 @@ class CTrack;
 // this uses the old ArcBall Code
 #include "Utilities/ArcBallCam.H"
 
+using std::vector;
+using std::tuple;
+class Model;
 class TrainView : public Fl_Gl_Window
 {
 	public:
@@ -107,4 +111,5 @@ class TrainView : public Fl_Gl_Window
 		ALuint buffer;
 
 
+		Model* backpack = nullptr;
 };

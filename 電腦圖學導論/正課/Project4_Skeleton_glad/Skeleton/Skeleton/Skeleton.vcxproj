@@ -33,6 +33,8 @@
   <ItemGroup>
     <ClInclude Include="Codes\CallBacks.H" />
     <ClInclude Include="Codes\ControlPoint.H" />
+    <ClInclude Include="Codes\mesh.h" />
+    <ClInclude Include="Codes\model.h" />
     <ClInclude Include="Codes\RenderUtilities\BufferObject.h" />
     <ClInclude Include="Codes\RenderUtilities\Shader.h" />
     <ClInclude Include="Codes\RenderUtilities\Texture.h" />
@@ -42,10 +44,31 @@
     <ClInclude Include="Codes\Utilities\3DUtils.h" />
     <ClInclude Include="Codes\Utilities\ArcBallCam.H" />
     <ClInclude Include="Codes\Utilities\Pnt3f.H" />
+    <ClInclude Include="include\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Codes\shaders\others\common_lib.glsl" />
+    <None Include="Codes\shaders\others\cubeMap.frag" />
+    <None Include="Codes\shaders\others\cubeMap.vert" />
+    <None Include="Codes\shaders\others\material_lib.glsl" />
+    <None Include="Codes\shaders\others\wall_cube.frag" />
+    <None Include="Codes\shaders\others\wall_cube.vert" />
+    <None Include="Codes\shaders\others\water.vert" />
+    <None Include="Codes\shaders\others\water_above.frag" />
+    <None Include="Codes\shaders\others\water_caustic.frag" />
+    <None Include="Codes\shaders\others\water_caustic.tese" />
+    <None Include="Codes\shaders\others\water_drop.frag" />
+    <None Include="Codes\shaders\others\water_lib.glsl" />
+    <None Include="Codes\shaders\others\water_mesh.tesc" />
+    <None Include="Codes\shaders\others\water_mesh.tese" />
+    <None Include="Codes\shaders\others\water_mesh.vert" />
+    <None Include="Codes\shaders\others\water_normal.frag" />
+    <None Include="Codes\shaders\others\water_under.frag" />
+    <None Include="Codes\shaders\others\water_update.frag" />
     <None Include="Codes\shaders\simple.frag" />
     <None Include="Codes\shaders\simple.vert" />
+    <None Include="skybox.frag" />
+    <None Include="skybox.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -127,7 +150,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>fltkd.lib;fltk_gld.lib;fltk_formsd.lib;fltk_imagesd.lib;fltk_jpegd.lib;fltk_pngd.lib;fltk_zd.lib;%(AdditionalDependencies);OpenGL32.lib;glu32.lib;opencv_world341d.lib;alut.lib;alut_static.lib;common.lib;ex-common.lib;GlU32.lib;OpenAL32.lib</AdditionalDependencies>
+      <AdditionalDependencies>fltkd.lib;fltk_gld.lib;fltk_formsd.lib;fltk_imagesd.lib;fltk_jpegd.lib;fltk_pngd.lib;fltk_zd.lib;%(AdditionalDependencies);OpenGL32.lib;glu32.lib;opencv_world341d.lib;alut.lib;alut_static.lib;common.lib;ex-common.lib;GlU32.lib;OpenAL32.lib;assimp-vc142-mt.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -154,12 +177,13 @@
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>_XKEYCHECK_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>fltk.lib;fltk_gl.lib;fltk_forms.lib;fltk_images.lib;fltk_jpeg.lib;fltk_png.lib;fltk_z.lib;%(AdditionalDependencies);OpenGL32.lib;opencv_world341.lib;alut.lib;alut_static.lib;common.lib;ex-common.lib;GlU32.lib;OpenAL32.lib</AdditionalDependencies>
+      <AdditionalDependencies>fltk.lib;fltk_gl.lib;fltk_forms.lib;fltk_images.lib;fltk_jpeg.lib;fltk_png.lib;fltk_z.lib;%(AdditionalDependencies);OpenGL32.lib;opencv_world341.lib;alut.lib;alut_static.lib;common.lib;ex-common.lib;GlU32.lib;OpenAL32.lib;assimp-vc142-mt.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
