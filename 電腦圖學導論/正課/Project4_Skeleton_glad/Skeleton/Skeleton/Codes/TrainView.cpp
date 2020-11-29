@@ -41,7 +41,7 @@
 #include "TrainView.H"
 #include "TrainWindow.H"
 #include "Utilities/3DUtils.H"
-
+#define STB_IMAGE_IMPLEMENTATION
 #include "model.h"
 
 #ifdef EXAMPLE_SOLUTION
@@ -270,15 +270,11 @@ void TrainView::draw()
 			// Unbind VAO
 			glBindVertexArray(0);
 		}*/
-		if (!backpack) {
-			backpack = new Model("backpack/backpack.obj");
+		if (!wave) {
+			//backpack = new Model("backpack/backpack.obj");
+			//backpack = new Model("water/cube.obj");
 			//backpack = new Model("water/water.obj");
-			//backpack = new Model("water/water2.obj");
-			//backpack = new Model("water/water_with_texture.obj");
-			//bind shader
-			if (backpack) {
-				cout << "success load obj";
-			}
+			wave = new Model("water/water_bunny.obj");
 		}
 
 		if (!this->texture) {
@@ -467,8 +463,9 @@ void TrainView::draw()
 	GLfloat model_view[16];
 	GLfloat projection[16];
 	glPushMatrix();
-	glTranslatef(0, 20, 0);
-	glScalef(10, 10, 10);
+	glTranslatef(0, tw->y_axis->value(), 0);
+	glScalef(tw->scale->value(), tw->scale->value(), tw->scale->value());
+	glUniform1f(glGetUniformLocation(this->shader->Program, "amplitude"), tw->amplitude->value());
 	glGetFloatv(GL_PROJECTION_MATRIX, projection);
 	glGetFloatv(GL_MODELVIEW_MATRIX, model_view);
 	glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "projection"), 1, GL_FALSE, projection);
@@ -478,7 +475,7 @@ void TrainView::draw()
 	model_matrix = glm::translate(model_matrix, glm::vec3(0, 100, 0));
 	model_matrix = glm::scale(model_matrix, glm::vec3(1, 1, 1));
 	//glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "u_model"), 1, GL_FALSE, &model_matrix[0][0]);
-	backpack->Draw(*shader);
+	wave->Draw(*shader);
 
 	glPopMatrix();
 	/*

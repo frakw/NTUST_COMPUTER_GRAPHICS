@@ -33,7 +33,6 @@
 #include <Fl/Fl_File_Chooser.H>
 #include <Fl/math.h>
 #pragma warning(pop)
-
 //***************************************************************************
 //
 // * Reset the control points back to their base setup
@@ -249,13 +248,14 @@ void rmzCB(Fl_Widget*, TrainWindow* tw)
 }
 
 
-void keep_water(TrainWindow* tw)
+void keeping_water(TrainWindow* tw)
 {
 	if (tw != nullptr)
 	{
 		if (tw->animating)
 		{
-			tw->redraw();
+			tw->trainView->draw();
+			tw->damageMe();
 		}
 	}
 }

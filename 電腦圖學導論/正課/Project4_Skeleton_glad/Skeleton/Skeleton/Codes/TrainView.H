@@ -59,7 +59,6 @@ class CTrack;
 
 // this uses the old ArcBall Code
 #include "Utilities/ArcBallCam.H"
-
 using std::vector;
 using std::tuple;
 class Model;
@@ -111,5 +110,5 @@ class TrainView : public Fl_Gl_Window
 		ALuint buffer;
 
 
-		Model* backpack = nullptr;
+		Model* wave = nullptr;
 };

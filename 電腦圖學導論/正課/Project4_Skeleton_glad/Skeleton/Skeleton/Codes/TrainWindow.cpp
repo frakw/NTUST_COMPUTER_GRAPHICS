@@ -140,8 +140,24 @@ TrainWindow(const int x, const int y)
 		Fl_Button* rzp = new Fl_Button(700,pty,30,20,"R-Z");
 		rzp->callback((Fl_Callback*)rmzCB,this);
 
+		pty += 30;
+		y_axis = new Fl_Value_Slider(635, pty, 140, 20, "y axis");
+		y_axis->range(-100, 100);
+		y_axis->value(10);
+		y_axis->align(FL_ALIGN_LEFT);
+		y_axis->type(FL_HORIZONTAL);
 		pty+=30;
-
+		scale = new Fl_Value_Slider(635, pty, 140, 20, "scale");
+		scale->range(0, 50);
+		scale->value(15);
+		scale->align(FL_ALIGN_LEFT);
+		scale->type(FL_HORIZONTAL);
+		pty += 30;
+		amplitude = new Fl_Value_Slider(660, pty, 140, 20, "Amplitude");
+		amplitude->range(0, 3);
+		amplitude->value(1);
+		amplitude->align(FL_ALIGN_LEFT);
+		amplitude->type(FL_HORIZONTAL);
 		// TODO: add widgets for all of your fancier features here
 #ifdef EXAMPLE_SOLUTION
 		makeExampleWidgets(this,pty);
@@ -158,7 +174,7 @@ TrainWindow(const int x, const int y)
 	// set up callback on idle
 	animating = true;
 	Fl::add_idle((void (*)(void*))runButtonCB, this);
-	Fl::add_idle((void (*)(void*))keep_water,this);
+	Fl::add_idle((void (*)(void*))keeping_water,this);
 }
 
 //************************************************************************
