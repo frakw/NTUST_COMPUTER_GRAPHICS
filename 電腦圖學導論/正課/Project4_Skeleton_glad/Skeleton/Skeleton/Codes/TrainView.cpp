@@ -63,7 +63,6 @@ TrainView(int x, int y, int w, int h, const char* l)
 	resetArcball();
 	
 	stbi_set_flip_vertically_on_load(true);
-
 }
 
 //************************************************************************
@@ -177,6 +176,34 @@ int TrainView::handle(int event)
 
 	return Fl_Gl_Window::handle(event);
 }
+void TrainView::dir_light() {
+	glUniform3f(glGetUniformLocation(this->sinwave->Program, "dirLight.direction"), 0.0f, 1.5f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->sinwave->Program, "dirLight.ambient"), 1.0f, 1.0f, 0.00f);
+	glUniform3f(glGetUniformLocation(this->sinwave->Program, "dirLight.diffuse"), 0.4f, 0.4f, 0.4f);
+	glUniform3f(glGetUniformLocation(this->sinwave->Program, "dirLight.specular"), 0.5f, 0.5f, 0.5f);
+}
+void TrainView::point_light(){
+	glUniform3f(glGetUniformLocation(this->sinwave->Program, "pointLights.position"), 0, 5, 0);
+	glUniform3f(glGetUniformLocation(this->sinwave->Program, "pointLights.direction"), 0.0f, 1.5f, 0.0f);
+	glUniform3f(glGetUniformLocation(this->sinwave->Program, "pointLights.ambient"), 0.1f, 0.1f, 0.1f);
+	glUniform3f(glGetUniformLocation(this->sinwave->Program, "pointLights.diffuse"), 0.8f, 0.8f, 0.8f);
+	glUniform3f(glGetUniformLocation(this->sinwave->Program, "pointLights.specular"), 1.0f, 0.0f, 1.0f);
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "pointLights.constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "pointLights.linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "pointLights.quadratic"), 0.032f);
+}
+void TrainView::spot_light(glm::vec3 front) {
+	glUniform3f(glGetUniformLocation(this->sinwave->Program, "spotLight.position"), 0, 5, 0);
+	glUniform3f(glGetUniformLocation(this->sinwave->Program, "spotLight.direction"), front[0], front[1], front[2]);
+	glUniform3f(glGetUniformLocation(this->sinwave->Program, "spotLight.ambient"), 0.1f, 0.1f, 0.1f);
+	glUniform3f(glGetUniformLocation(this->sinwave->Program, "spotLight.diffuse"), 1.0f, 1.0f, 1.0f);
+	glUniform3f(glGetUniformLocation(this->sinwave->Program, "spotLight.specular"), 1.0f, 1.0f, 1.0f);
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "spotLight.constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "spotLight.linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "spotLight.cutOff"), 0.032f);
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "spotLight.quadratic"), glm::cos(glm::radians(12.5f)));
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "spotLight.outerCutOff"), glm::cos(glm::radians(15.0f)));
+}
 
 //************************************************************************
 //
@@ -195,12 +222,20 @@ void TrainView::draw()
 	{
 		//initiailize VAO, VBO, Shader...
 
-		if (!this->shader)
-			this->shader = new
+		if (!this->sinwave) {
+			this->sinwave = new
+				Shader(
+					"./Codes/shaders/sinwave.vert",
+					nullptr, nullptr, nullptr,
+					"./Codes/shaders/sinwave.frag");
+		}
+
+		if (!this->height_map)
+			this->height_map = new
 			Shader(
-				"./Codes/shaders/simple.vert",
+				"./Codes/shaders/height_map.vert",
 				nullptr, nullptr, nullptr,
-				"./Codes/shaders/simple.frag");
+				"./Codes/shaders/height_map.frag");
 
 		if (!this->commom_matrices)
 			this->commom_matrices = new UBO();
@@ -210,78 +245,20 @@ void TrainView::draw()
 		glBufferData(GL_UNIFORM_BUFFER, this->commom_matrices->size, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		/*
-		if (!this->plane) {
-			GLfloat  vertices[] = {
-				-0.5f ,0.0f , -0.5f,
-				-0.5f ,0.0f , 0.5f ,
-				0.5f ,0.0f ,0.5f ,
-				0.5f ,0.0f ,-0.5f };
-			GLfloat  normal[] = {
-				0.0f, 1.0f, 0.0f,
-				0.0f, 1.0f, 0.0f,
-				0.0f, 1.0f, 0.0f,
-				0.0f, 1.0f, 0.0f };
-			GLfloat  texture_coordinate[] = {
-				0.0f, 0.0f,
-				0.5f, 0.0f,
-				1.0f, 0.0f,
-				1.0f, 0.5f,
-				1.0f, 1.0f,
-				0.5f, 1.0f,
-				0.0f, 1.0f,
-				0.0f, 0.5f,
-				//0.5f, 0.5f,
-			};
-			GLuint element[] = {
-				0, 1, 2,
-				0, 2, 3, };
 
-			this->plane = new VAO;
-			this->plane->element_amount = sizeof(element) / sizeof(GLuint);
-			glGenVertexArrays(1, &this->plane->vao);
-			glGenBuffers(3, this->plane->vbo);
-			glGenBuffers(1, &this->plane->ebo);
-
-			glBindVertexArray(this->plane->vao);
-
-			// Position attribute
-			glBindBuffer(GL_ARRAY_BUFFER, this->plane->vbo[0]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-			glEnableVertexAttribArray(0);
-
-			// Normal attribute
-			glBindBuffer(GL_ARRAY_BUFFER, this->plane->vbo[1]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(normal), normal, GL_STATIC_DRAW);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-			glEnableVertexAttribArray(1);
-
-			// Texture Coordinate attribute
-			glBindBuffer(GL_ARRAY_BUFFER, this->plane->vbo[2]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(texture_coordinate), texture_coordinate, GL_STATIC_DRAW);
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
-			glEnableVertexAttribArray(2);
-
-			//Element attribute
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->plane->ebo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(element), element, GL_STATIC_DRAW);
-
-			// Unbind VAO
-			glBindVertexArray(0);
-		}*/
 		if (!wave) {
-			//backpack = new Model("backpack/backpack.obj");
-			//backpack = new Model("water/cube.obj");
-			//backpack = new Model("water/water.obj");
+			//wave = new Model("backpack/backpack.obj");
+			//wave = new Model("water/cube.obj");
+			//wave = new Model("water/water.obj");
 			wave = new Model("water/water_bunny.obj");
+			//wave = new Model("water/plane.obj");
 		}
 
-		if (!this->texture) {
-			//this->texture = new Texture2D("./Images/church.png");
-			//this->texture = new Texture2D("./Images/water_surface.png");
-			this->texture = new Texture2D("./Images/water.png");
-		}
+		//if (!this->texture) {
+		//	//this->texture = new Texture2D("./Images/church.png");
+		//	//this->texture = new Texture2D("./Images/water_surface.png");
+		//	this->texture = new Texture2D("./Images/water.png");
+		//}
 
 		if (!this->device) {
 			//Tutorial: https://ffainelli.github.io/openal-example/
@@ -451,33 +428,59 @@ void TrainView::draw()
 	
 	//glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	this->shader->Use();//這要放draw後面，原因不明
+	if (tw->waveBrowser->value() == 1) {
+		this->sinwave->Use();
+	}
+	else if (tw->waveBrowser->value() == 2) {
+		this->height_map->Use();
+	}
+	else {
+		return;
+	}
 
-	setUBO();
-	glBindBufferRange(
-		GL_UNIFORM_BUFFER, /*binding point*/0, this->commom_matrices->ubo, 0, this->commom_matrices->size);
+	//setUBO();
+	//glBindBufferRange(
+		//GL_UNIFORM_BUFFER, /*binding point*/0, this->commom_matrices->ubo, 0, this->commom_matrices->size);
 
 
 
 	// render the loaded model
-	GLfloat model_view[16];
-	GLfloat projection[16];
-	glPushMatrix();
+
+	//glPushMatrix();
 	glTranslatef(0, tw->y_axis->value(), 0);
 	glScalef(tw->scale->value(), tw->scale->value(), tw->scale->value());
-	glUniform1f(glGetUniformLocation(this->shader->Program, "amplitude"), tw->amplitude->value());
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "amplitude"), tw->amplitude->value());
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "wavelength"), tw->wavelength->value());
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "time"), tw->time);
+
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "speed"), tw->wavespeed->value());
+	GLfloat model_view[16];
+	GLfloat projection[16];
 	glGetFloatv(GL_PROJECTION_MATRIX, projection);
 	glGetFloatv(GL_MODELVIEW_MATRIX, model_view);
-	glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "projection"), 1, GL_FALSE, projection);
-	glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "model_view"), 1, GL_FALSE, model_view);
+	glm::mat4 view_inv = glm::inverse(glm::make_mat4(model_view));
+	glm::vec3 my_pos(view_inv[3][0], view_inv[3][1], view_inv[3][2]);
+	//cout << my_pos[0] << ' ' << my_pos[1] << ' ' << my_pos[2] << endl;
+	glUniform3f(glGetUniformLocation(this->sinwave->Program, "viewPos"), my_pos[0], my_pos[1], my_pos[2]);
+	glUniformMatrix4fv(glGetUniformLocation(this->sinwave->Program, "projection"), 1, GL_FALSE, projection);
+	glUniformMatrix4fv(glGetUniformLocation(this->sinwave->Program, "model_view"), 1, GL_FALSE, model_view);
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "material.diffuse"), 0.0f);
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "material.specular"), 1.0f);
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "material.shininess"), 32.0f);
 
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "dir_open"), tw->dir_L->value());
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "point_open"), tw->point_L->value());
+	glUniform1f(glGetUniformLocation(this->sinwave->Program, "spot_open"), tw->spot_L->value());
+	dir_light();
+	point_light();
+	spot_light(glm::vec3(my_pos - glm::vec3(0,0,0)));
 	glm::mat4 model_matrix = glm::mat4();
 	model_matrix = glm::translate(model_matrix, glm::vec3(0, 100, 0));
 	model_matrix = glm::scale(model_matrix, glm::vec3(1, 1, 1));
 	//glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "u_model"), 1, GL_FALSE, &model_matrix[0][0]);
-	wave->Draw(*shader);
+	wave->Draw(*sinwave);
 
-	glPopMatrix();
+	//glPopMatrix();
 	/*
 	glm::mat4 model_matrix = glm::mat4();
 	model_matrix = glm::translate(model_matrix, this->source_pos);
@@ -538,14 +541,6 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(this->shader->Program, "material.specular"), 1.0f);
 	glUniform1f(glGetUniformLocation(this->shader->Program, "material.shininess"), 32.0f);
 	*/
-
-	//bind VAO
-	//glBindVertexArray(this->plane->vao);
-
-	//glDrawElements(GL_TRIANGLES, this->plane->element_amount, GL_UNSIGNED_INT, 0);
-
-	//unbind VAO
-	//glBindVertexArray(0);
 
 
 

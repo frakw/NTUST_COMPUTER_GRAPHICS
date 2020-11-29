@@ -72,6 +72,9 @@ class TrainView : public Fl_Gl_Window
 		virtual int handle(int);
 		virtual void draw();
 
+		void dir_light();
+		void point_light();
+		void spot_light(glm::vec3);
 		// all of the actual drawing happens in this routine
 		// it has to be encapsulated, since we draw differently if
 		// we're drawing shadows (no colors, for example)
@@ -96,7 +99,8 @@ class TrainView : public Fl_Gl_Window
 		TrainWindow*	tw;				// The parent of this display window
 		CTrack*			m_pTrack;		// The track of the entire scene
 
-		Shader* shader		= nullptr;
+		Shader* sinwave		= nullptr;
+		Shader* height_map	= nullptr;
 		Texture2D* texture	= nullptr;
 		VAO* plane			= nullptr;
 		UBO* commom_matrices= nullptr;

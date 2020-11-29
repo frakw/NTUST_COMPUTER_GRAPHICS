@@ -250,12 +250,12 @@ void rmzCB(Fl_Widget*, TrainWindow* tw)
 
 void keeping_water(TrainWindow* tw)
 {
-	if (tw != nullptr)
-	{
-		if (tw->animating)
-		{
-			tw->trainView->draw();
-			tw->damageMe();
+	if (clock() - lastRedraw > CLOCKS_PER_SEC / 30 && tw->animating) {
+		lastRedraw = clock();
+		tw->time += 0.01f;
+		tw->damageMe();
+		if (std::numeric_limits<float>::max() - tw->time <= 0.01f) {
+			tw->time = 0.0f;
 		}
 	}
 }

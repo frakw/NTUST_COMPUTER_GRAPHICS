@@ -83,16 +83,23 @@ class TrainWindow : public Fl_Double_Window {
 
 		// the type of the spline (use its value to determine)
 		Fl_Browser*			splineBrowser;
+		Fl_Browser*			waveBrowser;
 
 		// are we animating the train?
 		Fl_Button*			runButton;
 		// if we're animating it, how fast should it go?
+		Fl_Button* dir_L;
+		Fl_Button* point_L;
+		Fl_Button* spot_L;
 		Fl_Value_Slider*	speed;
 		Fl_Value_Slider*	y_axis;
 		Fl_Value_Slider*	scale;
 		Fl_Value_Slider*	amplitude;
+		Fl_Value_Slider*	wavelength;
+		Fl_Value_Slider*	wavespeed;
 		Fl_Button*			arcLength;		// do we use arc length for speed?
 		bool animating = false;
+		float time = 0.0f;
 		// we have other widgets as part of the sample solution
 		// this is not for 559 students to know about
 #ifdef EXAMPLE_SOLUTION

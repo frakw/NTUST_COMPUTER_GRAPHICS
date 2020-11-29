@@ -139,6 +139,23 @@ TrainWindow(const int x, const int y)
 		rz->callback((Fl_Callback*)rpzCB,this);
 		Fl_Button* rzp = new Fl_Button(700,pty,30,20,"R-Z");
 		rzp->callback((Fl_Callback*)rmzCB,this);
+		pty += 30;
+
+		// browser to select spline types
+		// TODO: make sure these choices are the same as what the code supports
+		waveBrowser = new Fl_Browser(605, pty, 120, 50, "wave Type");
+		waveBrowser->type(2);		// select
+		waveBrowser->callback((Fl_Callback*)damageCB, this);
+		waveBrowser->add("sin");
+		waveBrowser->add("height map");
+		waveBrowser->select(1);
+		pty += 55;
+		dir_L = new Fl_Button(605, pty, 60, 20, "dir");
+		togglify(dir_L);
+		point_L = new Fl_Button(670, pty, 60, 20, "point");
+		togglify(point_L);
+		spot_L = new Fl_Button(735, pty, 60, 20, "spot");
+		togglify(spot_L);
 
 		pty += 30;
 		y_axis = new Fl_Value_Slider(635, pty, 140, 20, "y axis");
@@ -154,10 +171,22 @@ TrainWindow(const int x, const int y)
 		scale->type(FL_HORIZONTAL);
 		pty += 30;
 		amplitude = new Fl_Value_Slider(660, pty, 140, 20, "Amplitude");
-		amplitude->range(0, 3);
-		amplitude->value(1);
+		amplitude->range(0, 2);
+		amplitude->value(0.15);
 		amplitude->align(FL_ALIGN_LEFT);
 		amplitude->type(FL_HORIZONTAL);
+		pty += 30;
+		wavelength = new Fl_Value_Slider(660, pty, 140, 20, "wave len");
+		wavelength->range(0.1, 1);
+		wavelength->value(0.5);
+		wavelength->align(FL_ALIGN_LEFT);
+		wavelength->type(FL_HORIZONTAL);
+		pty += 30;
+		wavespeed = new Fl_Value_Slider(660, pty, 140, 20, "speed");
+		wavespeed->range(0, 1);
+		wavespeed->value(0.5);
+		wavespeed->align(FL_ALIGN_LEFT);
+		wavespeed->type(FL_HORIZONTAL);
 		// TODO: add widgets for all of your fancier features here
 #ifdef EXAMPLE_SOLUTION
 		makeExampleWidgets(this,pty);
