@@ -89,7 +89,7 @@ class TrainWindow : public Fl_Double_Window {
 		// if we're animating it, how fast should it go?
 		Fl_Value_Slider*	speed;
 		Fl_Button*			arcLength;		// do we use arc length for speed?
-
+		bool animating = false;
 		// we have other widgets as part of the sample solution
 		// this is not for 559 students to know about
 #ifdef EXAMPLE_SOLUTION

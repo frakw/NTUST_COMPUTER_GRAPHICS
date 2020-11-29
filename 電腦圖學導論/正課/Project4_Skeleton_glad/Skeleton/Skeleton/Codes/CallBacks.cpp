@@ -248,3 +248,14 @@ void rmzCB(Fl_Widget*, TrainWindow* tw)
 	rollz(tw, -1);
 }
 
+
+void keep_water(TrainWindow* tw)
+{
+	if (tw != nullptr)
+	{
+		if (tw->animating)
+		{
+			tw->redraw();
+		}
+	}
+}

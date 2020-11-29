@@ -210,7 +210,7 @@ void TrainView::draw()
 		glBufferData(GL_UNIFORM_BUFFER, this->commom_matrices->size, NULL, GL_STATIC_DRAW);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		
+		/*
 		if (!this->plane) {
 			GLfloat  vertices[] = {
 				-0.5f ,0.0f , -0.5f,
@@ -269,8 +269,17 @@ void TrainView::draw()
 
 			// Unbind VAO
 			glBindVertexArray(0);
+		}*/
+		if (!backpack) {
+			backpack = new Model("backpack/backpack.obj");
+			//backpack = new Model("water/water.obj");
+			//backpack = new Model("water/water2.obj");
+			//backpack = new Model("water/water_with_texture.obj");
+			//bind shader
+			if (backpack) {
+				cout << "success load obj";
+			}
 		}
-
 
 		if (!this->texture) {
 			//this->texture = new Texture2D("./Images/church.png");
@@ -443,39 +452,34 @@ void TrainView::draw()
 		drawStuff(true);
 		unsetupShadows();
 	}
+	
+	//glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	this->shader->Use();//這要放draw後面，原因不明
 
 	setUBO();
 	glBindBufferRange(
 		GL_UNIFORM_BUFFER, /*binding point*/0, this->commom_matrices->ubo, 0, this->commom_matrices->size);
 
-	if (backpack == nullptr) {
-		backpack = new Model("backpack/backpack.obj");
-		//bind shader
-		if (backpack) {
-			cout << "success load obj";
-		}
-	}
+
 
 	// render the loaded model
 	GLfloat model_view[16];
 	GLfloat projection[16];
-	glGetFloatv(GL_PROJECTION_MATRIX, projection);
-	glGetFloatv(GL_MODELVIEW_MATRIX, model_view);
-	//glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "projection"), 1, GL_FALSE, projection);
-	//glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "model_view"), 1, GL_FALSE, model_view);
 	glPushMatrix();
 	glTranslatef(0, 20, 0);
 	glScalef(10, 10, 10);
+	glGetFloatv(GL_PROJECTION_MATRIX, projection);
+	glGetFloatv(GL_MODELVIEW_MATRIX, model_view);
+	glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "projection"), 1, GL_FALSE, projection);
+	glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "model_view"), 1, GL_FALSE, model_view);
+
 	glm::mat4 model_matrix = glm::mat4();
 	model_matrix = glm::translate(model_matrix, glm::vec3(0, 100, 0));
 	model_matrix = glm::scale(model_matrix, glm::vec3(1, 1, 1));
-	glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "u_model"), 1, GL_FALSE, &model_matrix[0][0]);
-
-
-
-
+	//glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "u_model"), 1, GL_FALSE, &model_matrix[0][0]);
 	backpack->Draw(*shader);
-	this->shader->Use();//這要放draw後面，原因不明
+
 	glPopMatrix();
 	/*
 	glm::mat4 model_matrix = glm::mat4();
@@ -539,12 +543,12 @@ void TrainView::draw()
 	*/
 
 	//bind VAO
-	glBindVertexArray(this->plane->vao);
+	//glBindVertexArray(this->plane->vao);
 
-	glDrawElements(GL_TRIANGLES, this->plane->element_amount, GL_UNSIGNED_INT, 0);
+	//glDrawElements(GL_TRIANGLES, this->plane->element_amount, GL_UNSIGNED_INT, 0);
 
 	//unbind VAO
-	glBindVertexArray(0);
+	//glBindVertexArray(0);
 
 
 
