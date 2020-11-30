@@ -183,9 +183,9 @@ void TrainView::dir_light(Shader* choose_wave) {
 	glUniform3f(glGetUniformLocation(choose_wave->Program, "dirLight.specular"), 0.5f, 0.5f, 0.5f);
 }
 void TrainView::point_light(Shader* choose_wave){
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.position"), 0, 5, 0);
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.direction"), 0.0f, 1.5f, 0.0f);
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.ambient"), 0.1f, 0.1f, 0.1f);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.position"), 0, 10, 0);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.direction"), 0.0f, -1.5f, 0.0f);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.ambient"), 1.0f, 0.1f, 0.1f);
 	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.diffuse"), 0.8f, 0.8f, 0.8f);
 	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.specular"), 1.0f, 0.0f, 1.0f);
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "pointLights.constant"), 1.0f);
@@ -196,7 +196,7 @@ void TrainView::spot_light(Shader* choose_wave,glm::vec3 front) {
 	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.position"), 0, 5, 0);
 	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.direction"), front[0], front[1], front[2]);
 	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.ambient"), 0.1f, 0.1f, 0.1f);
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.diffuse"), 1.0f, 1.0f, 1.0f);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.diffuse"), 1.0f, 0.0f, 0.0f);
 	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.specular"), 1.0f, 1.0f, 1.0f);
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "spotLight.constant"), 1.0f);
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "spotLight.linear"), 0.09f);
@@ -434,6 +434,8 @@ void TrainView::draw()
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Shader* choose_wave;
 	if (tw->waveBrowser->value() == 1) {
+
+
 		this->sinwave->Use();
 		choose_wave = sinwave;
 	}
@@ -453,9 +455,10 @@ void TrainView::draw()
 
 		height_index++;
 		//height_map_image->unbind(0);
-		if (height_index == 199) { height_index = 0; }
+		if (height_index == 200) { height_index = 0; }
 	}
 	else {
+		//wave->set_height_map(height_map, "water_bunny.png", "water");
 		return;
 	}
 
@@ -483,12 +486,12 @@ void TrainView::draw()
 	glm::mat4 view_inv = glm::inverse(glm::make_mat4(model_view));
 	glm::vec3 my_pos(view_inv[3][0], view_inv[3][1], view_inv[3][2]);
 	//cout << my_pos[0] << ' ' << my_pos[1] << ' ' << my_pos[2] << endl;
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "viewPos"), my_pos[0], my_pos[1], my_pos[2]);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "viewPos"), 0,0,0);
 	glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "projection"), 1, GL_FALSE, projection);
 	glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "model_view"), 1, GL_FALSE, model_view);
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "material.diffuse"), 0.0f);
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "material.specular"), 1.0f);
-	glUniform1f(glGetUniformLocation(choose_wave->Program, "material.shininess"), 32.0f);
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "material.shininess"), 16.0f);
 
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "dir_open"), tw->dir_L->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "point_open"), tw->point_L->value());
