@@ -72,9 +72,9 @@ class TrainView : public Fl_Gl_Window
 		virtual int handle(int);
 		virtual void draw();
 
-		void dir_light();
-		void point_light();
-		void spot_light(glm::vec3);
+		void dir_light(Shader*);
+		void point_light(Shader*);
+		void spot_light(Shader* ,glm::vec3);
 		// all of the actual drawing happens in this routine
 		// it has to be encapsulated, since we draw differently if
 		// we're drawing shadows (no colors, for example)
@@ -115,4 +115,6 @@ class TrainView : public Fl_Gl_Window
 
 
 		Model* wave = nullptr;
+		Texture2D* height_map_image = nullptr;
+
 };

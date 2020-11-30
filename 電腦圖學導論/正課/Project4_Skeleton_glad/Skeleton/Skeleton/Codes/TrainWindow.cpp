@@ -149,7 +149,7 @@ TrainWindow(const int x, const int y)
 		waveBrowser->add("sin");
 		waveBrowser->add("height map");
 		waveBrowser->select(1);
-		pty += 55;
+		pty += 70;
 		dir_L = new Fl_Button(605, pty, 60, 20, "dir");
 		togglify(dir_L);
 		point_L = new Fl_Button(670, pty, 60, 20, "point");

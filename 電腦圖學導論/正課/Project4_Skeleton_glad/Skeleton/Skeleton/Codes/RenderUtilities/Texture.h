@@ -55,6 +55,7 @@ public:
 		glActiveTexture(GL_TEXTURE0 + bind_unit);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+	int ID() { return id; }
 	glm::ivec2 size;
 private:
 	GLuint id;
