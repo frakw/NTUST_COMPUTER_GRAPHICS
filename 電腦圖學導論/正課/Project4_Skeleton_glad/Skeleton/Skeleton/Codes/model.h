@@ -31,7 +31,6 @@ public:
     vector<Mesh>    meshes;
     string directory;
     bool gammaCorrection;
-
     // constructor, expects a filepath to a 3D model.
     Model(string const& path, bool gamma = false) : gammaCorrection(gamma)
     {
@@ -44,7 +43,13 @@ public:
         for (unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].Draw(shader);
     }
-
+    void set_height_map(Shader* shader,const char* _path, const string& _directory) {
+        textures_loaded[0].id = TextureFromFile(_path,_directory);
+        //glUniform1i(glGetUniformLocation(shader->Program, "texture_diffuse1"), textures_loaded[0].id);
+        for (auto& i : meshes) {
+            i.textures[0].id = textures_loaded[0].id;
+        }
+    }
 private:
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel(string const& path)

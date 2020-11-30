@@ -7,7 +7,7 @@ layout (location = 2) in vec2 texture_coordinate;
 uniform mat4 model_view;
 uniform mat4 u_model;
 uniform mat4 projection;
-uniform sampler2D height_map_image;
+uniform sampler2D texture_diffuse1;
 
 out V_OUT
 {
@@ -19,7 +19,7 @@ out V_OUT
 void main()
 {
     vec3 height_map = position;
-    height_map.y = height_map.y + texture(height_map_image,texture_coordinate).r;
+    height_map.y = height_map.y + texture(texture_diffuse1,texture_coordinate).r;
     gl_Position = projection * model_view * vec4(height_map, 1.0f);
     v_out.position = height_map;
     v_out.normal = mat3(transpose(inverse(u_model))) * normal;

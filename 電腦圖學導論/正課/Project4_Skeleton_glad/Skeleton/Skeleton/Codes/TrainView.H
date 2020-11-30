@@ -116,5 +116,5 @@ class TrainView : public Fl_Gl_Window
 
 		Model* wave = nullptr;
 		Texture2D* height_map_image = nullptr;
-
+		int height_index = 0;
 };

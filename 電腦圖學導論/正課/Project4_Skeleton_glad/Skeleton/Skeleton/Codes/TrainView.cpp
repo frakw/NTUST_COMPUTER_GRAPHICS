@@ -260,9 +260,9 @@ void TrainView::draw()
 		//	this->texture = new Texture2D("./Images/water.png");
 		//}
 
-		if (!height_map_image) {
-			height_map_image = new Texture2D("./Image/height map/000.png");
-		}
+		//if (!height_map_image) {
+		//	height_map_image = new Texture2D("Images/height map/000.png");
+		//}
 
 		if (!this->device) {
 			//Tutorial: https://ffainelli.github.io/openal-example/
@@ -440,7 +440,20 @@ void TrainView::draw()
 	else if (tw->waveBrowser->value() == 2) {
 		this->height_map->Use();
 		choose_wave = height_map;
-		glUniform1i(glGetUniformLocation(choose_wave->Program, "height_map_image"), height_map_image->ID());
+		//height_map_image->bind(0);
+		string num = to_string(height_index);
+		if (num.size() == 1) {
+			num = "00" + num;
+		}
+		else if (num.size() == 2) {
+			num = "0" + num;
+		}
+		wave->set_height_map(height_map, (num + ".png").c_str(),"Images/height map");
+		//glUniform1i(glGetUniformLocation(choose_wave->Program, "height_map_image"), height_map_image->ID());
+
+		height_index++;
+		//height_map_image->unbind(0);
+		if (height_index == 199) { height_index = 0; }
 	}
 	else {
 		return;
@@ -482,7 +495,7 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "spot_open"), tw->spot_L->value());
 	dir_light(choose_wave);
 	point_light(choose_wave);
-	spot_light(choose_wave,glm::vec3(my_pos - glm::vec3(0,0,0)));
+	spot_light(choose_wave,glm::normalize(glm::vec3(0,0,0) - my_pos));
 	glm::mat4 model_matrix = glm::mat4();
 	model_matrix = glm::translate(model_matrix, glm::vec3(0, 100, 0));
 	model_matrix = glm::scale(model_matrix, glm::vec3(1, 1, 1));
