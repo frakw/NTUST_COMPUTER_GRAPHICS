@@ -101,6 +101,10 @@ class TrainView : public Fl_Gl_Window
 
 		Shader* sinwave		= nullptr;
 		Shader* height_map	= nullptr;
+		Shader* skybox	= nullptr;
+		GLuint cubemapTexture;
+		GLuint skyboxVAO, skyboxVBO;
+
 		Texture2D* texture	= nullptr;
 		VAO* plane			= nullptr;
 		UBO* commom_matrices= nullptr;
@@ -118,3 +122,4 @@ class TrainView : public Fl_Gl_Window
 		Texture2D* height_map_image = nullptr;
 		int height_index = 0;
 };
+GLuint loadCubemap(vector<const GLchar*> faces);

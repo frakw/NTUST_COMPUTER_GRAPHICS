@@ -64,6 +64,9 @@ uniform sampler2D texture_specular1;
 uniform sampler2D texture_normal1;
 uniform sampler2D texture_height1;
 
+uniform sampler2D height_map_texture;
+
+
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);  
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
@@ -74,7 +77,7 @@ uniform bool spot_open;
 
 void main()
 {   
-    vec3 result={0.1,0.14,0.7};
+    vec3 result={0,0,0};
     vec3 viewDir = normalize(viewPos - f_in.position);
 
     if(dir_open) result += CalcDirLight(dirLight, f_in.normal, viewDir);
@@ -82,9 +85,11 @@ void main()
     if(spot_open) result += CalcSpotLight(spotLight, f_in.normal, f_in.position, viewDir);
 
 
-    vec3 color = vec3(texture(texture_diffuse1, f_in.texture_coordinate));
+    vec3 color = vec3(texture(height_map_texture, f_in.texture_coordinate));
+    //else if(color[0] == 0.0f)
     //vec3 color = vec3(0.0f,0.0f,0.0f);
     f_color = vec4(color+result, 1.0f);
+    //f_color = vec4(result, 1.0f);
 }
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)

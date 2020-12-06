@@ -154,12 +154,6 @@
     <None Include="Codes\shaders\others\water_update.frag">
       <Filter>shader\others</Filter>
     </None>
-    <None Include="skybox.vert">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="skybox.frag">
-      <Filter>shader</Filter>
-    </None>
     <None Include="Codes\shaders\sinwave.frag">
       <Filter>shader</Filter>
     </None>
@@ -170,6 +164,12 @@
       <Filter>shader</Filter>
     </None>
     <None Include="Codes\shaders\height_map.vert">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="Codes\shaders\skybox.frag">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="Codes\shaders\skybox.vert">
       <Filter>shader</Filter>
     </None>
   </ItemGroup>

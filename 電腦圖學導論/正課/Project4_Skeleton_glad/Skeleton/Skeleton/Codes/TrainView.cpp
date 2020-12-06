@@ -237,13 +237,84 @@ void TrainView::draw()
 				nullptr, nullptr, nullptr,
 				"./Codes/shaders/height_map.frag");
 
+		if (!this->skybox) {
+			this->skybox = new
+				Shader(
+					"./Codes/shaders/skybox.vert",
+					nullptr, nullptr, nullptr,
+					"./Codes/shaders/skybox.frag");
+			GLfloat skyboxVertices[] = {
+				// Positions          
+				-1.0f,  1.0f, -1.0f,
+				-1.0f, -1.0f, -1.0f,
+				 1.0f, -1.0f, -1.0f,
+				 1.0f, -1.0f, -1.0f,
+				 1.0f,  1.0f, -1.0f,
+				-1.0f,  1.0f, -1.0f,
+
+				-1.0f, -1.0f,  1.0f,
+				-1.0f, -1.0f, -1.0f,
+				-1.0f,  1.0f, -1.0f,
+				-1.0f,  1.0f, -1.0f,
+				-1.0f,  1.0f,  1.0f,
+				-1.0f, -1.0f,  1.0f,
+
+				 1.0f, -1.0f, -1.0f,
+				 1.0f, -1.0f,  1.0f,
+				 1.0f,  1.0f,  1.0f,
+				 1.0f,  1.0f,  1.0f,
+				 1.0f,  1.0f, -1.0f,
+				 1.0f, -1.0f, -1.0f,
+
+				-1.0f, -1.0f,  1.0f,
+				-1.0f,  1.0f,  1.0f,
+				 1.0f,  1.0f,  1.0f,
+				 1.0f,  1.0f,  1.0f,
+				 1.0f, -1.0f,  1.0f,
+				-1.0f, -1.0f,  1.0f,
+
+				-1.0f,  1.0f, -1.0f,
+				 1.0f,  1.0f, -1.0f,
+				 1.0f,  1.0f,  1.0f,
+				 1.0f,  1.0f,  1.0f,
+				-1.0f,  1.0f,  1.0f,
+				-1.0f,  1.0f, -1.0f,
+
+				-1.0f, -1.0f, -1.0f,
+				-1.0f, -1.0f,  1.0f,
+				 1.0f, -1.0f, -1.0f,
+				 1.0f, -1.0f, -1.0f,
+				-1.0f, -1.0f,  1.0f,
+				 1.0f, -1.0f,  1.0f
+			};
+			// Setup skybox VAO
+			
+			glGenVertexArrays(1, &skyboxVAO);
+			glGenBuffers(1, &skyboxVBO);
+			glBindVertexArray(skyboxVAO);
+			glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+			glBindVertexArray(0);
+
+			vector<const GLchar*> faces;
+			faces.push_back("Images/skybox/right.jpg");
+			faces.push_back("Images/skybox/left.jpg");
+			faces.push_back("Images/skybox/top.jpg");
+			faces.push_back("Images/skybox/bottom.jpg");
+			faces.push_back("Images/skybox/back.jpg");
+			faces.push_back("Images/skybox/front.jpg");
+			cubemapTexture = loadCubemap(faces);
+		}
+
 		if (!this->commom_matrices)
 			this->commom_matrices = new UBO();
-		this->commom_matrices->size = 2 * sizeof(glm::mat4);
-		glGenBuffers(1, &this->commom_matrices->ubo);
-		glBindBuffer(GL_UNIFORM_BUFFER, this->commom_matrices->ubo);
-		glBufferData(GL_UNIFORM_BUFFER, this->commom_matrices->size, NULL, GL_STATIC_DRAW);
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		//this->commom_matrices->size = 2 * sizeof(glm::mat4);
+		//glGenBuffers(1, &this->commom_matrices->ubo);
+		//glBindBuffer(GL_UNIFORM_BUFFER, this->commom_matrices->ubo);
+		//glBufferData(GL_UNIFORM_BUFFER, this->commom_matrices->size, NULL, GL_STATIC_DRAW);
+		//glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 
 		if (!wave) {
@@ -252,6 +323,17 @@ void TrainView::draw()
 			//wave = new Model("water/water.obj");
 			wave = new Model("water/water_bunny.obj");
 			//wave = new Model("water/plane.obj");
+
+			for (int i = 0;i < 200;i++) {
+				string num = to_string(i);
+				if (num.size() == 1) {
+					num = "00" + num;
+				}
+				else if (num.size() == 2) {
+					num = "0" + num;
+				}
+				wave->add_height_map_texture((num + ".png").c_str(), "Images/height map");
+			}
 		}
 
 		//if (!this->texture) {
@@ -434,28 +516,12 @@ void TrainView::draw()
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	Shader* choose_wave;
 	if (tw->waveBrowser->value() == 1) {
-
-
 		this->sinwave->Use();
 		choose_wave = sinwave;
 	}
 	else if (tw->waveBrowser->value() == 2) {
 		this->height_map->Use();
 		choose_wave = height_map;
-		//height_map_image->bind(0);
-		string num = to_string(height_index);
-		if (num.size() == 1) {
-			num = "00" + num;
-		}
-		else if (num.size() == 2) {
-			num = "0" + num;
-		}
-		wave->set_height_map(height_map, (num + ".png").c_str(),"Images/height map");
-		//glUniform1i(glGetUniformLocation(choose_wave->Program, "height_map_image"), height_map_image->ID());
-
-		height_index++;
-		//height_map_image->unbind(0);
-		if (height_index == 200) { height_index = 0; }
 	}
 	else {
 		//wave->set_height_map(height_map, "water_bunny.png", "water");
@@ -470,7 +536,7 @@ void TrainView::draw()
 
 	// render the loaded model
 
-	//glPushMatrix();
+	glPushMatrix();
 
 	glTranslatef(0, tw->y_axis->value(), 0);
 	glScalef(tw->scale->value(), tw->scale->value(), tw->scale->value());
@@ -485,7 +551,7 @@ void TrainView::draw()
 	glGetFloatv(GL_MODELVIEW_MATRIX, model_view);
 	glm::mat4 view_inv = glm::inverse(glm::make_mat4(model_view));
 	glm::vec3 my_pos(view_inv[3][0], view_inv[3][1], view_inv[3][2]);
-	//cout << my_pos[0] << ' ' << my_pos[1] << ' ' << my_pos[2] << endl;
+	cout << my_pos[0] << ' ' << my_pos[1] << ' ' << my_pos[2] << endl;
 	glUniform3f(glGetUniformLocation(choose_wave->Program, "viewPos"), 0,0,0);
 	glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "projection"), 1, GL_FALSE, projection);
 	glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "model_view"), 1, GL_FALSE, model_view);
@@ -503,16 +569,64 @@ void TrainView::draw()
 	model_matrix = glm::translate(model_matrix, glm::vec3(0, 100, 0));
 	model_matrix = glm::scale(model_matrix, glm::vec3(1, 1, 1));
 	//glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "u_model"), 1, GL_FALSE, &model_matrix[0][0]);
-	wave->Draw(*choose_wave);
+	wave->Draw(*choose_wave, tw->waveBrowser->value());
 	
-	//glPopMatrix();
+	glPopMatrix();
 
 
-
+	GLfloat _model_view[16];
+	GLfloat _projection[16];
+	glGetFloatv(GL_PROJECTION_MATRIX, _projection);
+	glGetFloatv(GL_MODELVIEW_MATRIX, _model_view);
+	// Draw skybox as last
+	glDepthFunc(GL_LEQUAL);  // Change depth function so depth test passes when values are equal to depth buffer's content
+	glDepthMask(GL_FALSE);
+	skybox->Use();
+	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_view"), 1, GL_FALSE, _model_view);
+	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "projection"), 1, GL_FALSE, _projection);
+	// skybox cube
+	glBindVertexArray(skyboxVAO);
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(glGetUniformLocation(skybox->Program, "skybox"), 0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+	glDepthFunc(GL_LESS); // Set depth function back to default
+	glDepthMask(GL_TRUE);
 	//unbind shader(switch to fixed pipeline)
 	glUseProgram(0);
 }
+GLuint loadCubemap(vector<const GLchar*> faces)
+{
+	GLuint textureID;
+	glGenTextures(1, &textureID);
 
+	int width, height, nrComponents;
+	unsigned char* image;
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+	for (GLuint i = 0; i < faces.size(); i++)
+	{
+		image = stbi_load(faces[i], &width, &height, &nrComponents, 0);
+		GLenum format;
+		if (nrComponents == 1)
+			format = GL_RED;
+		else if (nrComponents == 3)
+			format = GL_RGB;
+		else if (nrComponents == 4)
+			format = GL_RGBA;
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
+		stbi_image_free(image);
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	return textureID;
+}
 //************************************************************************
 //
 // * This sets up both the Projection and the ModelView matrices

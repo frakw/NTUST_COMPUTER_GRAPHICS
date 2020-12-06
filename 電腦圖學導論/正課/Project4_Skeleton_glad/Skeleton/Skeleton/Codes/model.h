@@ -29,6 +29,9 @@ public:
     // model data 
     vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
     vector<Mesh>    meshes;
+    vector<Mesh>    height_map_meshes;
+    vector<unsigned int> height_map_id;
+    int height_map_index = 0;
     string directory;
     bool gammaCorrection;
     // constructor, expects a filepath to a 3D model.
@@ -38,17 +41,31 @@ public:
     }
 
     // draws the model, and thus all its meshes
-    void Draw(Shader& shader)
+    void Draw(Shader& shader,int wave_type)
     {
-        for (unsigned int i = 0; i < meshes.size(); i++)
-            meshes[i].Draw(shader);
-    }
-    void set_height_map(Shader* shader,const char* _path, const string& _directory) {
-        textures_loaded[0].id = TextureFromFile(_path,_directory);
-        //glUniform1i(glGetUniformLocation(shader->Program, "texture_diffuse1"), textures_loaded[0].id);
-        for (auto& i : meshes) {
-            i.textures[0].id = textures_loaded[0].id;
+        if (wave_type == 1) {
+            for (unsigned int i = 0; i < meshes.size(); i++)
+                meshes[i].Draw(shader);
         }
+        else if(wave_type == 2){
+            glActiveTexture(GL_TEXTURE0 + textures_loaded[0].id);
+            glUniform1i(glGetUniformLocation(shader.Program, "height_map_texture"), textures_loaded[0].id);
+            glBindTexture(GL_TEXTURE_2D, textures_loaded[0].id);
+            glActiveTexture(GL_TEXTURE0);
+            for (unsigned int i = 0; i < height_map_meshes.size(); i++) {
+                for (auto& j : height_map_meshes[i].textures) {
+                    j.id = height_map_id[height_map_index];
+                }
+                height_map_meshes[i].Draw(shader);
+            }
+            ++height_map_index;
+            if (height_map_index == height_map_id.size()) {
+                height_map_index = 0;
+            }
+        }
+    }
+    void add_height_map_texture(const char* _path, const string& _directory) {
+        height_map_id.push_back(TextureFromFile(_path, _directory));
     }
 private:
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
@@ -79,7 +96,9 @@ private:
             // the node object only contains indices to index the actual objects in the scene. 
             // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-            meshes.push_back(processMesh(mesh, scene));
+            Mesh tmp = processMesh(mesh, scene);
+            meshes.push_back(tmp);
+            height_map_meshes.push_back(tmp);
         }
         // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
         for (unsigned int i = 0; i < node->mNumChildren; i++)

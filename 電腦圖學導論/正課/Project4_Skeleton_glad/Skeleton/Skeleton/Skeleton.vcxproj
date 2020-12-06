@@ -69,8 +69,8 @@
     <None Include="Codes\shaders\others\water_update.frag" />
     <None Include="Codes\shaders\sinwave.frag" />
     <None Include="Codes\shaders\sinwave.vert" />
-    <None Include="skybox.frag" />
-    <None Include="skybox.vert" />
+    <None Include="Codes\shaders\skybox.frag" />
+    <None Include="Codes\shaders\skybox.vert" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="trash.txt" />
