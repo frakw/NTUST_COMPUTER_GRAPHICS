@@ -1,4 +1,5 @@
 #version 430 core
+#extension GL_NV_shadow_samplers_cube : enable
 out vec4 f_color;
 
 struct DirLight {
@@ -83,7 +84,7 @@ uniform samplerCube skybox;
 void main()
 {   
     vec3 lighting ={0,0,0};
-    vec3 viewDir = normalize(viewPos - f_in.position);
+    vec3 viewDir = normalize(viewPos - f_in.position );
 
     if(dir_open) lighting += CalcDirLight(dirLight, f_in.normal, viewDir);
     if(point_open) lighting += CalcPointLight(pointLights, f_in.normal,f_in.position, viewDir);
@@ -92,12 +93,19 @@ void main()
 
     vec3 texture_color = vec3(texture(texture_diffuse1, f_in.texture_coordinate));
     vec3 basecolor = texture_color + lighting;
-    vec3 ReflectVec = reflect(viewDir, normalize(f_in.normal));
-    vec3 RefractVec = refract(viewDir, normalize(f_in.normal),0.6f);
-    vec3 ReflectColor = vec3(texture(skybox, ReflectVec));
-    vec3 RefractColor = vec3(texture(skybox, RefractVec));
-    vec3 outputCol = mix(RefractColor, ReflectColor, 0.6f);
-    f_color = vec4(texture(skybox, ReflectVec).rgb, 1.0);
+    vec3 I = normalize(f_in.position - viewPos);
+    vec3 ReflectVec = reflect(I, normalize(f_in.normal));
+    vec3 RefractVec = refract(I, normalize(f_in.normal),Eta);
+    vec3 ReflectColor = vec3(textureCube(skybox, ReflectVec));
+    vec3 RefractColor = vec3(textureCube(skybox, RefractVec));
+    //vec3 mixColor = mix(RefractColor, ReflectColor, ratio);
+
+
+    if(reflect_open && refract_open)f_color = vec4(mix(RefractColor, ReflectColor, 0.5),1.0f);
+    else if(reflect_open)f_color = vec4(ReflectColor, 1.0);
+    else if(refract_open)f_color = vec4(RefractColor, 1.0);
+
+
     //f_color = vec4(color+result, 1.0f);
 
     //f_color = vec4(outputCol * basecolor, 1.0);

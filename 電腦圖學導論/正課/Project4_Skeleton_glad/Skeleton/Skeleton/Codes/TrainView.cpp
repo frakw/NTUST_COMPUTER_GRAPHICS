@@ -454,7 +454,7 @@ void TrainView::draw()
 
 	setupFloor();
 	glDisable(GL_LIGHTING);
-	drawFloor(200, 10);
+	//drawFloor(200, 10);
 
 
 	//*********************************************************************
@@ -504,7 +504,7 @@ void TrainView::draw()
 	glm::vec3 my_pos(view_inv[3][0], view_inv[3][1], view_inv[3][2]);
 	cout << my_pos[0] << ' ' << my_pos[1] << ' ' << my_pos[2] << endl;
 
-
+	glm::mat4 model = glm::mat4(1.0f);
 	glPushMatrix();
 
 	glTranslatef(0, tw->y_axis->value(), 0);
@@ -514,13 +514,16 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "time"), tw->time);
 
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "speed"), tw->wavespeed->value());
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "ratio"), tw->Eta->value());
 
-	GLfloat model_view_for_wave[16];
-	glGetFloatv(GL_MODELVIEW_MATRIX, model_view_for_wave);
+	GLfloat translation_and_scale[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, translation_and_scale);
 
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "viewPos"), 0,0,0);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "viewPos"), my_pos[0], my_pos[1], my_pos[2]);
 	glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "projection"), 1, GL_FALSE, projection);
-	glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "model_view"), 1, GL_FALSE, model_view_for_wave);
+	glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "model_view"), 1, GL_FALSE, model_view);
+	//glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "model_view"), 1, GL_FALSE, &model_view_without_translate[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "model"), 1, GL_FALSE, &model[0][0]);
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "material.diffuse"), 0.0f);
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "material.specular"), 1.0f);
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "material.shininess"), 16.0f);
@@ -528,6 +531,8 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "dir_open"), tw->dir_L->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "point_open"), tw->point_L->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "spot_open"), tw->spot_L->value());
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "reflect_open"), tw->reflect->value());
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "refract_open"), tw->refract->value());
 	dir_light(choose_wave);
 	point_light(choose_wave);
 	spot_light(choose_wave,glm::normalize(glm::vec3(0,0,0) - my_pos));

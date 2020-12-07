@@ -192,6 +192,12 @@ TrainWindow(const int x, const int y)
 		togglify(reflect);
 		refract = new Fl_Button(705, pty, 95, 20, "refract");
 		togglify(refract);
+		pty += 30;
+		Eta = new Fl_Value_Slider(660, pty, 140, 20, "Eta");
+		Eta->range(0, 3);
+		Eta->value(0.6);
+		Eta->align(FL_ALIGN_LEFT);
+		Eta->type(FL_HORIZONTAL);
 		// TODO: add widgets for all of your fancier features here
 #ifdef EXAMPLE_SOLUTION
 		makeExampleWidgets(this,pty);

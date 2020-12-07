@@ -5,7 +5,7 @@ layout (location = 2) in vec2 texture_coordinate;
 
 
 uniform mat4 model_view;
-uniform mat4 u_model;
+uniform mat4 model;
 uniform mat4 projection;
 uniform float amplitude,wavelength,time,speed;
 
@@ -23,9 +23,9 @@ void main()
     vec3 sinwave = position;
     sinwave.y = amplitude * sin(f);
     vec3 tangent = normalize(vec3(1,k*amplitude*cos(f),0));
-    v_out.normal = mat3(transpose(inverse(model_view))) * normalize(vec3(-tangent.y, tangent.x, 0));
+    v_out.normal = mat3(transpose(inverse(model))) *  normalize(vec3(-tangent.y, tangent.x, 0));// * normalize(vec3(-tangent.y, tangent.x, 0));
     gl_Position = projection * model_view * vec4(sinwave, 1.0f);
-    v_out.position = sinwave;//vec3(u_model * vec4(sinwave, 1.0f));
+    v_out.position = vec3(model * vec4(sinwave, 1.0));//vec3(u_model * vec4(sinwave, 1.0f));
     //v_out.normal = mat3(transpose(inverse(model_view))) * normal;
     v_out.texture_coordinate = texture_coordinate;
 
