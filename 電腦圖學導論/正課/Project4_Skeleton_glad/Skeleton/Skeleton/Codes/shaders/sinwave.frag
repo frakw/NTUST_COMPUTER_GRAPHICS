@@ -77,7 +77,7 @@ uniform bool reflect_open;
 uniform bool refract_open;
 
 uniform float Eta;
-
+uniform float ratio_of_reflect_refract = 0.5f;
 
 uniform samplerCube skybox;
 uniform bool toon_open;
@@ -118,20 +118,23 @@ void main()
     vec3 basecolor = texture_color + lighting;
     vec3 I = normalize(f_in.position - viewPos);
     vec3 ReflectVec = reflect(I, normalize(f_in.normal));
-    vec3 RefractVec = refract(I, normalize(f_in.normal),Eta);
+    vec3 RefractVec_up = refract(I, -normalize(f_in.normal),Eta);
+    vec3 RefractVec_down = refract(I, normalize(f_in.normal),Eta);
     vec3 ReflectColor = vec3(textureCube(skybox, ReflectVec));
-    vec3 RefractColor = vec3(textureCube(skybox, RefractVec));
-    //vec3 mixColor = mix(RefractColor, ReflectColor, ratio);
+    //vec3 RefractColor = vec3(textureCube(skybox, RefractVec));
+    vec3 RefractColor;
+    if(viewPos.y > f_in.position.y){
+        RefractColor = vec3(textureCube(skybox, RefractVec_down));
+    }
+    else{
+        RefractColor = vec3(textureCube(skybox, RefractVec_up));        
+    }
 
-
-    if(reflect_open && refract_open)f_color = vec4(mix(RefractColor, ReflectColor, 0.5),1.0f); 
+    if(reflect_open && refract_open)f_color = vec4(mix(ReflectColor,RefractColor ,ratio_of_reflect_refract),1.0f); 
     else if(reflect_open)f_color = vec4(ReflectColor, 1.0);
     else if(refract_open)f_color = vec4(RefractColor, 1.0);
-    else f_color = vec4(basecolor,1.0f);
+    //else f_color = vec4(basecolor,1.0f);//這個會讓shader爆炸，原因不明，Reflect Refract似乎不能跟貼圖同時出現
 
-    //f_color = vec4(color+result, 1.0f);
-
-    //f_color = vec4(outputCol * basecolor, 1.0);
     }
 }
 

@@ -487,16 +487,11 @@ void TrainView::draw()
 		this->height_map->Use();
 		choose_wave = height_map;
 	}
-	else if (tw->waveBrowser->value() == 3) {
-		this->sinwave->Use();
-		choose_wave = sinwave;
-		glUniform1i(glGetUniformLocation(choose_wave->Program, "toon_open"), true);
-	}
 	else {
 		//wave->set_height_map(height_map, "water_bunny.png", "water");
 		return;
 	}
-
+	glUniform1i(glGetUniformLocation(choose_wave->Program, "toon_open"), tw->toon->value());
 	//setUBO();
 	//glBindBufferRange(
 		//GL_UNIFORM_BUFFER, /*binding point*/0, this->commom_matrices->ubo, 0, this->commom_matrices->size);
@@ -522,6 +517,7 @@ void TrainView::draw()
 
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "speed"), tw->wavespeed->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "Eta"), tw->Eta->value());
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "ratio_of_reflect_refract"), tw->ratio_of_reflect_refract->value());
 
 	GLfloat translation_and_scale[16];
 	glGetFloatv(GL_MODELVIEW_MATRIX, translation_and_scale);

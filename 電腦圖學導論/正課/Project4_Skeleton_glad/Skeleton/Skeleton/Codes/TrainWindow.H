@@ -100,6 +100,8 @@ class TrainWindow : public Fl_Double_Window {
 		Fl_Button* reflect;
 		Fl_Button* refract;
 		Fl_Value_Slider*	Eta;
+		Fl_Value_Slider*	ratio_of_reflect_refract;
+		Fl_Button* toon;
 		Fl_Button*			arcLength;		// do we use arc length for speed?
 		bool animating = false;
 		float time = 0.0f;

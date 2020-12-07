@@ -23,11 +23,9 @@ void main()
     vec3 sinwave = position;
     sinwave.y = amplitude * sin(f);
     vec3 tangent = normalize(vec3(1,k*amplitude*cos(f),0));
-    v_out.normal = mat3(transpose(inverse(model))) *  normalize(vec3(-tangent.y, tangent.x, 0));// * normalize(vec3(-tangent.y, tangent.x, 0));
     gl_Position = projection * view * model * vec4(sinwave, 1.0f);
     v_out.position = vec3(model * vec4(sinwave, 1.0));//vec3(u_model * vec4(sinwave, 1.0f));
-    //v_out.position /= 
-    //v_out.normal = mat3(transpose(inverse(model_view))) * normal;
+    v_out.normal = mat3(transpose(inverse(model))) *  normalize(vec3(-tangent.y, tangent.x, 0));
     v_out.texture_coordinate = texture_coordinate;
 
 }

@@ -43,7 +43,7 @@
 //========================================================================
 TrainWindow::
 TrainWindow(const int x, const int y) 
-	: Fl_Double_Window(x,y,800,600,"Train and Roller Coaster")
+	: Fl_Double_Window(x,y,800,800,"Train and Roller Coaster")
 //========================================================================
 {
 	// make all of the widgets
@@ -51,13 +51,13 @@ TrainWindow(const int x, const int y)
 	{
 		int pty=5;			// where the last widgets were drawn
 
-		trainView = new TrainView(5,5,590,590);
+		trainView = new TrainView(5,5,590,790);
 		trainView->tw = this;
 		trainView->m_pTrack = &m_Track;
 		this->resizable(trainView);
 
 		// to make resizing work better, put all the widgets in a group
-		widgets = new Fl_Group(600,5,190,590);
+		widgets = new Fl_Group(600,5,190,790);
 		widgets->begin();
 
 		runButton = new Fl_Button(605,pty,60,20,"Run");
@@ -148,8 +148,10 @@ TrainWindow(const int x, const int y)
 		waveBrowser->callback((Fl_Callback*)damageCB, this);
 		waveBrowser->add("sin");
 		waveBrowser->add("height map");
-		waveBrowser->add("toon");
 		waveBrowser->select(1);
+
+		toon = new Fl_Button(735, pty, 60, 60, "toon");
+		togglify(toon);
 		pty += 70;
 		dir_L = new Fl_Button(605, pty, 60, 20, "dir");
 		togglify(dir_L);
@@ -199,6 +201,12 @@ TrainWindow(const int x, const int y)
 		Eta->value(0.95);
 		Eta->align(FL_ALIGN_LEFT);
 		Eta->type(FL_HORIZONTAL);
+		pty += 30;
+		ratio_of_reflect_refract = new Fl_Value_Slider(700, pty, 100, 20, "ratio of\nreflect refract");
+		ratio_of_reflect_refract->range(0, 1);
+		ratio_of_reflect_refract->value(0.5);
+		ratio_of_reflect_refract->align(FL_ALIGN_LEFT);
+		ratio_of_reflect_refract->type(FL_HORIZONTAL);
 		// TODO: add widgets for all of your fancier features here
 #ifdef EXAMPLE_SOLUTION
 		makeExampleWidgets(this,pty);
