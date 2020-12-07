@@ -210,6 +210,7 @@ void TrainView::draw()
 				nullptr, nullptr, nullptr,
 				"./Codes/shaders/height_map.frag");
 
+
 		if (!this->skybox) {
 			this->skybox = new
 				Shader(
@@ -479,10 +480,17 @@ void TrainView::draw()
 	if (tw->waveBrowser->value() == 1) {
 		this->sinwave->Use();
 		choose_wave = sinwave;
+		glUniform1i(glGetUniformLocation(choose_wave->Program, "toon_open"), false);
+
 	}
 	else if (tw->waveBrowser->value() == 2) {
 		this->height_map->Use();
 		choose_wave = height_map;
+	}
+	else if (tw->waveBrowser->value() == 3) {
+		this->sinwave->Use();
+		choose_wave = sinwave;
+		glUniform1i(glGetUniformLocation(choose_wave->Program, "toon_open"), true);
 	}
 	else {
 		//wave->set_height_map(height_map, "water_bunny.png", "water");
@@ -496,33 +504,31 @@ void TrainView::draw()
 	wave->height_map_index = tw->height_map_index;//int <- float
 
 	GLfloat projection[16];
-	GLfloat model_view[16];
+	GLfloat view[16];
 	glGetFloatv(GL_PROJECTION_MATRIX, projection);
-	glGetFloatv(GL_MODELVIEW_MATRIX, model_view);
-	glm::mat4 model_view_without_translate = glm::mat4(glm::mat3(glm::make_mat4(model_view)));
-	glm::mat4 view_inv = glm::inverse(glm::make_mat4(model_view));
+	glGetFloatv(GL_MODELVIEW_MATRIX, view);
+	glm::mat4 view_without_translate = glm::mat4(glm::mat3(glm::make_mat4(view)));
+	glm::mat4 view_inv = glm::inverse(glm::make_mat4(view));
 	glm::vec3 my_pos(view_inv[3][0], view_inv[3][1], view_inv[3][2]);
 	cout << my_pos[0] << ' ' << my_pos[1] << ' ' << my_pos[2] << endl;
 
 	glm::mat4 model = glm::mat4(1.0f);
-	glPushMatrix();
+	model = glm::translate(model, glm::vec3(0, tw->y_axis->value(), 0));
+	model = glm::scale(model, glm::vec3(tw->scale->value(), tw->scale->value(), tw->scale->value()));
 
-	glTranslatef(0, tw->y_axis->value(), 0);
-	glScalef(tw->scale->value(), tw->scale->value(), tw->scale->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "amplitude"), tw->amplitude->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "wavelength"), tw->wavelength->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "time"), tw->time);
 
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "speed"), tw->wavespeed->value());
-	glUniform1f(glGetUniformLocation(choose_wave->Program, "ratio"), tw->Eta->value());
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "Eta"), tw->Eta->value());
 
 	GLfloat translation_and_scale[16];
 	glGetFloatv(GL_MODELVIEW_MATRIX, translation_and_scale);
 
 	glUniform3f(glGetUniformLocation(choose_wave->Program, "viewPos"), my_pos[0], my_pos[1], my_pos[2]);
 	glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "projection"), 1, GL_FALSE, projection);
-	glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "model_view"), 1, GL_FALSE, model_view);
-	//glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "model_view"), 1, GL_FALSE, &model_view_without_translate[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "view"), 1, GL_FALSE, view);
 	glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "model"), 1, GL_FALSE, &model[0][0]);
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "material.diffuse"), 0.0f);
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "material.specular"), 1.0f);
@@ -538,7 +544,6 @@ void TrainView::draw()
 	spot_light(choose_wave,glm::normalize(glm::vec3(0,0,0) - my_pos));
 	wave->Draw(*choose_wave, tw->waveBrowser->value());
 
-	glPopMatrix();
 	
 
 	//// Draw skybox as last
@@ -561,7 +566,7 @@ void TrainView::draw()
 	skybox->Use();
 	glUniform1f(glGetUniformLocation(skybox->Program, "skybox"), 0);
 	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "projection"), 1, GL_FALSE, projection);
-	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_view"), 1, GL_FALSE, &model_view_without_translate[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_view"), 1, GL_FALSE, &view_without_translate[0][0]);
 	// skybox cube
 	glBindVertexArray(skyboxVAO);
 	glActiveTexture(GL_TEXTURE0);

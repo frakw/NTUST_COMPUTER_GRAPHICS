@@ -148,6 +148,7 @@ TrainWindow(const int x, const int y)
 		waveBrowser->callback((Fl_Callback*)damageCB, this);
 		waveBrowser->add("sin");
 		waveBrowser->add("height map");
+		waveBrowser->add("toon");
 		waveBrowser->select(1);
 		pty += 70;
 		dir_L = new Fl_Button(605, pty, 60, 20, "dir");
@@ -195,7 +196,7 @@ TrainWindow(const int x, const int y)
 		pty += 30;
 		Eta = new Fl_Value_Slider(660, pty, 140, 20, "Eta");
 		Eta->range(0, 3);
-		Eta->value(0.6);
+		Eta->value(0.95);
 		Eta->align(FL_ALIGN_LEFT);
 		Eta->type(FL_HORIZONTAL);
 		// TODO: add widgets for all of your fancier features here

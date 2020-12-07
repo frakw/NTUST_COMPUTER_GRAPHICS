@@ -100,7 +100,7 @@ class TrainView : public Fl_Gl_Window
 		CTrack*			m_pTrack;		// The track of the entire scene
 
 		Shader* sinwave		= nullptr;
-		Shader* height_map	= nullptr;
+		Shader* height_map = nullptr;
 		Shader* skybox	= nullptr;
 		GLuint cubemapTexture;
 		GLuint skyboxVAO, skyboxVBO;

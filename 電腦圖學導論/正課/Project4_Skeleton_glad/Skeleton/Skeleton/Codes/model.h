@@ -43,7 +43,7 @@ public:
     // draws the model, and thus all its meshes
     void Draw(Shader& shader,int wave_type)
     {
-        if (wave_type == 1) {
+        if (wave_type == 1 || wave_type == 3) {
             for (unsigned int i = 0; i < meshes.size(); i++)
                 meshes[i].Draw(shader);
         }
