@@ -97,9 +97,12 @@ class TrainWindow : public Fl_Double_Window {
 		Fl_Value_Slider*	amplitude;
 		Fl_Value_Slider*	wavelength;
 		Fl_Value_Slider*	wavespeed;
+		Fl_Button* reflect;
+		Fl_Button* refract;
 		Fl_Button*			arcLength;		// do we use arc length for speed?
 		bool animating = false;
 		float time = 0.0f;
+		float height_map_index = 0;
 		// we have other widgets as part of the sample solution
 		// this is not for 559 students to know about
 #ifdef EXAMPLE_SOLUTION

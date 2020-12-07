@@ -253,9 +253,13 @@ void keeping_water(TrainWindow* tw)
 	if (clock() - lastRedraw > CLOCKS_PER_SEC / 30 && tw->animating) {
 		lastRedraw = clock();
 		tw->time += 0.01f;
+		tw->height_map_index += tw->wavespeed->value();
 		tw->damageMe();
 		if (std::numeric_limits<float>::max() - tw->time <= 0.01f) {
 			tw->time = 0.0f;
+		}
+		if (tw->height_map_index >= 200.0f) {
+			tw->height_map_index = 0.0f;
 		}
 	}
 }

@@ -122,4 +122,4 @@ class TrainView : public Fl_Gl_Window
 		Texture2D* height_map_image = nullptr;
 		int height_index = 0;
 };
-GLuint loadCubemap(vector<const GLchar*> faces);
+unsigned int loadCubemap(vector<const GLchar*> faces);

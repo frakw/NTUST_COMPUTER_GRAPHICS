@@ -24,7 +24,6 @@ void main()
     gl_Position = projection * model_view * vec4(height_map, 1.0f);
     v_out.position = height_map;
     v_out.normal = mat3(transpose(inverse(model_view))) * normal;
-    v_out.texture_coordinate = vec2(texture_coordinate.x, 1.0f - texture_coordinate.y);
-    //v_out.texture_coordinate = texture_coordinate;
+    v_out.texture_coordinate = texture_coordinate;
 
 }

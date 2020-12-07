@@ -166,7 +166,7 @@ TrainWindow(const int x, const int y)
 		pty+=30;
 		scale = new Fl_Value_Slider(635, pty, 140, 20, "scale");
 		scale->range(0, 50);
-		scale->value(15);
+		scale->value(25);
 		scale->align(FL_ALIGN_LEFT);
 		scale->type(FL_HORIZONTAL);
 		pty += 30;
@@ -183,10 +183,15 @@ TrainWindow(const int x, const int y)
 		wavelength->type(FL_HORIZONTAL);
 		pty += 30;
 		wavespeed = new Fl_Value_Slider(660, pty, 140, 20, "speed");
-		wavespeed->range(0, 1);
-		wavespeed->value(0.5);
+		wavespeed->range(0, 2);
+		wavespeed->value(1.0f);
 		wavespeed->align(FL_ALIGN_LEFT);
 		wavespeed->type(FL_HORIZONTAL);
+		pty += 30;
+		reflect = new Fl_Button(600, pty, 95, 20, "reflect");
+		togglify(reflect);
+		refract = new Fl_Button(705, pty, 95, 20, "refract");
+		togglify(refract);
 		// TODO: add widgets for all of your fancier features here
 #ifdef EXAMPLE_SOLUTION
 		makeExampleWidgets(this,pty);

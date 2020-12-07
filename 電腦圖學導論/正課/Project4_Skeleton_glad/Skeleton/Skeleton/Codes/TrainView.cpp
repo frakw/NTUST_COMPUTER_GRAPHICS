@@ -62,7 +62,7 @@ TrainView(int x, int y, int w, int h, const char* l)
 
 	resetArcball();
 	
-	stbi_set_flip_vertically_on_load(true);
+	//stbi_set_flip_vertically_on_load(true);設這個skybox會上下顛倒，top bottom交換
 }
 
 //************************************************************************
@@ -176,34 +176,7 @@ int TrainView::handle(int event)
 
 	return Fl_Gl_Window::handle(event);
 }
-void TrainView::dir_light(Shader* choose_wave) {
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "dirLight.direction"), 0.0f, 1.5f, 0.0f);
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "dirLight.ambient"), 1.0f, 1.0f, 0.00f);
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "dirLight.diffuse"), 0.4f, 0.4f, 0.4f);
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "dirLight.specular"), 0.5f, 0.5f, 0.5f);
-}
-void TrainView::point_light(Shader* choose_wave){
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.position"), 0, 10, 0);
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.direction"), 0.0f, -1.5f, 0.0f);
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.ambient"), 1.0f, 0.1f, 0.1f);
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.diffuse"), 0.8f, 0.8f, 0.8f);
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.specular"), 1.0f, 0.0f, 1.0f);
-	glUniform1f(glGetUniformLocation(choose_wave->Program, "pointLights.constant"), 1.0f);
-	glUniform1f(glGetUniformLocation(choose_wave->Program, "pointLights.linear"), 0.09f);
-	glUniform1f(glGetUniformLocation(choose_wave->Program, "pointLights.quadratic"), 0.032f);
-}
-void TrainView::spot_light(Shader* choose_wave,glm::vec3 front) {
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.position"), 0, 5, 0);
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.direction"), front[0], front[1], front[2]);
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.ambient"), 0.1f, 0.1f, 0.1f);
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.diffuse"), 1.0f, 0.0f, 0.0f);
-	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.specular"), 1.0f, 1.0f, 1.0f);
-	glUniform1f(glGetUniformLocation(choose_wave->Program, "spotLight.constant"), 1.0f);
-	glUniform1f(glGetUniformLocation(choose_wave->Program, "spotLight.linear"), 0.09f);
-	glUniform1f(glGetUniformLocation(choose_wave->Program, "spotLight.cutOff"), 0.032f);
-	glUniform1f(glGetUniformLocation(choose_wave->Program, "spotLight.quadratic"), glm::cos(glm::radians(12.5f)));
-	glUniform1f(glGetUniformLocation(choose_wave->Program, "spotLight.outerCutOff"), glm::cos(glm::radians(15.0f)));
-}
+
 
 //************************************************************************
 //
@@ -243,8 +216,8 @@ void TrainView::draw()
 					"./Codes/shaders/skybox.vert",
 					nullptr, nullptr, nullptr,
 					"./Codes/shaders/skybox.frag");
-			GLfloat skyboxVertices[] = {
-				// Positions          
+			float skyboxVertices[] = {
+				// positions          
 				-1.0f,  1.0f, -1.0f,
 				-1.0f, -1.0f, -1.0f,
 				 1.0f, -1.0f, -1.0f,
@@ -287,24 +260,22 @@ void TrainView::draw()
 				-1.0f, -1.0f,  1.0f,
 				 1.0f, -1.0f,  1.0f
 			};
-			// Setup skybox VAO
-			
+			// skybox VAO
 			glGenVertexArrays(1, &skyboxVAO);
 			glGenBuffers(1, &skyboxVBO);
 			glBindVertexArray(skyboxVAO);
 			glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-			glBindVertexArray(0);
-
-			vector<const GLchar*> faces;
-			faces.push_back("Images/skybox/right.jpg");
-			faces.push_back("Images/skybox/left.jpg");
-			faces.push_back("Images/skybox/top.jpg");
-			faces.push_back("Images/skybox/bottom.jpg");
-			faces.push_back("Images/skybox/back.jpg");
-			faces.push_back("Images/skybox/front.jpg");
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			vector<const GLchar*> faces = {
+			"Images/skybox/right.jpg",
+			"Images/skybox/left.jpg",
+			"Images/skybox/top.jpg",
+			"Images/skybox/bottom.jpg",
+			"Images/skybox/front.jpg",
+			"Images/skybox/back.jpg",
+			};
 			cubemapTexture = loadCubemap(faces);
 		}
 
@@ -335,16 +306,6 @@ void TrainView::draw()
 				wave->add_height_map_texture((num + ".png").c_str(), "Images/height map");
 			}
 		}
-
-		//if (!this->texture) {
-		//	//this->texture = new Texture2D("./Images/church.png");
-		//	//this->texture = new Texture2D("./Images/water_surface.png");
-		//	this->texture = new Texture2D("./Images/water.png");
-		//}
-
-		//if (!height_map_image) {
-		//	height_map_image = new Texture2D("Images/height map/000.png");
-		//}
 
 		if (!this->device) {
 			//Tutorial: https://ffainelli.github.io/openal-example/
@@ -532,9 +493,17 @@ void TrainView::draw()
 	//glBindBufferRange(
 		//GL_UNIFORM_BUFFER, /*binding point*/0, this->commom_matrices->ubo, 0, this->commom_matrices->size);
 
+	wave->height_map_index = tw->height_map_index;//int <- float
 
+	GLfloat projection[16];
+	GLfloat model_view[16];
+	glGetFloatv(GL_PROJECTION_MATRIX, projection);
+	glGetFloatv(GL_MODELVIEW_MATRIX, model_view);
+	glm::mat4 model_view_without_translate = glm::mat4(glm::mat3(glm::make_mat4(model_view)));
+	glm::mat4 view_inv = glm::inverse(glm::make_mat4(model_view));
+	glm::vec3 my_pos(view_inv[3][0], view_inv[3][1], view_inv[3][2]);
+	cout << my_pos[0] << ' ' << my_pos[1] << ' ' << my_pos[2] << endl;
 
-	// render the loaded model
 
 	glPushMatrix();
 
@@ -545,16 +514,13 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "time"), tw->time);
 
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "speed"), tw->wavespeed->value());
-	GLfloat model_view[16];
-	GLfloat projection[16];
-	glGetFloatv(GL_PROJECTION_MATRIX, projection);
-	glGetFloatv(GL_MODELVIEW_MATRIX, model_view);
-	glm::mat4 view_inv = glm::inverse(glm::make_mat4(model_view));
-	glm::vec3 my_pos(view_inv[3][0], view_inv[3][1], view_inv[3][2]);
-	cout << my_pos[0] << ' ' << my_pos[1] << ' ' << my_pos[2] << endl;
+
+	GLfloat model_view_for_wave[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, model_view_for_wave);
+
 	glUniform3f(glGetUniformLocation(choose_wave->Program, "viewPos"), 0,0,0);
 	glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "projection"), 1, GL_FALSE, projection);
-	glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "model_view"), 1, GL_FALSE, model_view);
+	glUniformMatrix4fv(glGetUniformLocation(choose_wave->Program, "model_view"), 1, GL_FALSE, model_view_for_wave);
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "material.diffuse"), 0.0f);
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "material.specular"), 1.0f);
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "material.shininess"), 16.0f);
@@ -565,67 +531,106 @@ void TrainView::draw()
 	dir_light(choose_wave);
 	point_light(choose_wave);
 	spot_light(choose_wave,glm::normalize(glm::vec3(0,0,0) - my_pos));
-	glm::mat4 model_matrix = glm::mat4();
-	model_matrix = glm::translate(model_matrix, glm::vec3(0, 100, 0));
-	model_matrix = glm::scale(model_matrix, glm::vec3(1, 1, 1));
-	//glUniformMatrix4fv(glGetUniformLocation(this->shader->Program, "u_model"), 1, GL_FALSE, &model_matrix[0][0]);
 	wave->Draw(*choose_wave, tw->waveBrowser->value());
-	
+
 	glPopMatrix();
+	
 
+	//// Draw skybox as last
+	//glDepthFunc(GL_LEQUAL);  // Change depth function so depth test passes when values are equal to depth buffer's content
+	//glDepthMask(GL_FALSE);
+	//skybox->Use();
+	//glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "projection"), 1, GL_FALSE, projection);
+	//glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_view"), 1, GL_FALSE, &model_view_without_translate[0][0]);
+	//// skybox cube
+	//glBindVertexArray(skyboxVAO);
+	//glActiveTexture(GL_TEXTURE0);
+	//glUniform1i(glGetUniformLocation(skybox->Program, "skybox"), 0);
+	//glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+	//glDrawArrays(GL_TRIANGLES, 0, 36);
+	//glBindVertexArray(0);
+	//glDepthFunc(GL_LESS); // Set depth function back to default
+	//glDepthMask(GL_TRUE);
 
-	GLfloat _model_view[16];
-	GLfloat _projection[16];
-	glGetFloatv(GL_PROJECTION_MATRIX, _projection);
-	glGetFloatv(GL_MODELVIEW_MATRIX, _model_view);
-	// Draw skybox as last
-	glDepthFunc(GL_LEQUAL);  // Change depth function so depth test passes when values are equal to depth buffer's content
-	glDepthMask(GL_FALSE);
+	glDepthFunc(GL_LEQUAL);
 	skybox->Use();
-	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_view"), 1, GL_FALSE, _model_view);
-	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "projection"), 1, GL_FALSE, _projection);
+	glUniform1f(glGetUniformLocation(skybox->Program, "skybox"), 0);
+	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "projection"), 1, GL_FALSE, projection);
+	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_view"), 1, GL_FALSE, &model_view_without_translate[0][0]);
 	// skybox cube
 	glBindVertexArray(skyboxVAO);
 	glActiveTexture(GL_TEXTURE0);
-	glUniform1i(glGetUniformLocation(skybox->Program, "skybox"), 0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
-	glDepthFunc(GL_LESS); // Set depth function back to default
-	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LESS); // set depth function back to default
+
+	//GLfloat _model_view[16];
+	//GLfloat _projection[16];
+	//glGetFloatv(GL_PROJECTION_MATRIX, _projection);
+	//glGetFloatv(GL_MODELVIEW_MATRIX, _model_view);
+	//glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+
+
 	//unbind shader(switch to fixed pipeline)
 	glUseProgram(0);
 }
-GLuint loadCubemap(vector<const GLchar*> faces)
+unsigned int loadCubemap(vector<const GLchar*> faces)
 {
-	GLuint textureID;
+	unsigned int textureID;
 	glGenTextures(1, &textureID);
-
-	int width, height, nrComponents;
-	unsigned char* image;
-
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-	for (GLuint i = 0; i < faces.size(); i++)
+
+	int width, height, nrChannels;
+	for (unsigned int i = 0; i < faces.size(); i++)
 	{
-		image = stbi_load(faces[i], &width, &height, &nrComponents, 0);
-		GLenum format;
-		if (nrComponents == 1)
-			format = GL_RED;
-		else if (nrComponents == 3)
-			format = GL_RGB;
-		else if (nrComponents == 4)
-			format = GL_RGBA;
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
-		stbi_image_free(image);
+		unsigned char* data = stbi_load(faces[i], &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			stbi_image_free(data);
+		}
+		else
+		{
+			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+			stbi_image_free(data);
+		}
 	}
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
 	return textureID;
+}
+void TrainView::dir_light(Shader* choose_wave) {
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "dirLight.direction"), 0.0f, 1.5f, 0.0f);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "dirLight.ambient"), 1.0f, 1.0f, 0.00f);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "dirLight.diffuse"), 0.4f, 0.4f, 0.4f);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "dirLight.specular"), 0.5f, 0.5f, 0.5f);
+}
+void TrainView::point_light(Shader* choose_wave) {
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.position"), 0, 10, 0);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.direction"), 0.0f, -1.5f, 0.0f);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.ambient"), 1.0f, 0.1f, 0.1f);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.diffuse"), 0.8f, 0.8f, 0.8f);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "pointLights.specular"), 1.0f, 0.0f, 1.0f);
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "pointLights.constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "pointLights.linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "pointLights.quadratic"), 0.032f);
+}
+void TrainView::spot_light(Shader* choose_wave, glm::vec3 front) {
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.position"), 0, 5, 0);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.direction"), front[0], front[1], front[2]);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.ambient"), 0.1f, 0.1f, 0.1f);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.diffuse"), 1.0f, 0.0f, 0.0f);
+	glUniform3f(glGetUniformLocation(choose_wave->Program, "spotLight.specular"), 1.0f, 1.0f, 1.0f);
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "spotLight.constant"), 1.0f);
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "spotLight.linear"), 0.09f);
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "spotLight.cutOff"), 0.032f);
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "spotLight.quadratic"), glm::cos(glm::radians(12.5f)));
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "spotLight.outerCutOff"), glm::cos(glm::radians(15.0f)));
 }
 //************************************************************************
 //

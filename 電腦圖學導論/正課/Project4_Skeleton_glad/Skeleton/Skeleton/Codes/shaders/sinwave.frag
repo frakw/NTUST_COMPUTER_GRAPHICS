@@ -72,19 +72,35 @@ uniform bool dir_open;
 uniform bool point_open;
 uniform bool spot_open;
 
+uniform bool reflect_open;
+uniform bool refract_open;
+
+uniform float Eta;
+
+
+uniform samplerCube skybox;
+
 void main()
 {   
-    vec3 result={0,0,0};
+    vec3 lighting ={0,0,0};
     vec3 viewDir = normalize(viewPos - f_in.position);
 
-    if(dir_open) result += CalcDirLight(dirLight, f_in.normal, viewDir);
-    if(point_open) result += CalcPointLight(pointLights, f_in.normal,f_in.position, viewDir);
-    if(spot_open) result += CalcSpotLight(spotLight, f_in.normal, f_in.position, viewDir);
+    if(dir_open) lighting += CalcDirLight(dirLight, f_in.normal, viewDir);
+    if(point_open) lighting += CalcPointLight(pointLights, f_in.normal,f_in.position, viewDir);
+    if(spot_open) lighting += CalcSpotLight(spotLight, f_in.normal, f_in.position, viewDir);
 
 
-    vec3 color = vec3(texture(texture_diffuse1, f_in.texture_coordinate));
-    //vec3 color = vec3(0.0f,0.0f,0.0f);
-    f_color = vec4(color+result, 1.0f);
+    vec3 texture_color = vec3(texture(texture_diffuse1, f_in.texture_coordinate));
+    vec3 basecolor = texture_color + lighting;
+    vec3 ReflectVec = reflect(viewDir, normalize(f_in.normal));
+    vec3 RefractVec = refract(viewDir, normalize(f_in.normal),0.6f);
+    vec3 ReflectColor = vec3(texture(skybox, ReflectVec));
+    vec3 RefractColor = vec3(texture(skybox, RefractVec));
+    vec3 outputCol = mix(RefractColor, ReflectColor, 0.6f);
+    f_color = vec4(texture(skybox, ReflectVec).rgb, 1.0);
+    //f_color = vec4(color+result, 1.0f);
+
+    //f_color = vec4(outputCol * basecolor, 1.0);
 }
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)

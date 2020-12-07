@@ -51,17 +51,13 @@ public:
             glActiveTexture(GL_TEXTURE0 + textures_loaded[0].id);
             glUniform1i(glGetUniformLocation(shader.Program, "height_map_texture"), textures_loaded[0].id);
             glBindTexture(GL_TEXTURE_2D, textures_loaded[0].id);
-            glActiveTexture(GL_TEXTURE0);
             for (unsigned int i = 0; i < height_map_meshes.size(); i++) {
                 for (auto& j : height_map_meshes[i].textures) {
                     j.id = height_map_id[height_map_index];
                 }
                 height_map_meshes[i].Draw(shader);
             }
-            ++height_map_index;
-            if (height_map_index == height_map_id.size()) {
-                height_map_index = 0;
-            }
+            glActiveTexture(GL_TEXTURE0);
         }
     }
     void add_height_map_texture(const char* _path, const string& _directory) {
