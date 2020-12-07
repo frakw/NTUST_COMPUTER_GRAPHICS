@@ -89,7 +89,8 @@ void main()
  
             // normalizing the lights position to be on the safe side
             vec3 n = normalize(f_in.normal);
-            vec3 lightDir = viewPos;
+            vec3 lightDir = vec3(2,1,3);
+            //vec3 lightDir = viewPos;
             intensity = dot(lightDir,n);
  
     if (intensity > 0.95)
@@ -123,10 +124,10 @@ void main()
     //vec3 mixColor = mix(RefractColor, ReflectColor, ratio);
 
 
-    if(reflect_open && refract_open)f_color = vec4(mix(RefractColor, ReflectColor, 0.5),1.0f);
+    if(reflect_open && refract_open)f_color = vec4(mix(RefractColor, ReflectColor, 0.5),1.0f); 
     else if(reflect_open)f_color = vec4(ReflectColor, 1.0);
     else if(refract_open)f_color = vec4(RefractColor, 1.0);
-
+    else f_color = vec4(basecolor,1.0f);
 
     //f_color = vec4(color+result, 1.0f);
 

@@ -172,7 +172,7 @@ TrainWindow(const int x, const int y)
 		scale->type(FL_HORIZONTAL);
 		pty += 30;
 		amplitude = new Fl_Value_Slider(660, pty, 140, 20, "Amplitude");
-		amplitude->range(0, 2);
+		amplitude->range(0, 0.5);
 		amplitude->value(0.15);
 		amplitude->align(FL_ALIGN_LEFT);
 		amplitude->type(FL_HORIZONTAL);
