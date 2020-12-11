@@ -6,6 +6,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
+#include <iostream>
 
 // About OpenGL function loaders: modern OpenGL doesn't have a standard header file and requires individual function pointers to be loaded manually.
 // Helper libraries are often used for this purpose! Here we are supporting a few common ones: gl3w, glew, glad.
@@ -30,11 +31,25 @@
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
 
+
+#include "reversi.h"
 static void glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
+void display()
+{
+    glColor3b(100,100,100);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBegin(GL_QUADS);
+    glVertex2f(-0.5, -0.5);
+    glVertex2f(-0.5, 0.5);
+    glVertex2f(0.5, 0.5);
+    glVertex2f(0.5, -0.5);
+    glEnd();
 
+    glFlush();
+}
 int main(int, char**)
 {
     // Setup window
@@ -60,7 +75,7 @@ int main(int, char**)
 #endif
 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "REVERSI GAME", NULL, NULL);
     if (window == NULL)
         return 1;
     glfwMakeContextCurrent(window);
@@ -98,8 +113,17 @@ int main(int, char**)
 
     bool show_demo_window = true;
     bool show_another_window = false;
+    bool UI_adjust = true;
+    bool game_window_open = true;
+
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+    ImFont* font = io.Fonts->AddFontFromFileTTF("font/NotoSansHans-Regular.ttf", 15.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
+    io.Fonts->GetGlyphRangesChineseSimplifiedCommon();
+    Reversi reversi;
+    reversi.set_piece_texture("image/Reversi_Black.png","image/Reversi_White.png","image/empty.png");
+
+    //ImDrawList::AddImage();
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -116,26 +140,89 @@ int main(int, char**)
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
-            static float f = 0.0f;
-            static int counter = 0;
-
-            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-            ImGui::Checkbox("Another Window", &show_another_window);
-
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                counter++;
-            ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
-
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::Begin("UI_adjust", &UI_adjust, ImGuiWindowFlags_MenuBar);
+            static float  grid_size = 50.0f;
+            ImGui::SliderFloat(u8"格子大小", &grid_size, 0.0f, 100.0f);
+            ImGui::ShowStyleEditor();
+            
             ImGui::End();
-    }
+            ImGui::SetNextWindowSize(ImVec2(600,600));
+            ImGui::Begin("Game Board", &game_window_open, ImGuiWindowFlags_MenuBar);
+            if (ImGui::BeginMenuBar())
+            {
+                if (ImGui::BeginMenu("File"))
+                {
+                    if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
+                    if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
+                    if (ImGui::MenuItem("Close", "Ctrl+W")) { game_window_open = false; }
+                    ImGui::EndMenu();
+                }
+                ImGui::EndMenuBar();
+            }
+
+
+            //static float my_color;
+            //// Edit a color (stored as ~4 floats)
+            //ImGui::ColorEdit4("Color", &my_color);
+
+            //// Plot some values
+            //const float my_values[] = { 0.2f, 0.1f, 1.0f, 0.5f, 0.9f, 2.2f };
+            //ImGui::PlotLines("Frame Times", my_values, IM_ARRAYSIZE(my_values));
+
+            //// Display contents in a scrolling region
+            //ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
+            //ImGui::BeginChild("Scrolling");
+            //for (int n = 0; n < 50; n++)
+            //    ImGui::Text("%04d: Some text", n);
+            //ImGui::EndChild();
+            reversi.find_available_grid();
+            int id = 0;
+            ImGui::Text(u8"playerA黑棋 數量:%d", reversi.black_amount());
+            ImGui::SameLine();
+            ImGui::Text(u8"playerB白棋 數量:%d", reversi.white_amount());
+            if (ImGui::Button("pass")) {
+                reversi.next_round();
+            }
+            if (reversi.round_end()) {
+                Reversi_Color* winner = reversi.winner();
+                if (!winner) {
+                    std::cout << "平手" << std::endl;
+                }
+                else {
+                    if (*winner == Reversi_Color::BLACK) {
+                        std::cout << "黑棋勝" << std::endl;
+                    }
+                    else {
+                        std::cout << "白棋勝" << std::endl;
+                    }
+                }
+            }
+            ImGui::NewLine();
+            for (int i = 0;i < reversi.H();i++) {
+                for (int j = 0;j < reversi.W();j++) {
+                    ImGui::PushID(id++);
+                    if (reversi[i][j].is_black()) {
+                        ImGui::ImageButton(ImTextureID(reversi.tex_black_id), ImVec2(grid_size, grid_size));
+                    }
+                    else if (reversi[i][j].is_white()) {
+                        ImGui::ImageButton(ImTextureID(reversi.tex_white_id), ImVec2(grid_size, grid_size));
+                    }
+                    else if(reversi[i][j].available()){
+                        if (ImGui::ImageButton(ImTextureID(reversi.tex_empty_id), ImVec2(grid_size, grid_size), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(0.5, 0.5, 0.5, 50))) {
+                            reversi.set_piece(j,i);
+                        }
+                    }
+                    else {
+                        ImGui::ImageButton(ImTextureID(reversi.tex_empty_id), ImVec2(grid_size, grid_size));
+
+                    }
+                    ImGui::SameLine();
+                    ImGui::PopID();
+                }
+                ImGui::NewLine();
+            }
+            ImGui::End();
+        }
 
         // 3. Show another simple window.
         if (show_another_window)
@@ -155,11 +242,15 @@ int main(int, char**)
         glViewport(0, 0, display_w, display_h);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
+        glRectf(-0.5f, -0.5f, 0.5f, 0.5f);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwMakeContextCurrent(window);
         glfwSwapBuffers(window);
-}
+        glUseProgram(0);
+        display();
+
+    }
 
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();

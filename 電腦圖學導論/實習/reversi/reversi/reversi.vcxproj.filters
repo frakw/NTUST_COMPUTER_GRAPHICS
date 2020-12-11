@@ -42,5 +42,24 @@
     <ClCompile Include="imgui_cpp\imgui_impl_opengl3.cpp">
       <Filter>資源檔\imgui_cpp</Filter>
     </ClCompile>
+    <ClCompile Include="reversi.cpp">
+      <Filter>資源檔</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>資源檔</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="reversi.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="trash.txt">
+      <Filter>標頭檔</Filter>
+    </Text>
   </ItemGroup>
 </Project>
