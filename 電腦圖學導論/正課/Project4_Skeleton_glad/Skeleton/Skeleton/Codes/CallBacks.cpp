@@ -261,5 +261,8 @@ void keeping_water(TrainWindow* tw)
 		if (tw->height_map_index >= 200.0f) {
 			tw->height_map_index = 0.0f;
 		}
+		//if (tw->height_map_index >= 14.0f) {
+		//	tw->height_map_index = 1.0f;
+		//}
 	}
 }

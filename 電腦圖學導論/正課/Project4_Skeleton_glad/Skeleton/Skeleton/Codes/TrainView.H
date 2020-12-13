@@ -101,7 +101,8 @@ class TrainView : public Fl_Gl_Window
 
 		Shader* sinwave		= nullptr;
 		Shader* height_map = nullptr;
-		Shader* skybox	= nullptr;
+		Shader* skybox = nullptr;
+		Shader* screen	= nullptr;
 		GLuint cubemapTexture;
 		GLuint skyboxVAO, skyboxVBO;
 
@@ -112,14 +113,14 @@ class TrainView : public Fl_Gl_Window
 		//OpenAL
 		glm::vec3 source_pos;
 		glm::vec3 listener_pos;
-		ALCdevice* device	= nullptr;
-		ALCcontext* context = nullptr;
-		ALuint source;
-		ALuint buffer;
 
 
 		Model* wave = nullptr;
 		Texture2D* height_map_image = nullptr;
 		int height_index = 0;
+
+		unsigned int framebuffer;
+		unsigned int textureColorbuffer;
+		unsigned int rbo;
 };
 unsigned int loadCubemap(vector<const GLchar*> faces);

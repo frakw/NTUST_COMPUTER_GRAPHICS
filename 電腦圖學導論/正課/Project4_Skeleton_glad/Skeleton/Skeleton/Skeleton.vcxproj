@@ -67,6 +67,8 @@
     <None Include="Codes\shaders\others\water_normal.frag" />
     <None Include="Codes\shaders\others\water_under.frag" />
     <None Include="Codes\shaders\others\water_update.frag" />
+    <None Include="Codes\shaders\screen.frag" />
+    <None Include="Codes\shaders\screen.vert" />
     <None Include="Codes\shaders\sinwave.frag" />
     <None Include="Codes\shaders\sinwave.vert" />
     <None Include="Codes\shaders\skybox.frag" />

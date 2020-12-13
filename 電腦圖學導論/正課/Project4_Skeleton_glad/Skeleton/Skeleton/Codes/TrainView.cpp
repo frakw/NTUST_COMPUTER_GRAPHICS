@@ -41,6 +41,7 @@
 #include "TrainView.H"
 #include "TrainWindow.H"
 #include "Utilities/3DUtils.H"
+#define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
 #include "model.h"
 
@@ -203,13 +204,13 @@ void TrainView::draw()
 					"./Codes/shaders/sinwave.frag");
 		}
 
-		if (!this->height_map)
+		if (!this->height_map) {
 			this->height_map = new
-			Shader(
-				"./Codes/shaders/height_map.vert",
-				nullptr, nullptr, nullptr,
-				"./Codes/shaders/height_map.frag");
-
+				Shader(
+					"./Codes/shaders/height_map.vert",
+					nullptr, nullptr, nullptr,
+					"./Codes/shaders/height_map.frag");
+		}
 
 		if (!this->skybox) {
 			this->skybox = new
@@ -280,6 +281,35 @@ void TrainView::draw()
 			cubemapTexture = loadCubemap(faces);
 		}
 
+		if (!this->screen) {
+			this->screen = new
+				Shader(
+					"./Codes/shaders/screen.vert",
+					nullptr, nullptr, nullptr,
+					"./Codes/shaders/screen.frag");
+
+			// framebuffer configuration
+			// -------------------------
+			glGenFramebuffers(1, &framebuffer);
+			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+			// create a color attachment texture
+			glGenTextures(1, &textureColorbuffer);
+			glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w(), h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+			// create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
+			glGenRenderbuffers(1, &rbo);
+			glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, w(), h()); // use a single renderbuffer object for both a depth AND stencil buffer.
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
+			// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+				cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+
 		if (!this->commom_matrices)
 			this->commom_matrices = new UBO();
 		//this->commom_matrices->size = 2 * sizeof(glm::mat4);
@@ -305,66 +335,10 @@ void TrainView::draw()
 					num = "0" + num;
 				}
 				wave->add_height_map_texture((num + ".png").c_str(), "Images/height map");
+				//wave->add_height_map_texture((num + ".png").c_str(), "Images/height map2");
 			}
 		}
 
-		if (!this->device) {
-			//Tutorial: https://ffainelli.github.io/openal-example/
-			this->device = alcOpenDevice(NULL);
-			if (!this->device)
-				puts("ERROR::NO_AUDIO_DEVICE");
-
-			ALboolean enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
-			if (enumeration == AL_FALSE)
-				puts("Enumeration not supported");
-			else
-				puts("Enumeration supported");
-
-			this->context = alcCreateContext(this->device, NULL);
-			if (!alcMakeContextCurrent(context))
-				puts("Failed to make context current");
-
-			this->source_pos = glm::vec3(0.0f, 5.0f, 0.0f);
-
-			ALfloat listenerOri[] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f };
-			alListener3f(AL_POSITION, source_pos.x, source_pos.y, source_pos.z);
-			alListener3f(AL_VELOCITY, 0, 0, 0);
-			alListenerfv(AL_ORIENTATION, listenerOri);
-
-			alGenSources((ALuint)1, &this->source);
-			alSourcef(this->source, AL_PITCH, 1);
-			alSourcef(this->source, AL_GAIN, 1.0f);
-			alSource3f(this->source, AL_POSITION, source_pos.x, source_pos.y, source_pos.z);
-			alSource3f(this->source, AL_VELOCITY, 0, 0, 0);
-			alSourcei(this->source, AL_LOOPING, AL_TRUE);
-
-			alGenBuffers((ALuint)1, &this->buffer);
-
-			ALsizei size, freq;
-			ALenum format;
-			ALvoid* data;
-			ALboolean loop = AL_TRUE;
-
-			//Material from: ThinMatrix
-			alutLoadWAVFile((ALbyte*)"./Audios/bounce.wav", &format, &data, &size, &freq, &loop);
-			alBufferData(this->buffer, format, data, size, freq);
-			alSourcei(this->source, AL_BUFFER, this->buffer);
-
-			if (format == AL_FORMAT_STEREO16 || format == AL_FORMAT_STEREO8)
-				puts("TYPE::STEREO");
-			else if (format == AL_FORMAT_MONO16 || format == AL_FORMAT_MONO8)
-				puts("TYPE::MONO");
-
-			alSourcePlay(this->source);
-
-			// cleanup context
-			//alDeleteSources(1, &source);
-			//alDeleteBuffers(1, &buffer);
-			//device = alcGetContextsDevice(context);
-			//alcMakeContextCurrent(NULL);
-			//alcDestroyContext(context);
-			//alcCloseDevice(device);
-		}
 	}
 	else
 		throw std::runtime_error("Could not initialize GLAD!");
@@ -434,17 +408,6 @@ void TrainView::draw()
 	glLightfv(GL_LIGHT2, GL_POSITION, lightPosition3);
 	glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);*/
 
-	// set linstener position 
-	//if (selectedCube >= 0)
-	//	alListener3f(AL_POSITION,
-	//		m_pTrack->points[selectedCube].pos.x,
-	//		m_pTrack->points[selectedCube].pos.y,
-	//		m_pTrack->points[selectedCube].pos.z);
-	//else
-	//	alListener3f(AL_POSITION,
-	//		this->source_pos.x,
-	//		this->source_pos.y,
-	//		this->source_pos.z);
 
 
 	//*********************************************************************
@@ -488,7 +451,6 @@ void TrainView::draw()
 		choose_wave = height_map;
 	}
 	else {
-		//wave->set_height_map(height_map, "water_bunny.png", "water");
 		return;
 	}
 	glUniform1i(glGetUniformLocation(choose_wave->Program, "toon_open"), tw->toon->value());
@@ -542,21 +504,6 @@ void TrainView::draw()
 
 	
 
-	//// Draw skybox as last
-	//glDepthFunc(GL_LEQUAL);  // Change depth function so depth test passes when values are equal to depth buffer's content
-	//glDepthMask(GL_FALSE);
-	//skybox->Use();
-	//glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "projection"), 1, GL_FALSE, projection);
-	//glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_view"), 1, GL_FALSE, &model_view_without_translate[0][0]);
-	//// skybox cube
-	//glBindVertexArray(skyboxVAO);
-	//glActiveTexture(GL_TEXTURE0);
-	//glUniform1i(glGetUniformLocation(skybox->Program, "skybox"), 0);
-	//glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-	//glDrawArrays(GL_TRIANGLES, 0, 36);
-	//glBindVertexArray(0);
-	//glDepthFunc(GL_LESS); // Set depth function back to default
-	//glDepthMask(GL_TRUE);
 
 	glDepthFunc(GL_LEQUAL);
 	skybox->Use();
@@ -570,12 +517,6 @@ void TrainView::draw()
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS); // set depth function back to default
-
-	//GLfloat _model_view[16];
-	//GLfloat _projection[16];
-	//glGetFloatv(GL_PROJECTION_MATRIX, _projection);
-	//glGetFloatv(GL_MODELVIEW_MATRIX, _model_view);
-	//glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
 
 
 	//unbind shader(switch to fixed pipeline)

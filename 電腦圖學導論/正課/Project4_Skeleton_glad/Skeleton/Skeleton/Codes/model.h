@@ -48,13 +48,13 @@ public:
                 meshes[i].Draw(shader);
         }
         else if(wave_type == 2){
-            glActiveTexture(GL_TEXTURE0 + textures_loaded[0].id);
-            glUniform1i(glGetUniformLocation(shader.Program, "height_map_texture"), textures_loaded[0].id);
-            glBindTexture(GL_TEXTURE_2D, textures_loaded[0].id);
             for (unsigned int i = 0; i < height_map_meshes.size(); i++) {
                 for (auto& j : height_map_meshes[i].textures) {
                     j.id = height_map_id[height_map_index];
                 }
+                glActiveTexture(GL_TEXTURE0 + height_map_id[height_map_index]);
+                glUniform1i(glGetUniformLocation(shader.Program, "height_map_texture"), height_map_id[height_map_index]);
+                glBindTexture(GL_TEXTURE_2D, height_map_id[height_map_index]);
                 height_map_meshes[i].Draw(shader);
             }
             glActiveTexture(GL_TEXTURE0);
@@ -231,7 +231,7 @@ unsigned int TextureFromFile(const char* path, const string& directory, bool gam
     unsigned int textureID;
     glGenTextures(1, &textureID);
     int width, height, nrComponents;
-    unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
+    unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, STBI_rgb_alpha);
 
     if (data)
     {
@@ -244,7 +244,7 @@ unsigned int TextureFromFile(const char* path, const string& directory, bool gam
             format = GL_RGBA;
 
         glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
