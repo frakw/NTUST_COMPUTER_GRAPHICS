@@ -426,17 +426,17 @@ void TrainView::draw()
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		////=======================================================
-		//glBindFramebuffer(GL_FRAMEBUFFER, interactive_framebuffer);
-		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w(), h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		//glBindRenderbuffer(GL_RENDERBUFFER, interactive_rbo);
-		//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, w(), h()); // use a single renderbuffer object for both a depth AND stencil buffer.
-		//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, interactive_rbo); // now actually attach it
-		//// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
-		//if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		//	cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
-		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, interactive_framebuffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w(), h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glBindRenderbuffer(GL_RENDERBUFFER, interactive_rbo);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, w(), h()); // use a single renderbuffer object for both a depth AND stencil buffer.
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, interactive_rbo); // now actually attach it
+		// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	pre_w = w();
 	pre_h = h();
@@ -602,6 +602,7 @@ void TrainView::draw()
 	
 	glUniform2f(glGetUniformLocation(choose_wave->Program, "uv_center"), uv_center.x, uv_center.y);
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "uv_t"), uv_t);
+
 	dir_light(choose_wave);
 	point_light(choose_wave);
 	spot_light(choose_wave,glm::normalize(glm::vec3(0,0,0) - my_pos));

@@ -10,7 +10,6 @@ uniform mat4 model;
 
 uniform float amplitude,wavelength,time,speed;
 
-uniform float t;
 uniform vec2 uv_center;
 uniform float uv_t;
 
@@ -28,7 +27,7 @@ void main()
 
    vec3 p = position;
    float dist = distance(texture_coordinate, uv_center) / wavelength*100;
-   float t_c = (t-uv_t)*(2*3.1415926)*5.0;
+   float t_c = (time-uv_t)*(2*3.1415926)*5.0;
    p.y += amplitude * sin((dist-t_c)*clamp(0.0125*t_c,0,1))/(exp(0.1*abs(dist-t_c)+(0.05*t_c)))*1.5;
    // vec3 tangent = normalize(vec3(1,k*amplitude*cos(w),0));
    // v_out.normal =  mat3(transpose(inverse(model_matrix)))*normalize(vec3(-tangent.y, tangent.x, 0));
