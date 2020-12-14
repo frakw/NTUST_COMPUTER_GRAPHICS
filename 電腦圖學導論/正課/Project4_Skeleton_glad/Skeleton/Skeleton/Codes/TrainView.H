@@ -53,9 +53,6 @@ class CTrack;
 #include <Fl/Fl_Gl_Window.h>
 #pragma warning(pop)
 
-#include <AL/alut.h>
-//#include <AL/al.h>
-//#include <AL/alc.h>
 
 // this uses the old ArcBall Code
 #include "Utilities/ArcBallCam.H"
@@ -122,5 +119,6 @@ class TrainView : public Fl_Gl_Window
 		unsigned int framebuffer;
 		unsigned int textureColorbuffer;
 		unsigned int rbo;
+		unsigned int screen_quadVAO, screen_quadVBO;
 };
 unsigned int loadCubemap(vector<const GLchar*> faces);

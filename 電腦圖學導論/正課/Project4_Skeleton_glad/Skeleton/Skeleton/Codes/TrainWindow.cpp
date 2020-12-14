@@ -60,6 +60,7 @@ TrainWindow(const int x, const int y)
 		widgets = new Fl_Group(600,5,190,790);
 		widgets->begin();
 
+		/*
 		runButton = new Fl_Button(605,pty,60,20,"Run");
 		togglify(runButton);
 
@@ -79,21 +80,21 @@ TrainWindow(const int x, const int y)
 		speed->type(FL_HORIZONTAL);
 
 		pty += 30;
-
+		*/
 		// camera buttons - in a radio button group
 		Fl_Group* camGroup = new Fl_Group(600,pty,195,20);
 		camGroup->begin();
-		worldCam = new Fl_Button(605, pty, 60, 20, "World");
+		worldCam = new Fl_Button(605, pty, 90, 20, "World");
         worldCam->type(FL_RADIO_BUTTON);		// radio button
         worldCam->value(1);			// turned on
         worldCam->selection_color((Fl_Color)3); // yellow when pressed
 		worldCam->callback((Fl_Callback*)damageCB,this);
-		trainCam = new Fl_Button(670, pty, 60, 20, "Train");
-        trainCam->type(FL_RADIO_BUTTON);
-        trainCam->value(0);
-        trainCam->selection_color((Fl_Color)3);
-		trainCam->callback((Fl_Callback*)damageCB,this);
-		topCam = new Fl_Button(735, pty, 60, 20, "Top");
+		//trainCam = new Fl_Button(670, pty, 60, 20, "Train");
+		//trainCam->type(FL_RADIO_BUTTON);
+		//trainCam->value(0);
+		//trainCam->selection_color((Fl_Color)3);
+		//trainCam->callback((Fl_Callback*)damageCB,this);
+		topCam = new Fl_Button(700, pty, 90, 20, "Top");
         topCam->type(FL_RADIO_BUTTON);
         topCam->value(0);
         topCam->selection_color((Fl_Color)3);
@@ -101,7 +102,7 @@ TrainWindow(const int x, const int y)
 		camGroup->end();
 
 		pty += 30;
-
+		/*
 		// browser to select spline types
 		// TODO: make sure these choices are the same as what the code supports
 		splineBrowser = new Fl_Browser(605,pty,120,75,"Spline Type");
@@ -140,6 +141,7 @@ TrainWindow(const int x, const int y)
 		Fl_Button* rzp = new Fl_Button(700,pty,30,20,"R-Z");
 		rzp->callback((Fl_Callback*)rmzCB,this);
 		pty += 30;
+		*/
 
 		// browser to select spline types
 		// TODO: make sure these choices are the same as what the code supports
@@ -222,7 +224,7 @@ TrainWindow(const int x, const int y)
 
 	// set up callback on idle
 	animating = true;
-	Fl::add_idle((void (*)(void*))runButtonCB, this);
+	//Fl::add_idle((void (*)(void*))runButtonCB, this);
 	Fl::add_idle((void (*)(void*))keeping_water,this);
 }
 
