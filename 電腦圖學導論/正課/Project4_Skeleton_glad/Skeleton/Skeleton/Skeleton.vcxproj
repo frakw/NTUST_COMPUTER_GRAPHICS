@@ -53,30 +53,14 @@
     <None Include="Codes\shaders\interactive.vert" />
     <None Include="Codes\shaders\interactive_frame.frag" />
     <None Include="Codes\shaders\interactive_frame.vert" />
-    <None Include="Codes\shaders\others\common_lib.glsl" />
-    <None Include="Codes\shaders\others\cubeMap.frag" />
-    <None Include="Codes\shaders\others\cubeMap.vert" />
-    <None Include="Codes\shaders\others\material_lib.glsl" />
-    <None Include="Codes\shaders\others\wall_cube.frag" />
-    <None Include="Codes\shaders\others\wall_cube.vert" />
-    <None Include="Codes\shaders\others\water.vert" />
-    <None Include="Codes\shaders\others\water_above.frag" />
-    <None Include="Codes\shaders\others\water_caustic.frag" />
-    <None Include="Codes\shaders\others\water_caustic.tese" />
-    <None Include="Codes\shaders\others\water_drop.frag" />
-    <None Include="Codes\shaders\others\water_lib.glsl" />
-    <None Include="Codes\shaders\others\water_mesh.tesc" />
-    <None Include="Codes\shaders\others\water_mesh.tese" />
-    <None Include="Codes\shaders\others\water_mesh.vert" />
-    <None Include="Codes\shaders\others\water_normal.frag" />
-    <None Include="Codes\shaders\others\water_under.frag" />
-    <None Include="Codes\shaders\others\water_update.frag" />
     <None Include="Codes\shaders\screen.frag" />
     <None Include="Codes\shaders\screen.vert" />
     <None Include="Codes\shaders\sinwave.frag" />
     <None Include="Codes\shaders\sinwave.vert" />
     <None Include="Codes\shaders\skybox.frag" />
     <None Include="Codes\shaders\skybox.vert" />
+    <None Include="Codes\shaders\tiles.frag" />
+    <None Include="Codes\shaders\tiles.vert" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="trash.txt" />

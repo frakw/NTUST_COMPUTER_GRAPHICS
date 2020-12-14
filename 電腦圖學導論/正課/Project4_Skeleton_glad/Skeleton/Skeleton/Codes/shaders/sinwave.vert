@@ -7,7 +7,11 @@ layout (location = 2) in vec2 texture_coordinate;
 uniform mat4 view;
 uniform mat4 model;
 uniform mat4 projection;
-uniform float amplitude,wavelength,time,speed;
+uniform float amplitude,wavelength,time,speed,interactive_amplitude,interactive_wavelength;
+
+uniform vec2 drop_point;
+uniform float drop_time;
+
 
 out V_OUT
 {
@@ -22,6 +26,9 @@ void main()
     float f = k * (position.x - speed * time);
     vec3 sinwave = position;
     sinwave.y = amplitude * sin(f);
+    float dist = distance(texture_coordinate, drop_point) / interactive_wavelength*100;
+    float t_c = (time-drop_time)*(2*3.1415926)*5.0;
+    sinwave.y += interactive_amplitude * sin((dist-t_c)*clamp(0.0125*t_c,0,1))/(exp(0.1*abs(dist-t_c)+(0.05*t_c)))*1.5;
     vec3 tangent = normalize(vec3(1,k*amplitude*cos(f),0));
     gl_Position = projection * view * model * vec4(sinwave, 1.0f);
     v_out.position = vec3(model * vec4(sinwave, 1.0));//vec3(u_model * vec4(sinwave, 1.0f));

@@ -99,10 +99,12 @@ class TrainView : public Fl_Gl_Window
 		Shader* sinwave		= nullptr;
 		Shader* height_map = nullptr;
 		Shader* skybox = nullptr;
+		Shader* tiles = nullptr;
 		Shader* screen = nullptr;
 		Shader* interactive_frame = nullptr;
 		Shader* interactive = nullptr;
-		GLuint cubemapTexture;
+		GLuint cubemapTexture;//skybox
+		GLuint tiles_cubemapTexture;//tiles
 		GLuint skyboxVAO, skyboxVBO;
 
 		Texture2D* texture	= nullptr;
@@ -118,9 +120,9 @@ class TrainView : public Fl_Gl_Window
 		Texture2D* height_map_image = nullptr;
 		int height_index = 0;
 
-		unsigned int framebuffer;
-		unsigned int textureColorbuffer;
-		unsigned int rbo;
+		unsigned int screen_framebuffer;
+		unsigned int screen_textureColorbuffer;
+		unsigned int screen_rbo;
 		unsigned int screen_quadVAO, screen_quadVBO;
 
 		unsigned int interactive_framebuffer;
@@ -128,7 +130,7 @@ class TrainView : public Fl_Gl_Window
 		unsigned int interactive_rbo;
 		unsigned int interactive_quadVAO, interactive_quadVBO;
 
-		glm::vec2 uv_center;
-		int uv_t = 0;
+		glm::vec2 drop_point;
+		float drop_time = 0;
 };
 unsigned int loadCubemap(vector<const GLchar*> faces);

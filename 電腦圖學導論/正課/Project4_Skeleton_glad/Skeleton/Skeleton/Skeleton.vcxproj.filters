@@ -19,9 +19,6 @@
     <Filter Include="shader">
       <UniqueIdentifier>{d3df3841-948e-403b-8a7f-77fc8e53feec}</UniqueIdentifier>
     </Filter>
-    <Filter Include="shader\others">
-      <UniqueIdentifier>{e71cda9d-1955-4b4f-8ca7-62c7ae7797c4}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\TrainWindow.cpp">
@@ -100,60 +97,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Codes\shaders\others\common_lib.glsl">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\cubeMap.frag">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\cubeMap.vert">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\material_lib.glsl">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\wall_cube.frag">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\wall_cube.vert">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\water.vert">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\water_above.frag">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\water_caustic.frag">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\water_caustic.tese">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\water_drop.frag">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\water_lib.glsl">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\water_mesh.tesc">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\water_mesh.tese">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\water_mesh.vert">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\water_normal.frag">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\water_under.frag">
-      <Filter>shader\others</Filter>
-    </None>
-    <None Include="Codes\shaders\others\water_update.frag">
-      <Filter>shader\others</Filter>
-    </None>
     <None Include="Codes\shaders\sinwave.frag">
       <Filter>shader</Filter>
     </None>
@@ -188,6 +131,12 @@
       <Filter>shader</Filter>
     </None>
     <None Include="Codes\shaders\interactive.frag">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="Codes\shaders\tiles.frag">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="Codes\shaders\tiles.vert">
       <Filter>shader</Filter>
     </None>
   </ItemGroup>

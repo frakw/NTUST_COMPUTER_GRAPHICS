@@ -8,10 +8,10 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 model;
 
-uniform float amplitude,wavelength,time,speed;
+uniform float interactive_amplitude,wavelength,time,speed,interactive_wavelength;
 
-uniform vec2 uv_center;
-uniform float uv_t;
+uniform vec2 drop_point;
+uniform float drop_time;
 
 out V_OUT
 {
@@ -26,9 +26,9 @@ void main()
    // float w =  k * (position.x)+t;
 
    vec3 p = position;
-   float dist = distance(texture_coordinate, uv_center) / wavelength*100;
-   float t_c = (time-uv_t)*(2*3.1415926)*5.0;
-   p.y += amplitude * sin((dist-t_c)*clamp(0.0125*t_c,0,1))/(exp(0.1*abs(dist-t_c)+(0.05*t_c)))*1.5;
+   float dist = distance(texture_coordinate, drop_point) / interactive_wavelength*100;
+   float t_c = (time-drop_time)*(2*3.1415926)*5.0;
+   p.y += interactive_amplitude * sin((dist-t_c)*clamp(0.0125*t_c,0,1))/(exp(0.1*abs(dist-t_c)+(0.05*t_c)))*1.5;
    // vec3 tangent = normalize(vec3(1,k*amplitude*cos(w),0));
    // v_out.normal =  mat3(transpose(inverse(model_matrix)))*normalize(vec3(-tangent.y, tangent.x, 0));
     v_out.normal = mat3(transpose(inverse(model)))*normal;

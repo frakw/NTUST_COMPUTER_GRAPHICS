@@ -9,7 +9,10 @@ uniform mat4 view;
 uniform mat4 model;
 uniform mat4 projection;
 uniform sampler2D texture_diffuse1;
-uniform float amplitude,wavelength,time,speed;
+uniform float amplitude,wavelength,time,speed,interactive_amplitude,interactive_wavelength;
+
+uniform vec2 drop_point;
+uniform float drop_time;
 
 out V_OUT
 {
@@ -21,9 +24,12 @@ out V_OUT
 void main()
 {
     vec3 height_map = position;
-    height_map.y = height_map.y + (texture(texture_diffuse1,texture_coordinate/wavelength).r-0.5f) * amplitude * 5.0f;
+    height_map.y = height_map.y + (texture(texture_diffuse1,texture_coordinate/wavelength).r-0.5f) * amplitude;
+    float dist = distance(texture_coordinate, drop_point) / interactive_wavelength * 100;
+    float t_c = (time-drop_time)*(2*3.1415926)*5.0;
+    height_map.y += interactive_amplitude * sin((dist-t_c)*clamp(0.0125*t_c,0,1))/(exp(0.1*abs(dist-t_c)+(0.05*t_c)))*1.5;
     gl_Position = projection * view * model * vec4(height_map, 1.0f);
-    v_out.position = vec3(model * vec4(height_map, 1.0));;
+    v_out.position = vec3(model * vec4(height_map, 1.0));
     v_out.normal = mat3(transpose(inverse(model))) * normal;
     v_out.texture_coordinate = texture_coordinate;
 }

@@ -96,7 +96,9 @@ class TrainWindow : public Fl_Double_Window {
 		Fl_Value_Slider*	y_axis;
 		Fl_Value_Slider*	scale;
 		Fl_Value_Slider*	amplitude;
+		Fl_Value_Slider*	interactive_amplitude;
 		Fl_Value_Slider*	wavelength;
+		Fl_Value_Slider*	interactive_wavelength;
 		Fl_Value_Slider*	wavespeed;
 		Fl_Button* reflect;
 		Fl_Button* refract;
