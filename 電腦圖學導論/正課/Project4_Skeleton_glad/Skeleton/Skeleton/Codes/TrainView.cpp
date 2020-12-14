@@ -561,10 +561,10 @@ void TrainView::draw()
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessary actually, since we won't be able to see behind the quad anyways)
 	glClear(GL_COLOR_BUFFER_BIT);
 	this->screen->Use();
-	//glUniform1f(glGetUniformLocation(screen->Program, "pixel_open"), tw->direct);
-	//glUniform1f(glGetUniformLocation(screen->Program, "offset_enable"), tw->point);
-	//glUniform1f(glGetUniformLocation(screen->Program, "other_enable"), tw->spot);
-	//glUniform1f(glGetUniformLocation(screen->Program, "t"), tw->wave_t);
+	glUniform1i(glGetUniformLocation(screen->Program, "frame_buffer_type"),tw->frame_buffer_type->value());
+	glUniform1f(glGetUniformLocation(screen->Program, "screen_w"), w());
+	glUniform1f(glGetUniformLocation(screen->Program, "screen_h"), h());
+	glUniform1f(glGetUniformLocation(screen->Program, "t"), tw->time * 20);
 	glBindVertexArray(screen_quadVAO);
 	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
 	glDrawArrays(GL_TRIANGLES, 0, 6);

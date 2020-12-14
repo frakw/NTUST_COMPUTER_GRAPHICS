@@ -194,7 +194,7 @@ TrainWindow(const int x, const int y)
 		wavespeed->type(FL_HORIZONTAL);
 		pty += 30;
 		reflect = new Fl_Button(600, pty, 95, 20, "reflect");
-		togglify(reflect);
+		togglify(reflect,1);
 		refract = new Fl_Button(705, pty, 95, 20, "refract");
 		togglify(refract);
 		pty += 30;
@@ -209,6 +209,15 @@ TrainWindow(const int x, const int y)
 		ratio_of_reflect_refract->value(0.5);
 		ratio_of_reflect_refract->align(FL_ALIGN_LEFT);
 		ratio_of_reflect_refract->type(FL_HORIZONTAL);
+		pty += 30;
+		frame_buffer_type = new Fl_Browser(605, pty, 120, 50, "frame buffer Type");
+		frame_buffer_type->type(2);		// select
+		frame_buffer_type->callback((Fl_Callback*)damageCB, this);
+		frame_buffer_type->add("default");
+		frame_buffer_type->add("pixel");
+		frame_buffer_type->add("offset");
+		frame_buffer_type->add("sobel");
+		frame_buffer_type->select(1);
 		// TODO: add widgets for all of your fancier features here
 #ifdef EXAMPLE_SOLUTION
 		makeExampleWidgets(this,pty);
