@@ -86,7 +86,7 @@ class TrainView : public Fl_Gl_Window
 
 		// pick a point (for when the mouse goes down)
 		void doPick();
-		void pick(int x, int y);
+		void drop();
 		//set ubo
 		void setUBO();
 	public:
@@ -99,7 +99,9 @@ class TrainView : public Fl_Gl_Window
 		Shader* sinwave		= nullptr;
 		Shader* height_map = nullptr;
 		Shader* skybox = nullptr;
-		Shader* screen	= nullptr;
+		Shader* screen = nullptr;
+		Shader* interactive_frame = nullptr;
+		Shader* interactive = nullptr;
 		GLuint cubemapTexture;
 		GLuint skyboxVAO, skyboxVBO;
 
@@ -120,5 +122,13 @@ class TrainView : public Fl_Gl_Window
 		unsigned int textureColorbuffer;
 		unsigned int rbo;
 		unsigned int screen_quadVAO, screen_quadVBO;
+
+		unsigned int interactive_framebuffer;
+		unsigned int interactive_textureColorbuffer;
+		unsigned int interactive_rbo;
+		unsigned int interactive_quadVAO, interactive_quadVBO;
+
+		glm::vec2 uv_center;
+		int uv_t = 0;
 };
 unsigned int loadCubemap(vector<const GLchar*> faces);

@@ -59,6 +59,10 @@ public:
             }
             glActiveTexture(GL_TEXTURE0);
         }
+        else {
+            for (unsigned int i = 0; i < meshes.size(); i++)
+                meshes[i].Draw(shader);
+        }
     }
     void add_height_map_texture(const char* _path, const string& _directory) {
         height_map_id.push_back(TextureFromFile(_path, _directory));

@@ -49,6 +49,10 @@
   <ItemGroup>
     <None Include="Codes\shaders\height_map.frag" />
     <None Include="Codes\shaders\height_map.vert" />
+    <None Include="Codes\shaders\interactive.frag" />
+    <None Include="Codes\shaders\interactive.vert" />
+    <None Include="Codes\shaders\interactive_frame.frag" />
+    <None Include="Codes\shaders\interactive_frame.vert" />
     <None Include="Codes\shaders\others\common_lib.glsl" />
     <None Include="Codes\shaders\others\cubeMap.frag" />
     <None Include="Codes\shaders\others\cubeMap.vert" />

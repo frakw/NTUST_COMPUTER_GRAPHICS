@@ -178,6 +178,18 @@
     <None Include="Codes\shaders\screen.vert">
       <Filter>shader</Filter>
     </None>
+    <None Include="Codes\shaders\interactive_frame.frag">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="Codes\shaders\interactive_frame.vert">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="Codes\shaders\interactive.vert">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="Codes\shaders\interactive.frag">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="trash.txt">

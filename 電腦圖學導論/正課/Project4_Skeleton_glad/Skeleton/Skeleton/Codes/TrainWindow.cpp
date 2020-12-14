@@ -150,6 +150,7 @@ TrainWindow(const int x, const int y)
 		waveBrowser->callback((Fl_Callback*)damageCB, this);
 		waveBrowser->add("sin");
 		waveBrowser->add("height map");
+		waveBrowser->add("interactive");
 		waveBrowser->select(1);
 
 		toon = new Fl_Button(735, pty, 60, 60, "toon");

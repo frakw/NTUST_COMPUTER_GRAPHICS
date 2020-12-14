@@ -108,7 +108,7 @@ int TrainView::handle(int event)
 			// if the left button be pushed is left mouse button
 			if (last_push == FL_LEFT_MOUSE  ) {
 				doPick();
-				pick(Fl::event_x(),h() - Fl::event_y() - 1);
+				drop();
 				damage(1);
 				return 1;
 			};
@@ -210,6 +210,14 @@ void TrainView::draw()
 					"./Codes/shaders/height_map.vert",
 					nullptr, nullptr, nullptr,
 					"./Codes/shaders/height_map.frag");
+		}
+
+		if (!this->interactive) {
+			this->interactive = new
+				Shader(
+					"./Codes/shaders/interactive.vert",
+					nullptr, nullptr, nullptr,
+					"./Codes/shaders/interactive.frag");
 		}
 
 		if (!this->skybox) {
@@ -353,6 +361,50 @@ void TrainView::draw()
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
+
+		if (!interactive_frame) {
+			this->interactive_frame = new
+				Shader(
+					"./Codes/shaders/interactive_frame.vert",
+					nullptr, nullptr, nullptr,
+					"./Codes/shaders/interactive_frame.frag");
+
+			float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+			  // positions   // texCoords
+			  -1.0f,  1.0f,  0.0f, 1.0f,
+			  -1.0f, -1.0f,  0.0f, 0.0f,
+			   1.0f, -1.0f,  1.0f, 0.0f,
+
+			  -1.0f,  1.0f,  0.0f, 1.0f,
+			   1.0f, -1.0f,  1.0f, 0.0f,
+			   1.0f,  1.0f,  1.0f, 1.0f
+			};
+			// screen quad VAO
+			glGenVertexArrays(1, &interactive_quadVAO);
+			glGenBuffers(1, &interactive_quadVBO);
+			glBindVertexArray(interactive_quadVAO);
+			glBindBuffer(GL_ARRAY_BUFFER, interactive_quadVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+			// framebuffer configuration
+			// -------------------------
+			glGenFramebuffers(1, &interactive_framebuffer);
+			glBindFramebuffer(GL_FRAMEBUFFER, interactive_framebuffer);
+			// create a color attachment texture
+			glGenTextures(1, &interactive_textureColorbuffer);
+			glBindTexture(GL_TEXTURE_2D, interactive_textureColorbuffer);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w(), h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, interactive_textureColorbuffer, 0);
+			// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+				cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!11111" << endl;
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
 	}
 	else
 		throw std::runtime_error("Could not initialize GLAD!");
@@ -370,8 +422,21 @@ void TrainView::draw()
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
 		// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+			cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!0000" << endl;
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		////=======================================================
+		//glBindFramebuffer(GL_FRAMEBUFFER, interactive_framebuffer);
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w(), h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		//glBindRenderbuffer(GL_RENDERBUFFER, interactive_rbo);
+		//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, w(), h()); // use a single renderbuffer object for both a depth AND stencil buffer.
+		//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, interactive_rbo); // now actually attach it
+		//// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+		//if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		//	cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	pre_w = w();
 	pre_h = h();
@@ -482,6 +547,9 @@ void TrainView::draw()
 	else if (tw->waveBrowser->value() == 2) {
 		choose_wave = height_map;
 	}
+	else if (tw->waveBrowser->value() == 3) {
+		choose_wave = interactive;
+	}
 	else {
 		return;
 	}
@@ -531,6 +599,9 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "spot_open"), tw->spot_L->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "reflect_open"), tw->reflect->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "refract_open"), tw->refract->value());
+	
+	glUniform2f(glGetUniformLocation(choose_wave->Program, "uv_center"), uv_center.x, uv_center.y);
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "uv_t"), uv_t);
 	dir_light(choose_wave);
 	point_light(choose_wave);
 	spot_light(choose_wave,glm::normalize(glm::vec3(0,0,0) - my_pos));
@@ -573,18 +644,43 @@ void TrainView::draw()
 	glUseProgram(0);
 }
 
-void TrainView::pick(int x, int y) {
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+void TrainView::drop() {
+	glBindFramebuffer(GL_FRAMEBUFFER, interactive_framebuffer);
+	glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
+	// make sure we clear the framebuffer's content
+	glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	interactive_frame->Use();
+
+	GLfloat View[16];
+	GLfloat Projection[16];
+
+	glGetFloatv(GL_PROJECTION_MATRIX, Projection);
+	glGetFloatv(GL_MODELVIEW_MATRIX, View);
+
+	//transformation matrix
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0, tw->y_axis->value(), 0));
+	model = glm::scale(model, glm::vec3(tw->scale->value(), tw->scale->value(), tw->scale->value()));
+
+	glUniformMatrix4fv(glGetUniformLocation(interactive_frame->Program, "projection"), 1, GL_FALSE, Projection);
+	glUniformMatrix4fv(glGetUniformLocation(interactive_frame->Program, "view"), 1, GL_FALSE, View);
+	glUniformMatrix4fv(glGetUniformLocation(interactive_frame->Program, "model"), 1, GL_FALSE, &model[0][0]);
+	wave->Draw(*interactive_frame, tw->waveBrowser->value());
+
 	glReadBuffer(GL_COLOR_ATTACHMENT0);
 	glm::vec3 uv;
-	glReadPixels(x, y, 1, 1, GL_RGB, GL_FLOAT, &uv[0]);
+	glReadPixels(Fl::event_x(), h() - Fl::event_y(), 1, 1, GL_RGB, GL_FLOAT, &uv[0]);
+
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-	if (uv.z != 0.0) {
-		//this->addDrop(glm::vec2(uv), 0.03f, 0.0lf);
-		glUniform2f(glGetUniformLocation(height_map->Program, "u_center"), uv[0], uv[1]);
-		glUniform1f(glGetUniformLocation(height_map->Program, "u_radius"), 0.03f);
-		glUniform1f(glGetUniformLocation(height_map->Program, "u_strength"),0.01f);
+
+	if (uv.b != 1.0) {
+		cout << uv.x << ' ' << uv.y << endl;
+		uv_center.x = uv.x;
+		uv_center.y = uv.y;
+		uv_t = tw->time;
 	}
 }
 unsigned int loadCubemap(vector<const GLchar*> faces)

@@ -139,7 +139,7 @@ void main()
     )*0.25;
 
     vec3 lighting ={0,0,0};
-    //vec3 norm = normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
+    norm = normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
     vec3 viewDir = normalize(viewPos - f_in.position );
 
     if(dir_open) lighting += CalcDirLight(dirLight, f_in.normal, viewDir);
@@ -170,7 +170,7 @@ void main()
     
     //f_color = vec4(basecolor,1.0f);
     //f_color = vec4(texture(texture_diffuse1, f_in.texture_coordinate).r,texture(texture_diffuse1, f_in.texture_coordinate).r,texture(texture_diffuse1, f_in.texture_coordinate).r,1.0f);
-
+    //f_color = vec4(1.0f,1.0f,1.0f,0.0f);
     }
 }
 
