@@ -210,7 +210,7 @@ TrainWindow(const int x, const int y)
 		ratio_of_reflect_refract->align(FL_ALIGN_LEFT);
 		ratio_of_reflect_refract->type(FL_HORIZONTAL);
 		pty += 30;
-		frame_buffer_type = new Fl_Browser(605, pty, 120, 50, "frame buffer Type");
+		frame_buffer_type = new Fl_Browser(605, pty, 120, 70, "frame buffer Type");
 		frame_buffer_type->type(2);		// select
 		frame_buffer_type->callback((Fl_Callback*)damageCB, this);
 		frame_buffer_type->add("default");

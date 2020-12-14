@@ -86,7 +86,7 @@ class TrainView : public Fl_Gl_Window
 
 		// pick a point (for when the mouse goes down)
 		void doPick();
-
+		void pick(int x, int y);
 		//set ubo
 		void setUBO();
 	public:

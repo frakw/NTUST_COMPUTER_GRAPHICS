@@ -84,6 +84,13 @@ uniform float ratio_of_reflect_refract = 0.5f;
 
 uniform samplerCube skybox;
 uniform bool toon_open;
+
+const float PI = 3.1415926;
+uniform vec2 u_delta = vec2(10.0f,10.0f);
+uniform vec2 u_center = vec2(0.0f,0.0f);
+uniform float u_radius = 0.03f;
+uniform float u_strength = 0.01f;
+
 void main()
 {
     if(toon_open){
@@ -121,7 +128,15 @@ void main()
     vec3 vb = normalize(vec3(size.y, s12-s10, -size.x));
     vec3 norm = cross(va,vb);
 
-
+    vec2 dx = vec2(u_delta.x,0.0f);
+    vec2 dy = vec2(0.0f,u_delta.y);
+    vec2 coord =  f_in.texture_coordinate;
+    float averge = (
+    texture2D(height_map_texture,coord-dx).r+
+    texture2D(height_map_texture,coord-dy).r+
+    texture2D(height_map_texture,coord+dx).r+
+    texture2D(height_map_texture,coord+dy).r
+    )*0.25;
 
     vec3 lighting ={0,0,0};
     //vec3 norm = normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
@@ -156,7 +171,12 @@ void main()
     //f_color = vec4(basecolor,1.0f);
     //f_color = vec4(texture(texture_diffuse1, f_in.texture_coordinate).r,texture(texture_diffuse1, f_in.texture_coordinate).r,texture(texture_diffuse1, f_in.texture_coordinate).r,1.0f);
 
-        //vec3 norm = normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
+       //f_color.g += (averge - f_color.r)*2.0f;
+       //f_color.g*=0.995f;
+       //f_color.r +=  f_color.g;
+       float drop  = max(0.0f,1.0f - length(u_center - coord)/u_radius);
+       drop = 0.5 -cos(drop *PI) *0.5f;
+       f_color.r+=drop*u_strength;
     }
 }
 

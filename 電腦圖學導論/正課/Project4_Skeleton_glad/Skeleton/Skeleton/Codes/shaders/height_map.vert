@@ -21,7 +21,7 @@ out V_OUT
 void main()
 {
     vec3 height_map = position;
-    height_map.y = height_map.y + (texture(texture_diffuse1,texture_coordinate/wavelength).g-0.5f) * amplitude * 5.0f;
+    height_map.y = height_map.y + (texture(texture_diffuse1,texture_coordinate/wavelength).r-0.5f) * amplitude * 5.0f;
     gl_Position = projection * view * model * vec4(height_map, 1.0f);
     v_out.position = vec3(model * vec4(height_map, 1.0));;
     v_out.normal = mat3(transpose(inverse(model))) * normal;

@@ -108,6 +108,7 @@ int TrainView::handle(int event)
 			// if the left button be pushed is left mouse button
 			if (last_push == FL_LEFT_MOUSE  ) {
 				doPick();
+				pick(Fl::event_x(),h() - Fl::event_y() - 1);
 				damage(1);
 				return 1;
 			};
@@ -542,7 +543,7 @@ void TrainView::draw()
 
 	glDepthFunc(GL_LEQUAL);
 	skybox->Use();
-	//glUniform1f(glGetUniformLocation(skybox->Program, "skybox"), 0);
+	glUniform1f(glGetUniformLocation(skybox->Program, "skybox"), 0);
 	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "projection"), 1, GL_FALSE, projection);
 	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_view"), 1, GL_FALSE, &view_without_translate[0][0]);
 	// skybox cube
@@ -569,7 +570,22 @@ void TrainView::draw()
 	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	//unbind shader(switch to fixed pipeline)
-	//glUseProgram(0);
+	glUseProgram(0);
+}
+
+void TrainView::pick(int x, int y) {
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+	glm::vec3 uv;
+	glReadPixels(x, y, 1, 1, GL_RGB, GL_FLOAT, &uv[0]);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	if (uv.z != 0.0) {
+		//this->addDrop(glm::vec2(uv), 0.03f, 0.0lf);
+		glUniform2f(glGetUniformLocation(height_map->Program, "u_center"), uv[0], uv[1]);
+		glUniform1f(glGetUniformLocation(height_map->Program, "u_radius"), 0.03f);
+		glUniform1f(glGetUniformLocation(height_map->Program, "u_strength"),0.01f);
+	}
 }
 unsigned int loadCubemap(vector<const GLchar*> faces)
 {

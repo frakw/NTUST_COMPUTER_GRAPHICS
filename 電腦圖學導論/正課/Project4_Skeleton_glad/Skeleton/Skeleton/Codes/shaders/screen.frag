@@ -82,8 +82,6 @@ void main()
   vertEdge += texture2D( screenTexture, vec2( TexCoords.x    , TexCoords.y + y ) ) * 2.0;
   vertEdge += texture2D( screenTexture, vec2( TexCoords.x + x, TexCoords.y + y ) ) * 1.0;
   vec3 edge = sqrt((horizEdge.rgb * horizEdge.rgb) + (vertEdge.rgb * vertEdge.rgb));
-  
-        //gl_FragColor = vec4(edge, texture2D(screenTexture, TexCoords.xy).a);
         FragColor = vec4(edge, texture2D(screenTexture, TexCoords.xy).a);
         }
     }
