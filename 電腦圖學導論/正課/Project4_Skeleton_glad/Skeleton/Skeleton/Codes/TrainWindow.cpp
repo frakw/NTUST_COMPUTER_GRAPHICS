@@ -150,14 +150,24 @@ TrainWindow(const int x, const int y)
 		waveBrowser->callback((Fl_Callback*)damageCB, this);
 		waveBrowser->add("sin");
 		waveBrowser->add("height map");
-		waveBrowser->add("interactive");
 		waveBrowser->select(1);
 
 		toon = new Fl_Button(735, pty, 60, 60, "toon");
 		togglify(toon);
 		pty += 70;
-		tiles = new Fl_Button(605, pty, 180, 20, "tiles");
+		tiles = new Fl_Button(605, pty, 90, 20, "tiles");
 		togglify(tiles);
+		rain = new Fl_Button(700, pty, 90, 20, "rain");
+		togglify(rain);
+		pty += 30;
+		rain_frequency = new Fl_Value_Slider(660, pty, 140, 20, "rain freq");
+		rain_frequency->range(0,20);
+		rain_frequency->value(10);
+		rain_frequency->align(FL_ALIGN_LEFT);
+		rain_frequency->type(FL_HORIZONTAL);
+		pty += 30;
+		height_map_flat = new Fl_Button(605, pty, 180, 20, "height map flat");
+		togglify(height_map_flat,1);
 		pty += 30;
 		dir_L = new Fl_Button(605, pty, 60, 20, "dir");
 		togglify(dir_L);
@@ -186,8 +196,8 @@ TrainWindow(const int x, const int y)
 		amplitude->type(FL_HORIZONTAL);
 		pty += 30;
 		wavelength = new Fl_Value_Slider(660, pty, 140, 20, "wave len");
-		wavelength->range(0.1, 1);
-		wavelength->value(0.5);
+		wavelength->range(0.1, 2);
+		wavelength->value(1);
 		wavelength->align(FL_ALIGN_LEFT);
 		wavelength->type(FL_HORIZONTAL);
 		pty += 30;

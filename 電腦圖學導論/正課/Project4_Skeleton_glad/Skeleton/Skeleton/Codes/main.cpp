@@ -23,6 +23,7 @@
 *************************************************************************/
 
 #include "stdio.h"
+#include "time.h"
 #include "TrainWindow.H"
 
 #pragma warning(push)
@@ -34,6 +35,7 @@
 
 int main(int, char**)
 {
+	srand(time(NULL));
 	printf("CS559 Train Assignment\n");
 
 	TrainWindow tw;

@@ -103,9 +103,12 @@ class TrainWindow : public Fl_Double_Window {
 		Fl_Value_Slider*	interactive_wavelength;
 		Fl_Value_Slider*	wavespeed;
 		Fl_Value_Slider*	interactive_wavespeed;
+		Fl_Value_Slider*	rain_frequency;
 		Fl_Button* reflect;
 		Fl_Button* refract;
 		Fl_Button* tiles;
+		Fl_Button* rain;
+		Fl_Button* height_map_flat;
 		Fl_Value_Slider*	Eta;
 		Fl_Value_Slider*	ratio_of_reflect_refract;
 		Fl_Button* toon;
@@ -113,6 +116,7 @@ class TrainWindow : public Fl_Double_Window {
 		bool animating = false;
 		float time = 0.0f;
 		float height_map_index = 0;
+		float last_rain_time = 0.0f;
 		// we have other widgets as part of the sample solution
 		// this is not for 559 students to know about
 #ifdef EXAMPLE_SOLUTION

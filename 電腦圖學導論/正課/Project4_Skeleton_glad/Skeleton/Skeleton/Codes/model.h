@@ -43,11 +43,7 @@ public:
     // draws the model, and thus all its meshes
     void Draw(Shader& shader,int wave_type)
     {
-        if (wave_type == 1) {
-            for (unsigned int i = 0; i < meshes.size(); i++)
-                meshes[i].Draw(shader);
-        }
-        else if(wave_type == 2){
+        if(wave_type == 2){
             for (unsigned int i = 0; i < height_map_meshes.size(); i++) {
                 for (auto& j : height_map_meshes[i].textures) {
                     j.id = height_map_id[height_map_index];

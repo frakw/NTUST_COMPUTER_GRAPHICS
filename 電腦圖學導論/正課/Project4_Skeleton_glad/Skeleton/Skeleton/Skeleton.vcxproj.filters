@@ -127,12 +127,6 @@
     <None Include="Codes\shaders\interactive_frame.vert">
       <Filter>shader</Filter>
     </None>
-    <None Include="Codes\shaders\interactive.vert">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="Codes\shaders\interactive.frag">
-      <Filter>shader</Filter>
-    </None>
     <None Include="Codes\shaders\tiles.frag">
       <Filter>shader</Filter>
     </None>

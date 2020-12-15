@@ -261,8 +261,10 @@ void keeping_water(TrainWindow* tw)
 		if (tw->height_map_index >= 200.0f) {
 			tw->height_map_index = 0.0f;
 		}
-		//if (tw->height_map_index >= 14.0f) {
-		//	tw->height_map_index = 1.0f;
-		//}
+	}
+	
+	if (tw->rain->value() && tw->time - tw->last_rain_time > (1.0f/tw->rain_frequency->value())) {
+		tw->trainView->all_drop.push_back(Drop(glm::vec2((float)rand() / RAND_MAX, (float)rand() / RAND_MAX),tw->time,10.0f,2.0f));
+		tw->last_rain_time = tw->time;
 	}
 }

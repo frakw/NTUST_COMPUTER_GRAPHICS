@@ -91,6 +91,8 @@ uniform vec2 u_center = vec2(0.0f,0.0f);
 uniform float u_radius = 0.03f;
 uniform float u_strength = 0.01f;
 
+uniform float amplitude;
+uniform bool flat_shading = true;
 void main()
 {
     if(toon_open){
@@ -116,21 +118,28 @@ void main()
 
     }
     else{
-    const vec2 size = vec2(2.0,0.0);
-    const ivec3 off = ivec3(-1,0,1);
-    vec4 wave = texture(height_map_texture, f_in.texture_coordinate);
-    float s11 = wave.x;
-    float s01 = textureOffset(height_map_texture, f_in.texture_coordinate, off.xy).x;
-    float s21 = textureOffset(height_map_texture,  f_in.texture_coordinate, off.zy).x;
-    float s10 = textureOffset(height_map_texture,  f_in.texture_coordinate, off.yx).x;
-    float s12 = textureOffset(height_map_texture,  f_in.texture_coordinate, off.yz).x;
-    vec3 va = normalize(vec3(size.x, s21-s01, size.y));      
-    vec3 vb = normalize(vec3(size.y, s12-s10, -size.x));
-    vec3 norm = cross(va,vb);
+    vec3 norm;
+    if(flat_shading){
+        norm = normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
+    }
+    else{
+        const vec2 size = vec2(2.0,0.0);
+        const ivec3 off = ivec3(-1,0,1);
+        vec4 wave = texture(height_map_texture, f_in.texture_coordinate);
+        float s11 = wave.x;
+        float s01 = (textureOffset(height_map_texture, f_in.texture_coordinate, off.xy).r - 0.5f) * amplitude;
+        float s21 = (textureOffset(height_map_texture,  f_in.texture_coordinate, off.zy).r - 0.5f) * amplitude;
+        float s10 = (textureOffset(height_map_texture,  f_in.texture_coordinate, off.yx).r - 0.5f) * amplitude;
+        float s12 = (textureOffset(height_map_texture,  f_in.texture_coordinate, off.yz).r - 0.5f) * amplitude;
+        vec3 va = normalize(vec3(size.x, s21-s01, size.y));      
+        vec3 vb = normalize(vec3(size.y, s12-s10, -size.x));
+        norm = cross(va,vb);
+
+    }
+
 
 
     vec3 lighting ={0,0,0};
-    norm = normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
     vec3 viewDir = normalize(viewPos - f_in.position );
 
     if(dir_open) lighting += CalcDirLight(dirLight, f_in.normal, viewDir);
@@ -147,14 +156,18 @@ void main()
     vec3 ReflectColor = vec3(textureCube(skybox, ReflectVec));
     vec3 RefractColor;
 
-//    if(viewPos.y > f_in.position.y){
-//        RefractColor = vec3(textureCube(skybox, RefractVec_down));
-//    }
-//    else{
-//        RefractColor = vec3(textureCube(skybox, RefractVec_up));        
-//    }
-//
-    RefractColor = vec3(textureCube(skybox, RefractVec_up)); 
+    if(flat_shading){
+        RefractColor = vec3(textureCube(skybox, RefractVec_up)); 
+    }
+    else{
+        if(viewPos.y > f_in.position.y){
+            RefractColor = vec3(textureCube(skybox, RefractVec_down));
+        }
+        else{
+            RefractColor = vec3(textureCube(skybox, RefractVec_up));        
+        }
+    }
+
     if(reflect_open && refract_open)f_color = vec4(mix(ReflectColor,RefractColor, ratio_of_reflect_refract),1.0f); 
     else if(reflect_open)f_color = vec4(ReflectColor, 1.0);
     else if(refract_open)f_color = vec4(RefractColor, 1.0);

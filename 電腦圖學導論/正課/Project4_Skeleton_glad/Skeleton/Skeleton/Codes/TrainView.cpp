@@ -108,7 +108,7 @@ int TrainView::handle(int event)
 			// if the left button be pushed is left mouse button
 			if (last_push == FL_LEFT_MOUSE  ) {
 				doPick();
-				add_drop(8.0f,5.0f);
+				add_drop(8.0f,1.0f);
 				damage(1);
 				return 1;
 			};
@@ -219,13 +219,6 @@ void TrainView::draw()
 					"./Codes/shaders/height_map.frag");
 		}
 
-		if (!this->interactive) {
-			this->interactive = new
-				Shader(
-					"./Codes/shaders/interactive.vert",
-					nullptr, nullptr, nullptr,
-					"./Codes/shaders/interactive.frag");
-		}
 
 		if (!this->skybox) {
 			this->skybox = new
@@ -645,11 +638,8 @@ void TrainView::draw()
 	else if (tw->waveBrowser->value() == 2) {
 		choose_wave = height_map;
 	}
-	else if (tw->waveBrowser->value() == 3) {
-		choose_wave = interactive;
-	}
 	else {
-		return;
+		choose_wave = height_map;
 	}
 	choose_wave->Use();
 
@@ -701,8 +691,7 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "spot_open"), tw->spot_L->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "reflect_open"), tw->reflect->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "refract_open"), tw->refract->value());
-	//glUniform2f(glGetUniformLocation(choose_wave->Program, "drop_point"), drop_point.x, drop_point.y);
-	//glUniform1f(glGetUniformLocation(choose_wave->Program, "drop_time"), drop_time);
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "flat_shading"), tw->height_map_flat->value());
 
 
 	dir_light(choose_wave);
@@ -722,8 +711,6 @@ void TrainView::draw()
 		glUniform1f(glGetUniformLocation(choose_wave->Program, "interactive_radius"), all_drop[i].radius);
 		wave->Draw(*choose_wave, tw->waveBrowser->value());
 	}
-
-	cout << all_drop.size() << endl;
 	glEnable(GL_CULL_FACE);
 	glm::mat4 tiles_model = glm::scale(glm::mat4(1.0f), glm::vec3(tw->scale->value(), tw->scale->value(), tw->scale->value()));
 	tiles->Use();
@@ -809,13 +796,7 @@ void TrainView::add_drop(float radius,float keep_time) {
 	if (uv.b != 1.0) {
 		cout << "drop : "<< uv.x << ' ' << uv.y << endl;
 
-		//drop_point.x = uv.x;
-		//drop_point.y = uv.y;
-		//drop_time = tw->time;
-
 		all_drop.push_back(Drop(glm::vec2(uv.x, uv.y), tw->time, radius, keep_time));
-		//drop_point.push_back(glm::vec2(uv.x, uv.y));
-		//drop_time.push_back(tw->time);
 	}
 	else {
 		//drop_point.x = -1.0f;

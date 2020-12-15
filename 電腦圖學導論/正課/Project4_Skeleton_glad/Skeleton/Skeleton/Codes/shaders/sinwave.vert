@@ -24,11 +24,18 @@ void main()
     float k = 2 * 3.14159 / wavelength;
     float f = k * (position.x - speed * time);
     vec3 sinwave = position;
-    sinwave.y = amplitude * sin(f);
-    float dist = distance(texture_coordinate, drop_point) / interactive_wavelength*100;
-    float t_c = (time-drop_time)*(interactive_radius*3.1415926)*interactive_speed;
+    float tmp_height = amplitude * sin(f);
+    float tmp_interactive = 0.0f;
     if(drop_point.x >0.0f){
-        sinwave.y += interactive_amplitude * sin((dist-t_c)*clamp(0.0125*t_c,0,1))/(exp(0.1*abs(dist-t_c)+(0.05*t_c)))*1.5;
+        float dist = distance(texture_coordinate, drop_point) / interactive_wavelength*100;
+        float t_c = (time-drop_time)*(interactive_radius*3.1415926)*interactive_speed;
+        tmp_interactive = interactive_amplitude * sin((dist-t_c)*clamp(0.0125*t_c,0,1))/(exp(0.1*abs(dist-t_c)+(0.05*t_c)))*1.5;
+    }
+     if((tmp_height <0 && tmp_interactive >0)||(tmp_height >0 && tmp_interactive <0)){
+        sinwave.y += (tmp_height + tmp_interactive);
+    }
+    else{
+        sinwave.y += (abs(tmp_height) > abs(tmp_interactive)) ? tmp_height:tmp_interactive;
     }
     vec3 tangent = normalize(vec3(1,k*amplitude*cos(f),0));
     gl_Position = projection * view * model * vec4(sinwave, 1.0f);

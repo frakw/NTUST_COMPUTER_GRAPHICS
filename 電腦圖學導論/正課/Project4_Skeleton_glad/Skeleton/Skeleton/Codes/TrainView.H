@@ -111,7 +111,6 @@ class TrainView : public Fl_Gl_Window
 		Shader* tiles = nullptr;
 		Shader* screen = nullptr;
 		Shader* interactive_frame = nullptr;
-		Shader* interactive = nullptr;
 		GLuint cubemapTexture;//skybox
 		GLuint tiles_cubemapTexture;//tiles
 		GLuint skyboxVAO, skyboxVBO;
