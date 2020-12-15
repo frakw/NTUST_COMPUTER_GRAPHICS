@@ -43,7 +43,7 @@
 //========================================================================
 TrainWindow::
 TrainWindow(const int x, const int y) 
-	: Fl_Double_Window(x,y,800,800,"Train and Roller Coaster")
+	: Fl_Double_Window(x,y,800,800,"Project 4: Water Surface")
 //========================================================================
 {
 	// make all of the widgets
@@ -156,6 +156,9 @@ TrainWindow(const int x, const int y)
 		toon = new Fl_Button(735, pty, 60, 60, "toon");
 		togglify(toon);
 		pty += 70;
+		tiles = new Fl_Button(605, pty, 180, 20, "tiles");
+		togglify(tiles);
+		pty += 30;
 		dir_L = new Fl_Button(605, pty, 60, 20, "dir");
 		togglify(dir_L);
 		point_L = new Fl_Button(670, pty, 60, 20, "point");
@@ -175,18 +178,12 @@ TrainWindow(const int x, const int y)
 		scale->value(25);
 		scale->align(FL_ALIGN_LEFT);
 		scale->type(FL_HORIZONTAL);
-		pty += 30;
+		pty += 50;
 		amplitude = new Fl_Value_Slider(660, pty, 140, 20, "Amplitude");
 		amplitude->range(0, 0.5);
 		amplitude->value(0.15);
 		amplitude->align(FL_ALIGN_LEFT);
 		amplitude->type(FL_HORIZONTAL);
-		pty += 30;
-		interactive_amplitude = new Fl_Value_Slider(660, pty, 140, 20, "interact\nAmplitude");
-		interactive_amplitude->range(0, 0.5);
-		interactive_amplitude->value(0.15);
-		interactive_amplitude->align(FL_ALIGN_LEFT);
-		interactive_amplitude->type(FL_HORIZONTAL);
 		pty += 30;
 		wavelength = new Fl_Value_Slider(660, pty, 140, 20, "wave len");
 		wavelength->range(0.1, 1);
@@ -194,18 +191,30 @@ TrainWindow(const int x, const int y)
 		wavelength->align(FL_ALIGN_LEFT);
 		wavelength->type(FL_HORIZONTAL);
 		pty += 30;
-		interactive_wavelength = new Fl_Value_Slider(660, pty, 140, 20, "interact \nwave len");
-		interactive_wavelength->range(0.1, 1);
-		interactive_wavelength->value(0.5);
-		interactive_wavelength->align(FL_ALIGN_LEFT);
-		interactive_wavelength->type(FL_HORIZONTAL);
-		pty += 30;
 		wavespeed = new Fl_Value_Slider(660, pty, 140, 20, "speed");
 		wavespeed->range(0, 2);
 		wavespeed->value(1.0f);
 		wavespeed->align(FL_ALIGN_LEFT);
 		wavespeed->type(FL_HORIZONTAL);
+		pty += 50;
+		interactive_amplitude = new Fl_Value_Slider(660, pty, 140, 20, "interact\nAmplitude");
+		interactive_amplitude->range(0, 0.5);
+		interactive_amplitude->value(0.15);
+		interactive_amplitude->align(FL_ALIGN_LEFT);
+		interactive_amplitude->type(FL_HORIZONTAL);
 		pty += 30;
+		interactive_wavelength = new Fl_Value_Slider(660, pty, 140, 20, "interact\nwave len");
+		interactive_wavelength->range(0.1, 1);
+		interactive_wavelength->value(0.5);
+		interactive_wavelength->align(FL_ALIGN_LEFT);
+		interactive_wavelength->type(FL_HORIZONTAL);
+		pty += 30;
+		interactive_wavespeed = new Fl_Value_Slider(660, pty, 140, 20, "interact\nspeed");
+		interactive_wavespeed->range(0.0, 20);
+		interactive_wavespeed->value(10);
+		interactive_wavespeed->align(FL_ALIGN_LEFT);
+		interactive_wavespeed->type(FL_HORIZONTAL);
+		pty += 50;
 		reflect = new Fl_Button(600, pty, 95, 20, "reflect");
 		togglify(reflect,1);
 		refract = new Fl_Button(705, pty, 95, 20, "refract");
@@ -236,11 +245,11 @@ TrainWindow(const int x, const int y)
 		makeExampleWidgets(this,pty);
 #endif
 
-		// we need to make a little phantom widget to have things resize correctly
-		Fl_Box* resizebox = new Fl_Box(600,595,200,5);
-		widgets->resizable(resizebox);
+		//// we need to make a little phantom widget to have things resize correctly
+		//Fl_Box* resizebox = new Fl_Box(600,595,200,5);
+		//widgets->resizable(resizebox);
 
-		widgets->end();
+		//widgets->end();
 	}
 	end();	// done adding to this widget
 

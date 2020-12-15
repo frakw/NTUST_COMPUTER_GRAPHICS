@@ -128,18 +128,9 @@ void main()
     vec3 vb = normalize(vec3(size.y, s12-s10, -size.x));
     vec3 norm = cross(va,vb);
 
-    vec2 dx = vec2(u_delta.x,0.0f);
-    vec2 dy = vec2(0.0f,u_delta.y);
-    vec2 coord =  f_in.texture_coordinate;
-    float averge = (
-    texture2D(height_map_texture,coord-dx).r+
-    texture2D(height_map_texture,coord-dy).r+
-    texture2D(height_map_texture,coord+dx).r+
-    texture2D(height_map_texture,coord+dy).r
-    )*0.25;
 
     vec3 lighting ={0,0,0};
-    //vec3 norm = normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
+    norm = normalize(cross(dFdy(f_in.position),dFdx(f_in.position)));
     vec3 viewDir = normalize(viewPos - f_in.position );
 
     if(dir_open) lighting += CalcDirLight(dirLight, f_in.normal, viewDir);
@@ -156,13 +147,14 @@ void main()
     vec3 ReflectColor = vec3(textureCube(skybox, ReflectVec));
     vec3 RefractColor;
 
-    if(viewPos.y > f_in.position.y){
-        RefractColor = vec3(textureCube(skybox, RefractVec_down));
-    }
-    else{
-        RefractColor = vec3(textureCube(skybox, RefractVec_up));        
-    }
-
+//    if(viewPos.y > f_in.position.y){
+//        RefractColor = vec3(textureCube(skybox, RefractVec_down));
+//    }
+//    else{
+//        RefractColor = vec3(textureCube(skybox, RefractVec_up));        
+//    }
+//
+    RefractColor = vec3(textureCube(skybox, RefractVec_up)); 
     if(reflect_open && refract_open)f_color = vec4(mix(ReflectColor,RefractColor, ratio_of_reflect_refract),1.0f); 
     else if(reflect_open)f_color = vec4(ReflectColor, 1.0);
     else if(refract_open)f_color = vec4(RefractColor, 1.0);

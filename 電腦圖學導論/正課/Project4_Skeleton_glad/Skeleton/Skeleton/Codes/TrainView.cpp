@@ -108,7 +108,7 @@ int TrainView::handle(int event)
 			// if the left button be pushed is left mouse button
 			if (last_push == FL_LEFT_MOUSE  ) {
 				doPick();
-				drop();
+				add_drop(8.0f,5.0f);
 				damage(1);
 				return 1;
 			};
@@ -143,6 +143,13 @@ int TrainView::handle(int event)
 				cp->pos.z = (float) rz;
 				damage(1);
 			}
+
+			//if (last_push == FL_LEFT_MOUSE) {
+			//	add_drop(0.5f, 1.0f);
+			//	damage(1);
+			//	Sleep(5);
+			//	return 1;
+			//}
 			break;
 
 		// in order to get keyboard events, we need to accept focus
@@ -513,7 +520,6 @@ void TrainView::draw()
 		////=======================================================
 		// framebuffer configuration
 		glBindFramebuffer(GL_FRAMEBUFFER, interactive_framebuffer);
-
 		glBindTexture(GL_TEXTURE_2D, interactive_textureColorbuffer);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w(), h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -672,8 +678,10 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "wavelength"), tw->wavelength->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "interactive_wavelength"), tw->interactive_wavelength->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "time"), tw->time);
-
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "speed"), tw->wavespeed->value());
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "interactive_speed"), tw->interactive_wavespeed->value());
+
+
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "Eta"), tw->Eta->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "ratio_of_reflect_refract"), tw->ratio_of_reflect_refract->value());
 
@@ -693,18 +701,29 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "spot_open"), tw->spot_L->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "reflect_open"), tw->reflect->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "refract_open"), tw->refract->value());
-	
-	glUniform2f(glGetUniformLocation(choose_wave->Program, "drop_point"), drop_point.x, drop_point.y);
-	glUniform1f(glGetUniformLocation(choose_wave->Program, "drop_time"), drop_time);
+	//glUniform2f(glGetUniformLocation(choose_wave->Program, "drop_point"), drop_point.x, drop_point.y);
+	//glUniform1f(glGetUniformLocation(choose_wave->Program, "drop_time"), drop_time);
+
 
 	dir_light(choose_wave);
 	point_light(choose_wave);
 	spot_light(choose_wave,glm::normalize(glm::vec3(0,0,0) - my_pos));
 
-
+	glUniform2f(glGetUniformLocation(choose_wave->Program, "drop_point"), -1,-1);
 	wave->Draw(*choose_wave, tw->waveBrowser->value());
+	for (int i = 0;i < all_drop.size();i++) {
+		if (tw->time - all_drop[i].time > all_drop[i].keep_time) {
+			all_drop.erase(all_drop.begin() + i);
+			i--;
+			continue;
+		}
+		glUniform2f(glGetUniformLocation(choose_wave->Program, "drop_point"), all_drop[i].point.x, all_drop[i].point.y);
+		glUniform1f(glGetUniformLocation(choose_wave->Program, "drop_time"), all_drop[i].time);
+		glUniform1f(glGetUniformLocation(choose_wave->Program, "interactive_radius"), all_drop[i].radius);
+		wave->Draw(*choose_wave, tw->waveBrowser->value());
+	}
 
-
+	cout << all_drop.size() << endl;
 	glEnable(GL_CULL_FACE);
 	glm::mat4 tiles_model = glm::scale(glm::mat4(1.0f), glm::vec3(tw->scale->value(), tw->scale->value(), tw->scale->value()));
 	tiles->Use();
@@ -716,7 +735,7 @@ void TrainView::draw()
 	glBindVertexArray(skyboxVAO);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, tiles_cubemapTexture);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	if(tw->tiles->value())glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 	//glDepthFunc(GL_LESS); // set depth function back to default
 	glDisable(GL_CULL_FACE);
@@ -755,7 +774,7 @@ void TrainView::draw()
 	glUseProgram(0);
 }
 
-void TrainView::drop() {
+void TrainView::add_drop(float radius,float keep_time) {
 	glBindFramebuffer(GL_FRAMEBUFFER, interactive_framebuffer);
 	glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
 	// make sure we clear the framebuffer's content
@@ -788,10 +807,18 @@ void TrainView::drop() {
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
 	if (uv.b != 1.0) {
-		cout << uv.x << ' ' << uv.y << endl;
-		drop_point.x = uv.x;
-		drop_point.y = uv.y;
-		drop_time = tw->time;
+		cout << "drop : "<< uv.x << ' ' << uv.y << endl;
+
+		//drop_point.x = uv.x;
+		//drop_point.y = uv.y;
+		//drop_time = tw->time;
+
+		all_drop.push_back(Drop(glm::vec2(uv.x, uv.y), tw->time, radius, keep_time));
+		//drop_point.push_back(glm::vec2(uv.x, uv.y));
+		//drop_time.push_back(tw->time);
+	}
+	else {
+		//drop_point.x = -1.0f;
 	}
 }
 unsigned int loadCubemap(vector<const GLchar*> faces)
@@ -916,16 +943,14 @@ void TrainView::drawStuff(bool doingShadows)
 	// Draw the control points
 	// don't draw the control points if you're driving 
 	// (otherwise you get sea-sick as you drive through them)
-	if (!tw->trainCam->value()) {
-		for(size_t i=0; i<m_pTrack->points.size(); ++i) {
-			if (!doingShadows) {
-				if ( ((int) i) != selectedCube)
-					glColor3ub(240, 60, 60);
-				else
-					glColor3ub(240, 240, 30);
-			}
-			m_pTrack->points[i].draw();
+	for (size_t i = 0; i < m_pTrack->points.size(); ++i) {
+		if (!doingShadows) {
+			if (((int)i) != selectedCube)
+				glColor3ub(240, 60, 60);
+			else
+				glColor3ub(240, 240, 30);
 		}
+		m_pTrack->points[i].draw();
 	}
 	// draw the track
 	//####################################################################
@@ -1008,10 +1033,10 @@ doPick()
 		// one - see the OpenGL manual 
 		// remember: we load names that are one more than the index
 		selectedCube = buf[3]-1;
+		printf("Selected Control Point %d\n", selectedCube);
 	} else // nothing hit, nothing selected
 		selectedCube = -1;
 
-	printf("Selected Cube %d\n",selectedCube);
 }
 
 void TrainView::setUBO()

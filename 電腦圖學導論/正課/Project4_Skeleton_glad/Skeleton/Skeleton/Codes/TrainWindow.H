@@ -34,6 +34,8 @@
 #include <Fl/Fl_Group.H>
 #include <Fl/Fl_Value_Slider.H>
 #include <Fl/Fl_Browser.H>
+#include <Fl/Fl_Text_Buffer.H>
+#include <FL/Fl_Text_Display.H>
 #pragma warning(pop)
 
 // we need to know what is in the world to show
@@ -100,8 +102,10 @@ class TrainWindow : public Fl_Double_Window {
 		Fl_Value_Slider*	wavelength;
 		Fl_Value_Slider*	interactive_wavelength;
 		Fl_Value_Slider*	wavespeed;
+		Fl_Value_Slider*	interactive_wavespeed;
 		Fl_Button* reflect;
 		Fl_Button* refract;
+		Fl_Button* tiles;
 		Fl_Value_Slider*	Eta;
 		Fl_Value_Slider*	ratio_of_reflect_refract;
 		Fl_Button* toon;

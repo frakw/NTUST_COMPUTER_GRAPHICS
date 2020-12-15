@@ -59,6 +59,15 @@ class CTrack;
 using std::vector;
 using std::tuple;
 class Model;
+
+struct Drop{
+	Drop(glm::vec2 p,float t,float r,float k):point(p),time(t),radius(r),keep_time(k){}
+	glm::vec2 point;
+	float time;
+	float radius;
+	float keep_time;
+};
+
 class TrainView : public Fl_Gl_Window
 {
 	public:
@@ -86,7 +95,7 @@ class TrainView : public Fl_Gl_Window
 
 		// pick a point (for when the mouse goes down)
 		void doPick();
-		void drop();
+		void add_drop(float,float);
 		//set ubo
 		void setUBO();
 	public:
@@ -130,7 +139,8 @@ class TrainView : public Fl_Gl_Window
 		unsigned int interactive_rbo;
 		unsigned int interactive_quadVAO, interactive_quadVBO;
 
-		glm::vec2 drop_point;
-		float drop_time = 0;
+		//vector<glm::vec2> drop_point;
+		//vector<float> drop_time;
+		vector<Drop> all_drop;
 };
 unsigned int loadCubemap(vector<const GLchar*> faces);
