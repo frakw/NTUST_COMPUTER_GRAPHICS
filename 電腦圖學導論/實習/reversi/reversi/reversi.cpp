@@ -12,7 +12,7 @@ bool Grid::available() { return _available; }
 Reversi_Color Grid::color() { return _color; }
 bool Grid::is_black() { return _color == Reversi_Color::BLACK && !_empty; }
 bool Grid::is_white() { return _color == Reversi_Color::WHITE && !_empty; }
-void Grid::change() {
+void Grid::flip() {
 	if (_color == Reversi_Color::BLACK) _color = Reversi_Color::WHITE;
 	else _color = Reversi_Color::BLACK;
 }
@@ -83,7 +83,7 @@ void Reversi::find_available_grid() {
 	}
 }
 
-void Reversi::set_piece(int x, int y) {
+std::vector<std::pair<int, int> > Reversi::set_piece(int x, int y) {
 	grid[y][x].set(this_round);
 	int direction[8][2] = {
 		{-1,	-1},
@@ -95,6 +95,7 @@ void Reversi::set_piece(int x, int y) {
 		{-1,	+1},
 		{-1,	 0}
 	};
+	std::vector<std::pair<int, int> > all_flip;
 	for (int i = 0;i < 8;i++) {
 		int _x = x + direction[i][0], _y = y + direction[i][1];
 		if (!legal_coord(_x, _y)) continue;
@@ -109,7 +110,8 @@ void Reversi::set_piece(int x, int y) {
 				_x -= direction[i][0];
 				_y -= direction[i][1];
 				while (!(_x==x && _y==y)){
-					grid[_y][_x].change();
+					grid[_y][_x].flip();
+					all_flip.push_back(std::make_pair(_x, _y));
 					_x -= direction[i][0];
 					_y -= direction[i][1];
 				}
@@ -117,6 +119,7 @@ void Reversi::set_piece(int x, int y) {
 		}
 	}
 	next_round();
+	return all_flip;
 }
 
 void Reversi::next_round() {
@@ -144,7 +147,7 @@ int Reversi::white_amount() {
 }
 
 
-bool Reversi::round_end() {
+bool Reversi::game_end() {
 	if (available_count == 0) {
 		++pass_count;
 	}

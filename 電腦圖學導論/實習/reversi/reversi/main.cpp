@@ -1,4 +1,4 @@
-// dear imgui: standalone example application for GLFW + OpenGL 3, using programmable pipeline
+﻿// dear imgui: standalone example application for GLFW + OpenGL 3, using programmable pipeline
 // If you are new to dear imgui, see examples/README.txt and documentation at the top of imgui.cpp.
 // (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
 
@@ -7,6 +7,7 @@
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
 #include <iostream>
+#include <string>
 
 // About OpenGL function loaders: modern OpenGL doesn't have a standard header file and requires individual function pointers to be loaded manually.
 // Helper libraries are often used for this purpose! Here we are supporting a few common ones: gl3w, glew, glad.
@@ -35,24 +36,25 @@
 #define MINIAUDIO_STATIC
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
+#include "texture.h"
 #include "reversi.h"
 
 static void glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
-//void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
-//{
-//    ma_decoder* pDecoder = (ma_decoder*)pDevice->pUserData;
-//    if (pDecoder == NULL) {
-//        return;
-//    }
-//
-//    ma_decoder_read_pcm_frames(pDecoder, pOutput, frameCount);
-//
-//    (void)pInput;
-//}
 void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
+{
+    ma_decoder* pDecoder = (ma_decoder*)pDevice->pUserData;
+    if (pDecoder == NULL) {
+        return;
+    }
+
+    ma_decoder_read_pcm_frames(pDecoder, pOutput, frameCount);
+
+    (void)pInput;
+}
+void loop_play_data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
 {
     ma_bool32 isLooping = MA_TRUE;
 
@@ -143,7 +145,7 @@ int main(int, char**)
 
     // Setup Platform/Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version); //glsl_version�i�H�ϥΦr�Ŧ�"#version 150"���N
+    ImGui_ImplOpenGL3_Init(glsl_version); //glsl_version可以使用字符串"#version 150"替代
 
     bool show_demo_window = true;
     bool show_another_window = false;
@@ -152,40 +154,69 @@ int main(int, char**)
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    ma_result result;
-    ma_decoder decoder;
-    ma_device_config deviceConfig;
-    ma_device device;
-    result = ma_decoder_init_file("bounce.wav", NULL, &decoder);
-    if (result != MA_SUCCESS) {
+    ma_result bg_result;
+    ma_decoder bg_decoder;
+    ma_device_config bg_deviceConfig;
+    ma_device bg_device;   
+    bg_result = ma_decoder_init_file(u8"audio/The Best Hand.mp3", NULL, &bg_decoder);
+    if (bg_result != MA_SUCCESS) {
         return -2;
     }
-    deviceConfig = ma_device_config_init(ma_device_type_playback);
-    deviceConfig.playback.format = decoder.outputFormat;
-    deviceConfig.playback.channels = decoder.outputChannels;
-    deviceConfig.sampleRate = decoder.outputSampleRate;
-    deviceConfig.dataCallback = data_callback;
-    deviceConfig.pUserData = &decoder;
-    if (ma_device_init(NULL, &deviceConfig, &device) != MA_SUCCESS) {
+    bg_deviceConfig = ma_device_config_init(ma_device_type_playback);
+    bg_deviceConfig.playback.format = bg_decoder.outputFormat;
+    bg_deviceConfig.playback.channels = bg_decoder.outputChannels;
+    bg_deviceConfig.sampleRate = bg_decoder.outputSampleRate;
+    bg_deviceConfig.dataCallback = loop_play_data_callback;
+    bg_deviceConfig.pUserData = &bg_decoder;
+    if (ma_device_init(NULL, &bg_deviceConfig, &bg_device) != MA_SUCCESS) {
         printf("Failed to open playback device.\n");
-        ma_decoder_uninit(&decoder);
+        ma_decoder_uninit(&bg_decoder);
         return -3;
     }
-
-    if (ma_device_start(&device) != MA_SUCCESS) {
+    bg_device.masterVolumeFactor = 0.5f;
+    if (ma_device_start(&bg_device) != MA_SUCCESS) {
         printf("Failed to start playback device.\n");
-        ma_device_uninit(&device);
-        ma_decoder_uninit(&decoder);
+        ma_device_uninit(&bg_device);
+        ma_decoder_uninit(&bg_decoder);
         return -4;
     }
 
+
+    ma_result fall_result;
+    ma_decoder fall_decoder;
+    ma_device_config fall_deviceConfig;
+    ma_device fall_device;
+    fall_result = ma_decoder_init_file(u8"audio/chess_fall.mp3", NULL, &fall_decoder);    
+    if (fall_result != MA_SUCCESS) {
+        return -2;
+    }
+    fall_deviceConfig = ma_device_config_init(ma_device_type_playback);
+    fall_deviceConfig.playback.format = fall_decoder.outputFormat;
+    fall_deviceConfig.playback.channels = fall_decoder.outputChannels;
+    fall_deviceConfig.sampleRate = fall_decoder.outputSampleRate;
+    fall_deviceConfig.dataCallback = loop_play_data_callback;
+    fall_deviceConfig.pUserData = &fall_decoder;
+    if (ma_device_init(NULL, &fall_deviceConfig, &fall_device) != MA_SUCCESS) {
+        printf("Failed to open playback device.\n");
+        ma_decoder_uninit(&fall_decoder);
+        return -3;
+    }
+    fall_device.masterVolumeFactor = 0.5f;
+
+    
 
     ImFont* font = io.Fonts->AddFontFromFileTTF("font/NotoSansHans-Regular.ttf", 15.0f, NULL, io.Fonts->GetGlyphRangesChineseFull());
     io.Fonts->GetGlyphRangesChineseSimplifiedCommon();
     Reversi reversi;
     reversi.set_piece_texture("image/Reversi_Black.png","image/Reversi_White.png","image/empty.png");
 
-    //ImDrawList::AddImage();
+    
+    std::vector<std::pair<int, int> > all_flip;
+    int flip_index = 0;
+    unsigned int flip_id[8];
+    for (int i = 0;i < 8;i++) {
+        flip_id[i] = TextureFromFile(string("image/flip/Reversi_flip" + std::to_string(i) + ".png").c_str());
+    }
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -202,9 +233,13 @@ int main(int, char**)
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
-            ImGui::Begin("UI_adjust", &UI_adjust, ImGuiWindowFlags_MenuBar);
+            ImGui::Begin("settings", &UI_adjust, ImGuiWindowFlags_MenuBar);
             static float  grid_size = 50.0f;
-            ImGui::SliderFloat(u8"��l�j�p", &grid_size, 0.0f, 100.0f);
+            static int  flip_delay = 10;
+            ImGui::SliderFloat(u8"格子大小", &grid_size, 0.0f, 100.0f);
+            ImGui::SliderInt(u8"翻轉延遲", &flip_delay,0,100);
+            ImGui::SliderFloat(u8"背景音量", (float*)&bg_device.masterVolumeFactor, 0.0f, 1.0f);
+            ImGui::SliderFloat(u8"下棋音量", (float*)&fall_device.masterVolumeFactor, 0.0f, 1.0f);
             ImGui::ShowStyleEditor();
             
             ImGui::End();
@@ -239,30 +274,47 @@ int main(int, char**)
             //ImGui::EndChild();
             reversi.find_available_grid();
             int id = 0;
-            ImGui::Text(u8"playerA�´� �ƶq:%d", reversi.black_amount());
+            ImGui::Text(u8"playerA黑棋 數量:%d", reversi.black_amount());
             ImGui::SameLine();
-            ImGui::Text(u8"playerB�մ� �ƶq:%d", reversi.white_amount());
+            ImGui::Text(u8"playerB白棋 數量:%d", reversi.white_amount());
             if (ImGui::Button("pass")) {
                 reversi.next_round();
             }
-            if (reversi.round_end()) {
+            if (reversi.game_end()) {
                 Reversi_Color* winner = reversi.winner();
                 if (!winner) {
-                    std::cout << "����" << std::endl;
+                    std::cout << "平手" << std::endl;
                 }
                 else {
                     if (*winner == Reversi_Color::BLACK) {
-                        std::cout << "�´ѳ�" << std::endl;
+                        std::cout << "黑棋勝" << std::endl;
                     }
                     else {
-                        std::cout << "�մѳ�" << std::endl;
+                        std::cout << "白棋勝" << std::endl;
                     }
                 }
             }
-            ImGui::NewLine();
+            
             for (int i = 0;i < reversi.H();i++) {
+                ImGui::NewLine();
                 for (int j = 0;j < reversi.W();j++) {
+                    
                     ImGui::PushID(id++);
+                    if (all_flip.size()) {
+                        if (std::find(all_flip.begin(), all_flip.end(), make_pair(j, i)) != all_flip.end()) {
+                            if (reversi[i][j].is_white()) {//black to white
+                                ImGui::ImageButton(ImTextureID(flip_id[flip_index]), ImVec2(grid_size, grid_size));
+                            }
+                            else {//white to black
+                                ImGui::ImageButton(ImTextureID(flip_id[7 - flip_index]), ImVec2(grid_size, grid_size));
+                            }
+                            ImGui::SameLine();
+                            ImGui::PopID();
+                            continue;
+                        }
+                    }
+
+
                     if (reversi[i][j].is_black()) {
                         ImGui::ImageButton(ImTextureID(reversi.tex_black_id), ImVec2(grid_size, grid_size));
                     }
@@ -271,19 +323,29 @@ int main(int, char**)
                     }
                     else if(reversi[i][j].available()){
                         if (ImGui::ImageButton(ImTextureID(reversi.tex_empty_id), ImVec2(grid_size, grid_size), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(0.5, 0.5, 0.5, 50))) {
-                            reversi.set_piece(j,i);
+                            all_flip = reversi.set_piece(j,i);
+                            ma_device_start(&fall_device);                        
                         }
                     }
                     else {
                         ImGui::ImageButton(ImTextureID(reversi.tex_empty_id), ImVec2(grid_size, grid_size));
-
                     }
                     ImGui::SameLine();
                     ImGui::PopID();
                 }
-                ImGui::NewLine();
             }
             ImGui::End();
+            if (all_flip.size()) {
+                Sleep(flip_delay);
+                if (flip_index == 7) {
+                    all_flip.clear();
+                    flip_index = 0;
+                    ma_device_stop(&fall_device);
+                }
+                else {
+                    ++flip_index;
+                }
+            }
         }
 
         // 3. Show another simple window.
@@ -313,8 +375,10 @@ int main(int, char**)
         display();
 
     }
-    ma_device_uninit(&device);
-    ma_decoder_uninit(&decoder);
+    ma_device_uninit(&bg_device);
+    ma_decoder_uninit(&bg_decoder);
+    ma_device_uninit(&fall_device);
+    ma_decoder_uninit(&fall_decoder);
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
