@@ -33,7 +33,7 @@ Reversi::~Reversi() {
 	delete[] grid;
 }
 
-void Reversi::set_piece_texture(const char* black_path, const char* white_path,const char* empty_path) {
+void Reversi::set_chess_texture(const char* black_path, const char* white_path,const char* empty_path) {
 	tex_black_id = TextureFromFile(black_path);
 	tex_white_id = TextureFromFile(white_path);
 	tex_empty_id = TextureFromFile(empty_path);
@@ -73,9 +73,24 @@ void Reversi::find_available_grid() {
 				}
 				if (legal_coord(x, y)) {
 					if (grid[y][x].not_empty()) {
-						grid[i][j]._available = true;
-						++available_count;
-						break;
+						if (!grid[i][j]._available) {
+							grid[i][j]._available = true;
+							if (j == x) {//vertical
+								grid[i][j].flip_count = abs(y - i) - 1;
+							}
+							else{//horizontal or slope
+								grid[i][j].flip_count = abs(x - j) - 1;
+							}
+							++available_count;
+						}
+						else {
+							if (j == x) {//vertical
+								grid[i][j].flip_count += abs(y - i) - 1;
+							}
+							else {//horizontal or slope
+								grid[i][j].flip_count += abs(x - j) - 1;
+							}
+						}
 					}
 				}
 			}
@@ -83,7 +98,7 @@ void Reversi::find_available_grid() {
 	}
 }
 
-std::vector<std::pair<int, int> > Reversi::set_piece(int x, int y) {
+std::vector<std::pair<int, int> > Reversi::add_chess(int x, int y) {
 	grid[y][x].set(this_round);
 	int direction[8][2] = {
 		{-1,	-1},

@@ -18,10 +18,11 @@ public:
 	bool is_white();
 	Reversi_Color color();
 	void flip();
+	int flip_count;//available時可翻轉的棋數，外部顯示用
 private:
 	bool _empty = true;
 	bool _available = false;
-	Reversi_Color _color;
+	Reversi_Color _color;	
 };
 class Reversi {
 public:
@@ -29,20 +30,20 @@ public:
 	~Reversi();
 	int W() { return this->_W; }
 	int H() { return this->_H; }
-	void set_piece_texture(const char*, const char*,const char*);
+	void set_chess_texture(const char*, const char*,const char*);
 	Grid* operator[](const int index);
 	bool legal_coord(const int x, const int y);
 	void find_available_grid();
-	std::vector<std::pair<int,int> > set_piece(int, int);
+	std::vector<std::pair<int,int> > add_chess(int, int);
 	void next_round();
 	int black_amount();
 	int white_amount();
 	bool game_end();
 	Reversi_Color* winner();
 	int tex_black_id, tex_white_id, tex_empty_id;
+	Reversi_Color this_round = Reversi_Color::BLACK;//黑棋先下
 private:
 	int _W = 8, _H = 8,pass_count = 0,available_count = 0;
 	Grid** grid;
-	Reversi_Color this_round = Reversi_Color::BLACK;//黑棋先下
 };
 #endif // _REVERSI_H_

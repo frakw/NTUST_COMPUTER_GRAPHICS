@@ -13,40 +13,40 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="資源檔\imgui_cpp">
+    <Filter Include="來源檔案\imgui_cpp">
       <UniqueIdentifier>{a925b209-46fa-4f04-a301-4a7f9e4dbbcf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>資源檔</Filter>
+    <ClCompile Include="texture.cpp">
+      <Filter>來源檔案</Filter>
     </ClCompile>
     <ClCompile Include="glad.c">
-      <Filter>資源檔</Filter>
+      <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="imgui_cpp\imgui.cpp">
-      <Filter>資源檔\imgui_cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui_cpp\imgui_demo.cpp">
-      <Filter>資源檔\imgui_cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui_cpp\imgui_draw.cpp">
-      <Filter>資源檔\imgui_cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui_cpp\imgui_widgets.cpp">
-      <Filter>資源檔\imgui_cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui_cpp\imgui_impl_glfw.cpp">
-      <Filter>資源檔\imgui_cpp</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui_cpp\imgui_impl_opengl3.cpp">
-      <Filter>資源檔\imgui_cpp</Filter>
+    <ClCompile Include="main.cpp">
+      <Filter>來源檔案</Filter>
     </ClCompile>
     <ClCompile Include="reversi.cpp">
-      <Filter>資源檔</Filter>
+      <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="texture.cpp">
-      <Filter>資源檔</Filter>
+    <ClCompile Include="imgui_cpp\imgui.cpp">
+      <Filter>來源檔案\imgui_cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_cpp\imgui_demo.cpp">
+      <Filter>來源檔案\imgui_cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_cpp\imgui_draw.cpp">
+      <Filter>來源檔案\imgui_cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_cpp\imgui_impl_glfw.cpp">
+      <Filter>來源檔案\imgui_cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_cpp\imgui_impl_opengl3.cpp">
+      <Filter>來源檔案\imgui_cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_cpp\imgui_widgets.cpp">
+      <Filter>來源檔案\imgui_cpp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,10 +56,23 @@
     <ClInclude Include="texture.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="trash.txt">
       <Filter>標頭檔</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="reversi.rc">
+      <Filter>資源檔</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="image\game_logo.ico">
+      <Filter>資源檔</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -163,11 +163,18 @@
     <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
     <ClInclude Include="reversi.h" />
     <ClInclude Include="texture.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="trash.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="reversi.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="image\game_logo.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
