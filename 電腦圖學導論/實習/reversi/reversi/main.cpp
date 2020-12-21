@@ -90,6 +90,7 @@ void display()
 #pragma comment( linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" ) 
 int main(int, char**)
 {
+    srand(time(NULL));
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
@@ -154,6 +155,7 @@ int main(int, char**)
     bool settings = false;
     bool game_board = false;
     bool game_lobby = true;
+    bool winner_window = false;
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -212,7 +214,7 @@ int main(int, char**)
     io.Fonts->GetGlyphRangesChineseSimplifiedCommon();
     Reversi reversi;
     reversi.set_chess_texture("image/Reversi_Black.png","image/Reversi_White.png","image/empty.png");
-
+    Reversi_Color* winner = nullptr;
     
     std::vector<std::pair<int, int> > all_flip;
     int flip_index = 0;
@@ -220,7 +222,7 @@ int main(int, char**)
     for (int i = 0;i < 8;i++) {
         flip_id[i] = TextureFromFile(string("image/flip/Reversi_flip" + std::to_string(i) + ".png").c_str());
     }
-    clock_t last_flip_time;
+    clock_t last_flip_time = 0;
 
     unsigned int game_logo = TextureFromFile("image/game_logo.png");
     unsigned int bg_image = TextureFromFile("image/background.png");
@@ -272,19 +274,34 @@ int main(int, char**)
 
 
             
-            ImGui::SetNextWindowPos(ImVec2(main_window_width/2 - 189 / 2, 200));
+            ImGui::SetNextWindowPos(ImVec2(main_window_width/2 - 189 / 2, 150));
             ImGui::SetNextWindowSize(ImVec2(189, main_window_height));
             ImGui::Begin(u8"Games Lobby遊戲大廳", &game_lobby,ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar);
             
             ImGui::SameLine((ImGui::GetWindowWidth() / 2) - (160 / 2));//set image in middle position
-
-            if (ImGui::Button(u8"單機雙人", ImVec2(160, 90))) {
+            if (game_board) {
+                if (ImGui::Button(u8"重新開始", ImVec2(160, 90))) {
+                    reversi.reset();
+                    winner_window = false;
+                }
+            }
+            else if (ImGui::Button(u8"單機雙人", ImVec2(160, 90))) {
                 game_board = true;
             }
             ImGui::NewLine();
             ImGui::SameLine((ImGui::GetWindowWidth() / 2) - (160 / 2));//set image in middle position
 
-            ImGui::Button(u8"AI對戰", ImVec2(160, 90));
+ /*           if (!reversi.ai_open) {
+                if (ImGui::Button(u8"開啟AI", ImVec2(160, 90))) {
+                    reversi.reset();
+                    winner_window = false;
+                    reversi.ai_open = true;
+                }
+
+            }
+            else if (ImGui::Button(u8"關閉AI", ImVec2(160, 90))) {
+                reversi.ai_open = false;
+            }*/
             ImGui::NewLine();
             ImGui::SameLine((ImGui::GetWindowWidth() / 2) - (160 / 2));//set image in middle position
 
@@ -301,20 +318,59 @@ int main(int, char**)
             if (ImGui::Button(u8"離開遊戲", ImVec2(160, 90))) {
                 break;
             }
+            //ImGui::NewLine();
+            //ImGui::SameLine((ImGui::GetWindowWidth() / 2) - (160 / 2));//set image in middle position
+
+            if (winner_window) {
+                if (!winner) {
+                    ImGui::Text(u8"平手", ImVec2(160, 90));
+                    ImGui::NewLine();
+                    ImGui::SameLine((ImGui::GetWindowWidth() / 2) - (180 / 2));//set image in middle position
+                    ImGui::Image(ImTextureID(reversi.tex_black_id), ImVec2(90, 90));
+                    ImGui::SameLine();
+                    ImGui::Image(ImTextureID(reversi.tex_white_id), ImVec2(90, 90));
+                }
+                else {
+
+                    if (*winner == Reversi_Color::BLACK) {
+                        ImGui::Text(u8"\t黑棋勝", ImVec2(160, 90));
+                        ImGui::NewLine();
+                        ImGui::SameLine((ImGui::GetWindowWidth() / 2) - (90 / 2));//set image in middle position
+
+                        ImGui::Image(ImTextureID(reversi.tex_black_id), ImVec2(90, 90));
+                    }
+                    else {
+                        ImGui::Text(u8"\t白棋勝", ImVec2(160, 90));
+                        ImGui::NewLine();
+                        ImGui::SameLine((ImGui::GetWindowWidth() / 2) - (90 / 2));//set image in middle position
+                        ImGui::Image(ImTextureID(reversi.tex_white_id), ImVec2(90, 90));
+                    }
+                }
+                ImGui::NewLine();
+                ImGui::SameLine((ImGui::GetWindowWidth() / 2) - (160 / 2));//set image in middle position
+
+                //if (ImGui::Button(u8"重新遊玩", ImVec2(160, 90))) {
+                //    reversi.reset();
+                //    winner_window = false;
+                //}
+            }
+
             ImGui::End();
             
             static float  grid_size = 50.0f;
             static int  flip_delay = 10;
+            static int  ai_delay = 1000;
             if (settings) {
                 ImGui::SetNextWindowPos(ImVec2(0,0));
                 ImGui::SetNextWindowSize(ImVec2(main_window_width / 2 - 189 / 2, main_window_height));
                 ImGui::Begin("settings", &settings, ImGuiWindowFlags_MenuBar);
                 ImGui::SliderFloat(u8"格子大小", &grid_size, 0.0f, 100.0f);
                 ImGui::SliderInt(u8"翻轉延遲", &flip_delay, 0, 100);
+                ImGui::SliderInt(u8"AI延遲", &ai_delay, 0, 5000);
                 ImGui::SliderFloat(u8"背景音量", (float*)&bg_device.masterVolumeFactor, 0.0f, 1.0f);
                 ImGui::SliderFloat(u8"下棋音量", (float*)&fall_device.masterVolumeFactor, 0.0f, 1.0f);
                 ImGui::ColorEdit4(u8"視窗背景", (float*)&style.Colors[ImGuiCol_WindowBg], ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_None);
-                ImGui::ShowStyleEditor();
+                //ImGui::ShowStyleEditor();
                 ImGui::End();
             }
 
@@ -353,27 +409,48 @@ int main(int, char**)
                 //    ImGui::Text("%04d: Some text", n);
                 //ImGui::EndChild();
                 reversi.find_available_grid();
-                int id = 0;
-                ImGui::Text(u8"playerA黑棋 數量:%d", reversi.black_amount());
-                ImGui::SameLine();
-                ImGui::Text(u8"playerB白棋 數量:%d", reversi.white_amount());
-                // ImGui::AlignTextToFramePadding();
-                ImGui::SetWindowFontScale(1.5);
-                ImGui::Text(u8"本回合:");
-                ImGui::SameLine();
+                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.0f));
+                ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.0f, 0.0f, 1.0f));
+                string tmp = u8"黑棋數量:";tmp += std::to_string(reversi.black_amount());
+                ImGui::Button(tmp.c_str(), ImVec2(ImGui::GetWindowSize().x / 2 - 8, 30));ImGui::SameLine();
+                ImGui::PopStyleColor(4);
 
-                if (reversi.this_round == Reversi_Color::BLACK) {
-                    ImGui::Image(ImTextureID(reversi.tex_black_id), ImVec2(30, 30));
-                }
-                else {
-                    ImGui::Image(ImTextureID(reversi.tex_white_id), ImVec2(30, 30));
-                }
+                ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0.0f, 0.0f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0.0f, 0.0f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0.0f, 0.0f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.0f));
+                       tmp = u8"白棋數量:";tmp += std::to_string(reversi.white_amount());
+                ImGui::Button(tmp.c_str(), ImVec2(ImGui::GetWindowSize().x / 2 - 8, 30));
+                ImGui::PopStyleColor(4);
+;
+                // ImGui::AlignTextToFramePadding();
+                //ImGui::SetWindowFontScale(1.5);
+
                 ImGui::SetWindowFontScale(1);
-                //ImGui::AlignTextToFramePadding();
-                if (ImGui::Button("pass")) {
+                
+                if (ImGui::Button("pass",ImVec2(ImGui::GetWindowSize().x / 2 - 8,30)) && !winner_window) {
                     reversi.next_round();
                 }
+                ImGui::SameLine();
+                if (ImGui::Button(u8"悔棋",ImVec2(ImGui::GetWindowSize().x / 2 - 8, 30))) {
+                    
+                }
 
+                ImGui::NewLine();
+                ImGui::SameLine(ImGui::GetWindowSize().x / 2 - 90 / 2);
+                //ImGui::Text(u8"本回合:");
+
+                if (!winner_window) {
+                    if (reversi.this_round == Reversi_Color::BLACK) {
+                        ImGui::Image(ImTextureID(reversi.tex_black_id), ImVec2(90, 90));
+                    }
+                    else {
+                        ImGui::Image(ImTextureID(reversi.tex_white_id), ImVec2(90, 90));
+                    }
+                }
+                int id = 0;
 
                 for (int i = 0;i < reversi.H();i++) {
                     ImGui::NewLine();
@@ -402,7 +479,7 @@ int main(int, char**)
                             ImGui::ImageButton(ImTextureID(reversi.tex_white_id), ImVec2(grid_size, grid_size));
                         }
                         else if (reversi[i][j].available()) {
-                            if (ImGui::ImageButton(ImTextureID(reversi.tex_empty_id), ImVec2(grid_size, grid_size), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(0.5, 0.5, 0.5, 50))) {
+                            if (ImGui::ImageButton(ImTextureID(reversi.tex_empty_id), ImVec2(grid_size, grid_size), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(0.5, 0.5, 0.5, 50)) && !winner_window ) {
                                 all_flip = reversi.add_chess(j, i);
                                 ma_device_start(&fall_device);
                                 fall_time = clock();
@@ -439,21 +516,14 @@ int main(int, char**)
                     }
                 }
 
-                if (reversi.game_end()) {
-                    Reversi_Color* winner = reversi.winner();
-                    if (!winner) {
-                        std::cout << "平手" << std::endl;
-                    }
-                    else {
-                        if (*winner == Reversi_Color::BLACK) {
-                            std::cout << "黑棋勝" << std::endl;
-                        }
-                        else {
-                            std::cout << "白棋勝" << std::endl;
-                        }
-                    }
+                if (reversi.game_end() && !winner_window) {
+                    winner = reversi.winner();
+                    winner_window = true;
+
                 }
             }
+
+
         }
 
         // 3. Show another simple window.
@@ -495,3 +565,4 @@ int main(int, char**)
     glfwTerminate();
     return 0;
 }
+

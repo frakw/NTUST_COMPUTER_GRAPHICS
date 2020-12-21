@@ -1,4 +1,5 @@
 #include <glad/glad.h>
+#include <ctime>
 #include "reversi.h"
 #include "texture.h"
 Grid::Grid() {}
@@ -15,6 +16,10 @@ bool Grid::is_white() { return _color == Reversi_Color::WHITE && !_empty; }
 void Grid::flip() {
 	if (_color == Reversi_Color::BLACK) _color = Reversi_Color::WHITE;
 	else _color = Reversi_Color::BLACK;
+}
+void Grid::reset() {
+	_empty = true;
+	_available = false;
 }
 Reversi::Reversi(int _w, int _h) : _W(_w),_H(_h){
 	grid = new Grid * [_H];
@@ -61,6 +66,7 @@ void Reversi::find_available_grid() {
 	for (int i = 0;i < _H;i++) {
 		for (int j = 0;j < _W;j++) {
 			grid[i][j]._available = false;
+			grid[i][j].flip_count = 0;
 			if (grid[i][j].not_empty()) continue;
 			for (int k = 0;k < 8;k++) {
 				int x = j + direction[k][0], y = i + direction[k][1];
@@ -187,4 +193,19 @@ Reversi_Color* Reversi::winner() {
 		return &this_round;
 	}
 	return nullptr;//ендт
+}
+
+void Reversi::reset() {
+	for (int i = 0;i < _H;i++) {
+		for (int j = 0;j < _W;j++) {
+			grid[i][j].reset();
+		}
+	}
+	pass_count = 0;
+	available_count = 0;
+	this_round = Reversi_Color::BLACK;
+	grid[_H / 2 - 1][_W / 2 - 1].set(Reversi_Color::WHITE);
+	grid[_H / 2][_W / 2].set(Reversi_Color::WHITE);
+	grid[_H / 2 - 1][_W / 2].set(Reversi_Color::BLACK);
+	grid[_H / 2][_W / 2 - 1].set(Reversi_Color::BLACK);
 }

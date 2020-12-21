@@ -18,6 +18,7 @@ public:
 	bool is_white();
 	Reversi_Color color();
 	void flip();
+	void reset();
 	int flip_count;//available時可翻轉的棋數，外部顯示用
 private:
 	bool _empty = true;
@@ -40,6 +41,7 @@ public:
 	int white_amount();
 	bool game_end();
 	Reversi_Color* winner();
+	void reset();
 	int tex_black_id, tex_white_id, tex_empty_id;
 	Reversi_Color this_round = Reversi_Color::BLACK;//黑棋先下
 private:
