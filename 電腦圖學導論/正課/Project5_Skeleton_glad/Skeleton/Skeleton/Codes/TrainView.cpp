@@ -38,6 +38,7 @@ using std::make_pair;
 
 // we will need OpenGL, and OpenGL needs windows.h
 #include <windows.h>
+#include <algorithm>
 //#include "GL/gl.h"
 //#include "../include/glad4.6/include/glad/glad.h"
 #include <glad/glad.h>
@@ -216,17 +217,41 @@ void TrainView::draw()
 	if (gladLoadGL())
 	{
 		//initiailize VAO, VBO, Shader...
-		//if (!for_model) {
-		//	for_model = new 
-		//		Shader(
-		//			"./Codes/shaders/model_loading.vert",
-		//			nullptr, nullptr, nullptr,
-		//			"./Codes/shaders/model_loading.frag");
-		//}
+		if (!for_model) {
+			for_model = new 
+				Shader(
+					"./Codes/shaders/model_loading.vert",
+					nullptr, nullptr, nullptr,
+					"./Codes/shaders/model_loading.frag");
+		}
 
-		//if (!tunnels) {
-		//	tunnels = new Model("");
-		//}
+		if (!for_tunnel) {
+			for_tunnel = new
+				Shader(
+					"./Codes/shaders/tunnel.vert",
+					nullptr, nullptr, nullptr,
+					"./Codes/shaders/tunnel.frag");
+		}
+
+		if (!tunnel) {
+			tunnel = new Model("models/tunnel/tunnel.obj");
+		}
+
+		if (tunnel_tex == -1) {
+			tunnel_tex = TextureFromFile("models/tunnel/tunnel.jpg", ".");
+		}
+
+		if (!steve) {
+			steve = new Model("models/Steve/Steve.obj");
+		}
+
+		if (!terrain) {
+			terrain = new Model("models/terrain/Mountain.obj");
+		}
+
+		if (terrain_tex == -1) {
+			terrain_tex = TextureFromFile("models/terrain/BaseColor.png", ".");
+		}
 	}
 	else
 		throw std::runtime_error("Could not initialize GLAD!");
@@ -309,8 +334,49 @@ void TrainView::draw()
 	//glLightfv(GL_LIGHT2, GL_POSITION, lightPosition3);
 	//glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);
 
+	tunnel_pos = Pnt3f(70,0,0);
+
+	GLfloat projection[16];
+	GLfloat view[16];
+	glGetFloatv(GL_PROJECTION_MATRIX, projection);
+	glGetFloatv(GL_MODELVIEW_MATRIX, view);
+	glm::mat4 view_without_translate = glm::mat4(glm::mat3(glm::make_mat4(view)));
+	glm::mat4 view_inv = glm::inverse(glm::make_mat4(view));
+	glm::vec3 my_pos(view_inv[3][0], view_inv[3][1], view_inv[3][2]);
 
 
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(tunnel_pos.x, tunnel_pos.y, tunnel_pos.z));
+	//model = glm::rotate(model,glm::radians(40.0f), glm::vec3(0,1,0));
+	model = glm::scale(model, glm::vec3(50, 50, 50));
+
+	for_tunnel->Use();
+	glActiveTexture(GL_TEXTURE0); // active proper texture unit before binding
+	glUniformMatrix4fv(glGetUniformLocation(for_tunnel->Program, "projection"), 1, GL_FALSE, projection);
+	glUniformMatrix4fv(glGetUniformLocation(for_tunnel->Program, "view"), 1, GL_FALSE, view);
+	glUniformMatrix4fv(glGetUniformLocation(for_tunnel->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	glUniform1i(glGetUniformLocation(for_tunnel->Program, "texture1"), 0);
+	glBindTexture(GL_TEXTURE_2D, tunnel_tex);
+	tunnel->Draw(*for_tunnel);
+
+	glActiveTexture(GL_TEXTURE0);
+
+
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0,0,0));
+	model = glm::scale(model, glm::vec3(15, 15, 15));
+	for_tunnel->Use();
+	glActiveTexture(GL_TEXTURE0 + 1); // active proper texture unit before binding
+	glUniformMatrix4fv(glGetUniformLocation(for_tunnel->Program, "projection"), 1, GL_FALSE, projection);
+	glUniformMatrix4fv(glGetUniformLocation(for_tunnel->Program, "view"), 1, GL_FALSE, view);
+	glUniformMatrix4fv(glGetUniformLocation(for_tunnel->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	glUniform1i(glGetUniformLocation(for_tunnel->Program, "texture1"), 1);
+	glBindTexture(GL_TEXTURE_2D, terrain_tex);
+	terrain->Draw(*for_tunnel);
+
+	glActiveTexture(GL_TEXTURE0);
+
+	//draw_tunnel();
 	//*********************************************************************
 	// now draw the ground plane
 	//*********************************************************************
@@ -319,7 +385,7 @@ void TrainView::draw()
 
 	setupFloor();
 	//glDisable(GL_LIGHTING);
-	drawFloor(200,10);
+	//drawFloor(200,10);
 
 
 	//*********************************************************************
@@ -340,6 +406,11 @@ void TrainView::draw()
 	//delete[] backpack_sh;
 	//delete[] backpack;
 }
+
+void TrainView::draw_tunnel() {
+
+}
+
 
 //************************************************************************
 //
@@ -535,6 +606,7 @@ void TrainView::drawStuff(bool doingShadows)
 		drawTrain(this, doingShadows);
 #endif
 }
+
 
 
 void draw_sleeper(Pnt3f front,Pnt3f back,Pnt3f cross_t,Pnt3f up,bool doingShadows) {
@@ -741,6 +813,9 @@ void TrainView::draw_train(bool doingShadows) {
 		forward = forward * 0.5;
 		cross_t = cross_t * 0.5;
 		up = up * 0.5;
+		Pnt3f steve_pos = train_pos + up * 3.0f;
+
+
 		Pnt3f train_down_front = train_pos + forward * 10.0f + up * 1.0f;
 		Pnt3f train_down_back = train_pos - forward * 10.0f + up * 1.0f;
 		Pnt3f train_up_front = train_down_front + up * 2.0f;
@@ -753,6 +828,38 @@ void TrainView::draw_train(bool doingShadows) {
 		Pnt3f up_nor = up;
 		up_nor.normalize();
 		
+
+		if (j == 0 && !doingShadows) {
+			
+
+			float rotation[16] = {
+				forward_nor.x, forward_nor.y, forward_nor.z, 0.0,
+				cross_nor.x, cross_nor.y, cross_nor.z, 0.0,
+				up_nor.x, up_nor.y, up_nor.z, 0.0,
+				0.0, 0.0, 0.0, 1.0
+			};
+
+			GLfloat projection[16];
+			GLfloat view_ptr[16];
+			glGetFloatv(GL_PROJECTION_MATRIX, projection);
+			glGetFloatv(GL_MODELVIEW_MATRIX, view_ptr);
+			glm::mat4 view = glm::make_mat4(view_ptr);
+			view = glm::translate(view, glm::vec3(steve_pos.x, steve_pos.y, steve_pos.z));
+			view = view * glm::make_mat4(rotation);
+			view = glm::rotate(view,glm::radians(90.0f),glm::vec3(1,0,0));//why???
+
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::scale(model, glm::vec3(1, 1, 1));
+
+
+			for_model->Use();
+			glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "projection"), 1, GL_FALSE, projection);
+			glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+			glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			steve->Draw(*for_model);
+
+			glUseProgram(0);
+		}
 
 		if (!doingShadows)glColor3ub(23, 122, 222);
 		glBegin(GL_QUADS);//¤U
@@ -816,6 +923,10 @@ void TrainView::draw_train(bool doingShadows) {
 			}
 		}
 	}
+
+
+
+
 }
 
 void TrainView::no_arc_to_arc() {

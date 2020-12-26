@@ -85,6 +85,7 @@ class TrainView : public Fl_Gl_Window
 		void doPick();
 		Pnt3f GMT(const Pnt3f& p0, const Pnt3f& p1, const Pnt3f& p2, const Pnt3f& p3, int matrix_type, float t);
 
+		void draw_tunnel();
 	public:
 		ArcBallCam		arcball;			// keep an ArcBall for the UI
 		int				selectedCube;  // simple - just remember which cube is selected
@@ -92,10 +93,15 @@ class TrainView : public Fl_Gl_Window
 		TrainWindow*	tw;				// The parent of this display window
 		CTrack*			m_pTrack;		// The track of the entire scene
 
-		Model* tunnels = nullptr;
-		Model* people = nullptr;
+
+		Pnt3f tunnel_pos = Pnt3f(0,0,0);
+		int tunnel_tex = -1;
+		int terrain_tex = -1;
+		Model* tunnel = nullptr;
+		Model* steve = nullptr;
 		Model* terrain = nullptr;
 		Shader* for_model = nullptr;
+		Shader* for_tunnel = nullptr;
 
 		float DIVIDE_LINE = 1000.0f;
 		float t_time = 0.0f;

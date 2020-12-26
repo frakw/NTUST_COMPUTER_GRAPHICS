@@ -51,7 +51,7 @@
     <ClCompile Include="Codes\glad.c">
       <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="stb_image.cpp">
+    <ClCompile Include="Codes\stb_image.c">
       <Filter>來源檔案</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,6 +98,12 @@
       <Filter>shader</Filter>
     </None>
     <None Include="Codes\shaders\model_loading.vert">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="Codes\shaders\tunnel.frag">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="Codes\shaders\tunnel.vert">
       <Filter>shader</Filter>
     </None>
   </ItemGroup>
