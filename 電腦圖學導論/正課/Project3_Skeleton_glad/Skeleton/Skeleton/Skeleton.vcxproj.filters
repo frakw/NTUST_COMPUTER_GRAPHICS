@@ -16,6 +16,9 @@
     <Filter Include="Utilities">
       <UniqueIdentifier>{2cba5f8b-461a-4569-9e42-dc15e928eb9e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{c7874d57-ea77-40c5-b19f-60257393de70}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Codes\TrainWindow.cpp">
@@ -48,6 +51,9 @@
     <ClCompile Include="Codes\glad.c">
       <Filter>來源檔案</Filter>
     </ClCompile>
+    <ClCompile Include="stb_image.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\TrainWindow.H">
@@ -74,5 +80,25 @@
     <ClInclude Include="Codes\Utilities\ArcBallCam.H">
       <Filter>Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\mesh.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\model.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\RenderUtilities\Shader.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\RenderUtilities\Texture.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Codes\shaders\model_loading.frag">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="Codes\shaders\model_loading.vert">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

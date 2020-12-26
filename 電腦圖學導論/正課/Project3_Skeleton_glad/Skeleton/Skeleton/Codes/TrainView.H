@@ -91,6 +91,12 @@ class TrainView : public Fl_Gl_Window
 
 		TrainWindow*	tw;				// The parent of this display window
 		CTrack*			m_pTrack;		// The track of the entire scene
+
+		Model* tunnels = nullptr;
+		Model* people = nullptr;
+		Model* terrain = nullptr;
+		Shader* for_model = nullptr;
+
 		float DIVIDE_LINE = 1000.0f;
 		float t_time = 0.0f;
 		float arc_length = 0.0f;

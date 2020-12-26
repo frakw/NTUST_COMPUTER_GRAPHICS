@@ -48,7 +48,9 @@ using std::make_pair;
 #include "TrainView.H"
 #include "TrainWindow.H"
 #include "Utilities/3DUtils.H"
-#include "assimp/anim.h"
+
+
+#include "model.h"
 
 #ifdef EXAMPLE_SOLUTION
 #	include "TrainExample/TrainExample.H"
@@ -214,6 +216,17 @@ void TrainView::draw()
 	if (gladLoadGL())
 	{
 		//initiailize VAO, VBO, Shader...
+		if (!for_model) {
+			for_model = new 
+				Shader(
+					"./Codes/shaders/model_loading.vert",
+					nullptr, nullptr, nullptr,
+					"./Codes/shaders/model_loading.frag");
+		}
+
+		if (!tunnels) {
+			tunnels = new Model("");
+		}
 	}
 	else
 		throw std::runtime_error("Could not initialize GLAD!");
@@ -784,8 +797,8 @@ void TrainView::draw_train(bool doingShadows) {
 		glvertex_vec(train_up_back + cross_t);
 		glvertex_vec(train_up_back - cross_t);
 		glEnd();
-		draw_wheel(train_pos - cross_nor * sleeper_width + up_nor * 5.0f, forward_nor, cross_nor, up_nor, 0.5f, 0.1f, color_pos + j * 3, doingShadows);
-		draw_wheel(train_pos + cross_nor * sleeper_width + up_nor * 5.0f, forward_nor, cross_nor, up_nor, 0.5f, 0.1f, color_pos + j * 3, doingShadows);
+		draw_wheel(train_pos - cross_nor * sleeper_width + up_nor * 5.0f, forward_nor, cross_nor, up_nor, 0.9f, 0.1f, color_pos + j * 3, doingShadows);
+		draw_wheel(train_pos + cross_nor * sleeper_width + up_nor * 5.0f, forward_nor, cross_nor, up_nor, 0.9f, 0.1f, color_pos + j * 3, doingShadows);
 		float collect_len = 0.0f;
 		for (;;t-=percent) {
 			train_pos = GMT(p0.pos, p1.pos, p2.pos, p3.pos, tw->splineBrowser->value(), t);
