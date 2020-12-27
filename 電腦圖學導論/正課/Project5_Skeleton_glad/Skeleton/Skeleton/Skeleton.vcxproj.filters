@@ -54,6 +54,12 @@
     <ClCompile Include="Codes\stb_image.c">
       <Filter>來源檔案</Filter>
     </ClCompile>
+    <ClCompile Include="Codes\particle_generator.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="Codes\particle.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\TrainWindow.H">
@@ -92,6 +98,12 @@
     <ClInclude Include="Codes\RenderUtilities\Texture.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
+    <ClInclude Include="Codes\particle_generator.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="Codes\particle.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Codes\shaders\model_loading.frag">
@@ -100,10 +112,16 @@
     <None Include="Codes\shaders\model_loading.vert">
       <Filter>shader</Filter>
     </None>
-    <None Include="Codes\shaders\tunnel.frag">
+    <None Include="Codes\shaders\model_texture.frag">
       <Filter>shader</Filter>
     </None>
-    <None Include="Codes\shaders\tunnel.vert">
+    <None Include="Codes\shaders\model_texture.vert">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="Codes\shaders\particle.frag">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="Codes\shaders\particle.vert">
       <Filter>shader</Filter>
     </None>
   </ItemGroup>

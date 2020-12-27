@@ -49,10 +49,13 @@ class CTrack;
 #pragma warning(pop)
 class Shader;
 class Model;
+class ParticleGenerator;
+class Texture;
 
 // this uses the old ArcBall Code
 #include "Utilities/ArcBallCam.H"
 #include "Utilities/Pnt3f.H"
+#include "particle.h"
 class TrainView : public Fl_Gl_Window
 {
 	public:
@@ -101,7 +104,11 @@ class TrainView : public Fl_Gl_Window
 		Model* steve = nullptr;
 		Model* terrain = nullptr;
 		Shader* for_model = nullptr;
-		Shader* for_tunnel = nullptr;
+		Shader* for_model_texture = nullptr;
+
+		ParticleGenerator* Particles = nullptr;//記得設null
+		Shader* particle_shader = nullptr;//記得設null
+		Texture* particle_texture = nullptr;//記得設null
 
 		float DIVIDE_LINE = 1000.0f;
 		float t_time = 0.0f;

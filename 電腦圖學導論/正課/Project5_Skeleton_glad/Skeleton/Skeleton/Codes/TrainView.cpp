@@ -44,6 +44,7 @@ using std::make_pair;
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <ctime>
 #include "GL/glu.h"
 
 #include "TrainView.H"
@@ -52,6 +53,7 @@ using std::make_pair;
 
 
 #include "model.h"
+//#include "particle_generator.h"
 
 #ifdef EXAMPLE_SOLUTION
 #	include "TrainExample/TrainExample.H"
@@ -225,12 +227,12 @@ void TrainView::draw()
 					"./Codes/shaders/model_loading.frag");
 		}
 
-		if (!for_tunnel) {
-			for_tunnel = new
+		if (!for_model_texture) {
+			for_model_texture = new
 				Shader(
-					"./Codes/shaders/tunnel.vert",
+					"./Codes/shaders/model_texture.vert",
 					nullptr, nullptr, nullptr,
-					"./Codes/shaders/tunnel.frag");
+					"./Codes/shaders/model_texture.frag");
 		}
 
 		if (!tunnel) {
@@ -251,6 +253,24 @@ void TrainView::draw()
 
 		if (terrain_tex == -1) {
 			terrain_tex = TextureFromFile("models/terrain/BaseColor.png", ".");
+		}
+
+		if (!particle_shader) {
+			particle_shader = new
+				Shader(
+					"./Codes/shaders/particle.vert",
+					nullptr, nullptr, nullptr,
+					"./Codes/shaders/particle.frag");
+		}
+
+		if (!particle_texture) {
+			particle_texture = new Texture;
+			particle_texture->id = TextureFromFile("image/particle.png", ".");
+			cout << particle_texture->id << endl;
+		}
+
+		if (!Particles) {
+			//Particles = new ParticleGenerator(particle_shader, particle_texture,500);
 		}
 	}
 	else
@@ -350,14 +370,14 @@ void TrainView::draw()
 	//model = glm::rotate(model,glm::radians(40.0f), glm::vec3(0,1,0));
 	model = glm::scale(model, glm::vec3(50, 50, 50));
 
-	for_tunnel->Use();
+	for_model_texture->Use();
 	glActiveTexture(GL_TEXTURE0); // active proper texture unit before binding
-	glUniformMatrix4fv(glGetUniformLocation(for_tunnel->Program, "projection"), 1, GL_FALSE, projection);
-	glUniformMatrix4fv(glGetUniformLocation(for_tunnel->Program, "view"), 1, GL_FALSE, view);
-	glUniformMatrix4fv(glGetUniformLocation(for_tunnel->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-	glUniform1i(glGetUniformLocation(for_tunnel->Program, "texture1"), 0);
+	glUniformMatrix4fv(glGetUniformLocation(for_model_texture->Program, "projection"), 1, GL_FALSE, projection);
+	glUniformMatrix4fv(glGetUniformLocation(for_model_texture->Program, "view"), 1, GL_FALSE, view);
+	glUniformMatrix4fv(glGetUniformLocation(for_model_texture->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	glUniform1i(glGetUniformLocation(for_model_texture->Program, "texture1"), 0);
 	glBindTexture(GL_TEXTURE_2D, tunnel_tex);
-	tunnel->Draw(*for_tunnel);
+	tunnel->Draw(*for_model_texture);
 
 	glActiveTexture(GL_TEXTURE0);
 
@@ -365,16 +385,25 @@ void TrainView::draw()
 	model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0,0,0));
 	model = glm::scale(model, glm::vec3(15, 15, 15));
-	for_tunnel->Use();
-	glActiveTexture(GL_TEXTURE0 + 1); // active proper texture unit before binding
-	glUniformMatrix4fv(glGetUniformLocation(for_tunnel->Program, "projection"), 1, GL_FALSE, projection);
-	glUniformMatrix4fv(glGetUniformLocation(for_tunnel->Program, "view"), 1, GL_FALSE, view);
-	glUniformMatrix4fv(glGetUniformLocation(for_tunnel->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-	glUniform1i(glGetUniformLocation(for_tunnel->Program, "texture1"), 1);
+	for_model_texture->Use();
+	glActiveTexture(GL_TEXTURE0); // active proper texture unit before binding
+	glUniformMatrix4fv(glGetUniformLocation(for_model_texture->Program, "projection"), 1, GL_FALSE, projection);
+	glUniformMatrix4fv(glGetUniformLocation(for_model_texture->Program, "view"), 1, GL_FALSE, view);
+	glUniformMatrix4fv(glGetUniformLocation(for_model_texture->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	glUniform1i(glGetUniformLocation(for_model_texture->Program, "texture1"), 0);
 	glBindTexture(GL_TEXTURE_2D, terrain_tex);
-	terrain->Draw(*for_tunnel);
+	terrain->Draw(*for_model_texture);
 
 	glActiveTexture(GL_TEXTURE0);
+
+
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0, 0, 0));
+	model = glm::scale(model, glm::vec3(15, 15, 15));
+	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "projection"), 1, GL_FALSE, projection);
+	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "view"), 1, GL_FALSE, view);
+	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	//Particles->Draw();
 
 	//draw_tunnel();
 	//*********************************************************************
@@ -405,6 +434,9 @@ void TrainView::draw()
 	}
 	//delete[] backpack_sh;
 	//delete[] backpack;
+
+	ProcessParticles();
+	DrawParticles();
 }
 
 void TrainView::draw_tunnel() {
@@ -829,6 +861,12 @@ void TrainView::draw_train(bool doingShadows) {
 		up_nor.normalize();
 		
 
+		static float pret = clock();
+		pair<glm::vec3, glm::vec3> tmp = make_pair(glm::vec3(steve_pos.x, steve_pos.y, steve_pos.z), glm::vec3(3, 3, 3));
+		//Particles->Update((clock() - pret) / 400, tmp, 2, glm::vec3(1, 1, 1));
+
+		pret = clock();
+
 		if (j == 0 && !doingShadows) {
 			
 
@@ -856,10 +894,22 @@ void TrainView::draw_train(bool doingShadows) {
 			glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "projection"), 1, GL_FALSE, projection);
 			glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 			glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-			steve->Draw(*for_model);
+			//steve->Draw(*for_model);
 
+			particle_shader->Use();
+			model = glm::mat4(1.0f);
+			model = glm::scale(model, glm::vec3(15, 15, 15));
+			glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "projection"), 1, GL_FALSE, projection);
+			glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+			glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			//Particles->Draw();
+			
 			glUseProgram(0);
 		}
+
+
+		
+
 
 		if (!doingShadows)glColor3ub(23, 122, 222);
 		glBegin(GL_QUADS);//¤U

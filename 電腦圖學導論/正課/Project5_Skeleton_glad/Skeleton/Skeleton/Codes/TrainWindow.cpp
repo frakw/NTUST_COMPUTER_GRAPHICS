@@ -175,7 +175,9 @@ TrainWindow(const int x, const int y)
 	end();	// done adding to this widget
 
 	// set up callback on idle
-	Fl::add_idle((void (*)(void*))runButtonCB,this);
+	//Fl::add_idle((void (*)(void*))runButtonCB,this);
+	animating = true;
+	Fl::add_idle((void (*)(void*))keeping_refresh, this);
 }
 
 //************************************************************************

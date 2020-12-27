@@ -94,6 +94,10 @@ class TrainWindow : public Fl_Double_Window {
 		Fl_Button* dir_L;
 		Fl_Button* point_L;
 		Fl_Button* physics;
+
+		bool animating = false;
+		float time = 0.0f;
+		float last_rain_time = 0.0f;
 		// we have other widgets as part of the sample solution
 		// this is not for 559 students to know about
 #ifdef EXAMPLE_SOLUTION

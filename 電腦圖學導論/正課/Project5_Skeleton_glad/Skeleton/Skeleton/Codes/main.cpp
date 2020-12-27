@@ -29,11 +29,13 @@
 #pragma warning(disable:4312)
 #pragma warning(disable:4311)
 #include <Fl/Fl.h>
+#include <ctime>
 #pragma warning(pop)
 
 
 int main(int, char**)
 {
+	srand(time(NULL));
 	printf("CS559 Train Assignment\n");
 
 	TrainWindow tw;

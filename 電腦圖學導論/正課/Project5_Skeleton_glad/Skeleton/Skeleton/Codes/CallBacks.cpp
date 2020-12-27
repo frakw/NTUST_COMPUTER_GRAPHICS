@@ -265,3 +265,22 @@ void del_car(Fl_Widget*, TrainWindow* tw)
 void change_tension(Fl_Widget*, TrainWindow* tw) {
 	tw->damageMe();
 }
+
+
+
+void keeping_refresh(TrainWindow* tw)
+{
+	if (clock() - lastRedraw > CLOCKS_PER_SEC / 30 && tw->animating) {
+		lastRedraw = clock();
+		tw->time += 0.01f;
+		tw->damageMe();
+		if (std::numeric_limits<float>::max() - tw->time <= 0.01f) {
+			tw->time = 0.0f;
+		}
+
+		if (tw->runButton->value()) {	// only advance time if appropriate
+			lastRedraw = clock();
+			tw->advanceTrain();
+		}
+	}
+}

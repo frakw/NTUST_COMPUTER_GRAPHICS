@@ -30,6 +30,17 @@ struct Texture {
     unsigned int id;
     string type;
     string path;
+
+    void bind(GLenum bind_unit = 0)
+    {
+        glActiveTexture(GL_TEXTURE0 + bind_unit);
+        glBindTexture(GL_TEXTURE_2D, this->id);
+    }
+    static void unbind(GLenum bind_unit = 0)
+    {
+        glActiveTexture(GL_TEXTURE0 + bind_unit);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
 };
 
 class Mesh {
