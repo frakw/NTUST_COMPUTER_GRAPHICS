@@ -1,8 +1,8 @@
-﻿#include "Particle.h"
+﻿#include "particle.h"
 
 
 
-Particle* Particles;
+cube_particle* cube_particles;
 UINT nOfFires = 0;
 
 UINT Tick1 = 0, Tick2 = 0;
@@ -10,11 +10,10 @@ float DTick;
 GLfloat grav = 0.00003; //(0.00003f;)
 
 
-#define MAX_PARTICLES 100
-#define MAX_FIRES 5  //最多幾盞煙火
+#define MAX_FIRES 10  //最多幾盞煙火
 
 
-void InitParticle(Particle& ep)
+void InitParticle(cube_particle& ep)
 {
 	ep.b = float(rand() % 100) / 60.0f;//顏色隨機
 	ep.g = float(rand() % 100) / 60.0f;
@@ -25,7 +24,7 @@ void InitParticle(Particle& ep)
 
 	//位置 
 	ep.xpos = 75.0f - rand() % 150;
-	ep.ypos = 60.0f;
+	ep.ypos = rand() % 30 + 20;
 	ep.zpos = 75.0f - rand() % 150;
 
 	if (!int(ep.xpos))//x方向速度(z方向相同)
@@ -54,10 +53,10 @@ void InitParticle(Particle& ep)
 	AddParticle(ep);//加入粒子列表    
 }
 
-void AddParticle(Particle ex)
+void AddParticle(cube_particle ex)
 {
-	Particle* p;
-	p = new Particle;//new particle   
+	cube_particle* p;
+	p = new cube_particle;//new cube_particle   
 	p->pNext = NULL;
 	p->pPrev = NULL;
 	p->b = ex.b;  p->g = ex.g;  p->r = ex.r;
@@ -76,36 +75,36 @@ void AddParticle(Particle ex)
 	p->bFire = ex.bFire;
 	p->nExpl = ex.nExpl;
 
-	if (!Particles)//當目前的Particle列表為空時
+	if (!cube_particles)//當目前的cube_particle列表為空時
 	{
-		Particles = p;
+		cube_particles = p;
 		return;
 	}
 	else
 	{
-		Particles->pPrev = p;//插入Particle
-		p->pNext = Particles;
-		Particles = p;
+		cube_particles->pPrev = p;//插入cube_particle
+		p->pNext = cube_particles;
+		cube_particles = p;
 	}
 }
 
-void DeleteParticle(Particle** p)
+void DeleteParticle(cube_particle** p)
 {
-	if (!(*p))//假如Particle列表為空
+	if (!(*p))//假如cube_particle列表為空
 		return;
-	if (!(*p)->pNext && !(*p)->pPrev)//假如只有一個Particle，直接删除  
+	if (!(*p)->pNext && !(*p)->pPrev)//假如只有一個cube_particle，直接删除  
 	{
 		delete (*p);
 		*p = NULL;
-		Particles = *p; //!!!!!
+		cube_particles = *p; //!!!!!
 		return;
 	}
-	Particle* tmp;
+	cube_particle* tmp;
 	if (!(*p)->pPrev)//假如是首節點  
 	{
 		tmp = (*p);
 		*p = (*p)->pNext;
-		Particles = *p;
+		cube_particles = *p;
 		(*p)->pPrev = NULL;
 		delete tmp;
 		return;
@@ -130,9 +129,9 @@ void DeleteParticle(Particle** p)
 }
 
 
-void Explosion1(Particle* par)
+void Explosion1(cube_particle* par)
 {
-	Particle ep;
+	cube_particle ep;
 	for (int i = 0; i < 60; i++)
 	{
 		ep.b = float(rand() % 100) / 60.0f;
@@ -156,9 +155,9 @@ void Explosion1(Particle* par)
 	}
 }
 
-void Explosion2(Particle* par)
+void Explosion2(cube_particle* par)
 {
-	Particle ep;
+	cube_particle ep;
 	for (int i = 0; i < 80; i++)
 	{
 		ep.b = par->b;
@@ -182,9 +181,9 @@ void Explosion2(Particle* par)
 	}
 }
 
-void Explosion3(Particle* par)
+void Explosion3(cube_particle* par)
 {
-	Particle ep;
+	cube_particle ep;
 	float PIAsp = 3.1415926 / 180;
 	for (int i = 0; i < 30; i++) {
 		float angle = float(rand() % 360) * PIAsp;
@@ -209,8 +208,8 @@ void Explosion3(Particle* par)
 	}
 }
 
-void Explosion4(Particle* par) {
-	Particle ep;
+void Explosion4(cube_particle* par) {
+	cube_particle ep;
 	float PIAsp = 3.1415926 / 180;
 	for (int i = 0; i < 30; i++) {
 		float angle = float(rand() % 360) * PIAsp;
@@ -235,8 +234,8 @@ void Explosion4(Particle* par) {
 	}
 }
 
-void Explosion5(Particle* par) {
-	Particle ep;
+void Explosion5(cube_particle* par) {
+	cube_particle ep;
 	for (int i = 0; i < 30; i++) {
 		ep.b = par->b;
 		ep.g = par->g;
@@ -259,8 +258,8 @@ void Explosion5(Particle* par) {
 	}
 }
 
-void Explosion6(Particle* par) {
-	Particle ep;
+void Explosion6(cube_particle* par) {
+	cube_particle ep;
 	for (int i = 0; i < 50; i++) {
 		ep.b = float(rand() % 100) / 60.0f;
 		ep.g = float(rand() % 100) / 60.0f;
@@ -283,8 +282,8 @@ void Explosion6(Particle* par) {
 	}
 }
 
-void Explosion7(Particle* par) {
-	Particle ep;
+void Explosion7(cube_particle* par) {
+	cube_particle ep;
 	for (int i = 0; i < 20; i++) {
 		ep.b = par->b;
 		ep.g = par->g;
@@ -314,16 +313,16 @@ void ProcessParticles()
 	Tick2 = GetTickCount();
 	DTick = float(Tick2 - Tick1);
 	DTick *= 0.5f;
-	Particle ep;
+	cube_particle ep;
 	if (nOfFires < MAX_FIRES)
 	{
 		InitParticle(ep);
 	}
-	Particle* par;
-	par = Particles; //迭代 link list 先把頭取出來
+	cube_particle* par;
+	par = cube_particles; //迭代 link list 先把頭取出來
 
 	while (par) {
-		par->life -= par->fade * (float(DTick) * 0.1f);//Particle壽命衰減 
+		par->life -= par->fade * (float(DTick) * 0.1f);//cube_particle壽命衰減 
 		if (par->life <= 0.05f) {//當壽命小於一定值 
 
 			//爆炸效果
@@ -389,21 +388,70 @@ void ProcessParticles()
 }
 
 void DrawParticles() {
-	Particle* par;
-	par = Particles;
+	cube_particle* par;
+	par = cube_particles;
 	while (par)
 	{
+
 		glColor4f(par->r, par->g, par->b, par->life);
 		glBegin(GL_TRIANGLE_STRIP);
+
 		glTexCoord2d(1, 1);
-		glVertex3f(par->xpos + par->size, par->ypos + par->size, par->zpos);
+		glVertex3f(par->xpos + par->size, par->ypos + par->size, par->zpos + par->size);
 		glTexCoord2d(0, 1);
-		glVertex3f(par->xpos - par->size, par->ypos + par->size, par->zpos);
+		glVertex3f(par->xpos - par->size, par->ypos + par->size, par->zpos + par->size);
 		glTexCoord2d(1, 0);
-		glVertex3f(par->xpos + par->size, par->ypos - par->size, par->zpos);
+		glVertex3f(par->xpos + par->size, par->ypos - par->size, par->zpos + par->size);
 		glTexCoord2d(0, 0);
-		glVertex3f(par->xpos - par->size, par->ypos - par->size, par->zpos);
+		glVertex3f(par->xpos - par->size, par->ypos - par->size, par->zpos + par->size);
+
+		glTexCoord2d(1, 1);
+		glVertex3f(par->xpos + par->size, par->ypos + par->size, par->zpos - par->size);
+		glTexCoord2d(0, 1);
+		glVertex3f(par->xpos - par->size, par->ypos + par->size, par->zpos - par->size);
+		glTexCoord2d(1, 0);
+		glVertex3f(par->xpos + par->size, par->ypos - par->size, par->zpos - par->size);
+		glTexCoord2d(0, 0);
+		glVertex3f(par->xpos - par->size, par->ypos - par->size, par->zpos - par->size);
+
+		glTexCoord2d(1, 1);
+		glVertex3f(par->xpos + par->size, par->ypos + par->size, par->zpos + par->size);
+		glTexCoord2d(0, 1);
+		glVertex3f(par->xpos - par->size, par->ypos + par->size, par->zpos - par->size);
+		glTexCoord2d(1, 0);
+		glVertex3f(par->xpos + par->size, par->ypos + par->size, par->zpos + par->size);
+		glTexCoord2d(0, 0);
+		glVertex3f(par->xpos - par->size, par->ypos + par->size, par->zpos - par->size);
+
+		glTexCoord2d(1, 1);
+		glVertex3f(par->xpos + par->size, par->ypos - par->size, par->zpos + par->size);
+		glTexCoord2d(0, 1);
+		glVertex3f(par->xpos - par->size, par->ypos - par->size, par->zpos - par->size);
+		glTexCoord2d(1, 0);
+		glVertex3f(par->xpos + par->size, par->ypos - par->size, par->zpos + par->size);
+		glTexCoord2d(0, 0);
+		glVertex3f(par->xpos - par->size, par->ypos - par->size, par->zpos - par->size);
+
+		glTexCoord2d(1, 1);
+		glVertex3f(par->xpos + par->size, par->ypos + par->size, par->zpos + par->size);
+		glTexCoord2d(0, 1);
+		glVertex3f(par->xpos + par->size, par->ypos - par->size, par->zpos + par->size);
+		glTexCoord2d(1, 0);
+		glVertex3f(par->xpos + par->size, par->ypos + par->size, par->zpos - par->size);
+		glTexCoord2d(0, 0);
+		glVertex3f(par->xpos + par->size, par->ypos - par->size, par->zpos - par->size);
+
+		glTexCoord2d(1, 1);
+		glVertex3f(par->xpos - par->size, par->ypos + par->size, par->zpos + par->size);
+		glTexCoord2d(0, 1);
+		glVertex3f(par->xpos - par->size, par->ypos - par->size, par->zpos + par->size);
+		glTexCoord2d(1, 0);
+		glVertex3f(par->xpos - par->size, par->ypos + par->size, par->zpos - par->size);
+		glTexCoord2d(0, 0);
+		glVertex3f(par->xpos - par->size, par->ypos - par->size, par->zpos - par->size);
+
 		glEnd();
 		par = par->pNext;
+		
 	}
 }

@@ -101,7 +101,7 @@ int TrainView::handle(int event)
 	// see if the ArcBall will handle the event - if it does, 
 	// then we're done
 	// note: the arcball only gets the event if we're in world view
-	if (tw->worldCam->value())
+	if (tw->cameraBrowser->value() == 1)
 		if (arcball.handle(event)) 
 			return 1;
 
@@ -308,7 +308,7 @@ void TrainView::draw()
 	glEnable(GL_LIGHT0);
 
 	// top view only needs one light
-	if (tw->topCam->value()) {
+	if (tw->cameraBrowser->value() == 3) {
 		glDisable(GL_LIGHT1);
 		glDisable(GL_LIGHT2);
 	} else {
@@ -427,7 +427,7 @@ void TrainView::draw()
 	drawStuff();
 
 	// this time drawing is for shadows (except for top view)
-	if (!tw->topCam->value()) {
+	if (tw->cameraBrowser->value() != 3) {
 		setupShadows();
 		drawStuff(true);
 		unsetupShadows();
@@ -436,7 +436,9 @@ void TrainView::draw()
 	//delete[] backpack;
 
 	ProcessParticles();
+
 	DrawParticles();
+
 }
 
 void TrainView::draw_tunnel() {
@@ -458,10 +460,10 @@ setProjection()
 	float aspect = static_cast<float>(w()) / static_cast<float>(h());
 	int cp_size = m_pTrack->points.size();
 	// Check whether we use the world camp
-	if (tw->worldCam->value())
+	if (tw->cameraBrowser->value() == 1)
 		arcball.setProjection(false);
 	// Or we use the top cam
-	else if (tw->topCam->value()) {
+	else if (tw->cameraBrowser->value() == 3) {
 		float wi, he;
 		if (aspect >= 1) {
 			wi = 110;
@@ -485,7 +487,7 @@ setProjection()
 	// TODO: 
 	// put code for train view projection here!	
 	//####################################################################
-	else if(tw->trainCam->value()){
+	else if(tw->cameraBrowser->value() == 2){
 		//backpack_sh.use();
 		GLfloat projection[16];
 		GLfloat model_view[16];
@@ -605,7 +607,7 @@ void TrainView::drawStuff(bool doingShadows)
 	// Draw the control points
 	// don't draw the control points if you're driving 
 	// (otherwise you get sea-sick as you drive through them)
-	if (!tw->trainCam->value()) {
+	if (!tw->cameraBrowser->value() ==2) {
 		for (size_t i = 0; i < m_pTrack->points.size(); ++i) {
 			if (!doingShadows) {
 				if (((int)i) != selectedCube)
@@ -894,7 +896,7 @@ void TrainView::draw_train(bool doingShadows) {
 			glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "projection"), 1, GL_FALSE, projection);
 			glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 			glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-			//steve->Draw(*for_model);
+			steve->Draw(*for_model);
 
 			particle_shader->Use();
 			model = glm::mat4(1.0f);

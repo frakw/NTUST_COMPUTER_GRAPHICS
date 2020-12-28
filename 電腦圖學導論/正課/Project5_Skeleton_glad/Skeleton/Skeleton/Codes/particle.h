@@ -6,7 +6,7 @@
 #include <cmath>
 
 
-typedef struct tag_PARTICLE
+struct cube_particle
 {
 	GLfloat xpos;//(xpos,ypos,zpos)為particle的position
 	GLfloat ypos;
@@ -25,22 +25,22 @@ typedef struct tag_PARTICLE
 	GLbyte bAddParts;// particle是否含有尾巴
 	GLfloat AddSpeed;//尾巴粒子的加速度  
 	GLfloat AddCount;//尾巴粒子的增加量  
-	tag_PARTICLE* pNext;//下一particle 
-	tag_PARTICLE* pPrev;//上一particle   
-} Particle;
+	cube_particle* pNext;//下一particle 
+	cube_particle* pPrev;//上一particle   
+};
 
 
-void InitParticle(Particle& ep);
-void AddParticle(Particle ex);
-void DeleteParticle(Particle** p);
+void InitParticle(cube_particle& ep);
+void AddParticle(cube_particle ex);
+void DeleteParticle(cube_particle** p);
 
-void Explosion1(Particle* par);
-void Explosion2(Particle* par);
-void Explosion3(Particle* par);
-void Explosion4(Particle* par);
-void Explosion5(Particle* par);
-void Explosion6(Particle* par);
-void Explosion7(Particle* par);
+void Explosion1(cube_particle* par);
+void Explosion2(cube_particle* par);
+void Explosion3(cube_particle* par);
+void Explosion4(cube_particle* par);
+void Explosion5(cube_particle* par);
+void Explosion6(cube_particle* par);
+void Explosion7(cube_particle* par);
 
 void ProcessParticles();
 void DrawParticles();

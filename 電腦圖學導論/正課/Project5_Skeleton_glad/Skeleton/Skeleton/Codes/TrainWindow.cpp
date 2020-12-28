@@ -80,6 +80,7 @@ TrainWindow(const int x, const int y)
 
 		pty += 30;
 
+		/*
 		// camera buttons - in a radio button group
 		Fl_Group* camGroup = new Fl_Group(600,pty,195,20);
 		camGroup->begin();
@@ -99,6 +100,14 @@ TrainWindow(const int x, const int y)
         topCam->selection_color((Fl_Color)3);
 		topCam->callback((Fl_Callback*)damageCB,this);
 		camGroup->end();
+		*/
+		cameraBrowser = new Fl_Browser(605, pty, 120, 75, "Camera type");
+		cameraBrowser->type(2);		// select
+		cameraBrowser->callback((Fl_Callback*)damageCB, this);
+		cameraBrowser->add("worldCam");
+		cameraBrowser->add("trainCam");
+		splineBrowser->add("topCam");
+		cameraBrowser->select(1);
 
 		pty += 30;
 
