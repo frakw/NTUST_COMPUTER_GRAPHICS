@@ -54,9 +54,6 @@
     <ClCompile Include="Codes\stb_image.c">
       <Filter>來源檔案</Filter>
     </ClCompile>
-    <ClCompile Include="Codes\particle_generator.cpp">
-      <Filter>來源檔案</Filter>
-    </ClCompile>
     <ClCompile Include="Codes\particle.cpp">
       <Filter>來源檔案</Filter>
     </ClCompile>
@@ -98,10 +95,10 @@
     <ClInclude Include="Codes\RenderUtilities\Texture.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\particle_generator.h">
+    <ClInclude Include="Codes\particle.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\particle.h">
+    <ClInclude Include="Codes\camera.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>

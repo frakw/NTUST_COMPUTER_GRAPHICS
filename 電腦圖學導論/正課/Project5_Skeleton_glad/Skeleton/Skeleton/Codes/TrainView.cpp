@@ -266,7 +266,6 @@ void TrainView::draw()
 		if (!particle_texture) {
 			particle_texture = new Texture;
 			particle_texture->id = TextureFromFile("image/particle.png", ".");
-			cout << particle_texture->id << endl;
 		}
 
 		if (!Particles) {
@@ -607,7 +606,7 @@ void TrainView::drawStuff(bool doingShadows)
 	// Draw the control points
 	// don't draw the control points if you're driving 
 	// (otherwise you get sea-sick as you drive through them)
-	if (!tw->cameraBrowser->value() ==2) {
+	if (tw->cameraBrowser->value() !=2) {
 		for (size_t i = 0; i < m_pTrack->points.size(); ++i) {
 			if (!doingShadows) {
 				if (((int)i) != selectedCube)
@@ -621,7 +620,7 @@ void TrainView::drawStuff(bool doingShadows)
 	if(!doingShadows) glColor3ub(115, 148, 214);
 	draw_pillar(2.0f);
 	draw_track(doingShadows);
-	if (!tw->trainCam->value()) {
+	if (tw->cameraBrowser->value() != 2) {
 		draw_train(doingShadows);
 	}
 

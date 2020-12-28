@@ -106,10 +106,10 @@ TrainWindow(const int x, const int y)
 		cameraBrowser->callback((Fl_Callback*)damageCB, this);
 		cameraBrowser->add("worldCam");
 		cameraBrowser->add("trainCam");
-		splineBrowser->add("topCam");
+		cameraBrowser->add("topCam");
 		cameraBrowser->select(1);
 
-		pty += 30;
+		pty += 110;
 
 		// browser to select spline types
 		// TODO: make sure these choices are the same as what the code supports

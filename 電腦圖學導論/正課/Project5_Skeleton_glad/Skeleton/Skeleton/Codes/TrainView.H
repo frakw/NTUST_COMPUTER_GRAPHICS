@@ -56,6 +56,7 @@ class Texture;
 #include "Utilities/ArcBallCam.H"
 #include "Utilities/Pnt3f.H"
 #include "particle.h"
+#include "camera.h"
 class TrainView : public Fl_Gl_Window
 {
 	public:
@@ -96,6 +97,7 @@ class TrainView : public Fl_Gl_Window
 		TrainWindow*	tw;				// The parent of this display window
 		CTrack*			m_pTrack;		// The track of the entire scene
 
+		Camera camera();
 
 		Pnt3f tunnel_pos = Pnt3f(0,0,0);
 		int tunnel_tex = -1;

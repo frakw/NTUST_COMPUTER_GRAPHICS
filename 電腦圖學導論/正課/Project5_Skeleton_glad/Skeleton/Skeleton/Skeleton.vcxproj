@@ -34,6 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Codes\CallBacks.H" />
+    <ClInclude Include="Codes\camera.h" />
     <ClInclude Include="Codes\ControlPoint.H" />
     <ClInclude Include="Codes\mesh.h" />
     <ClInclude Include="Codes\model.h" />
