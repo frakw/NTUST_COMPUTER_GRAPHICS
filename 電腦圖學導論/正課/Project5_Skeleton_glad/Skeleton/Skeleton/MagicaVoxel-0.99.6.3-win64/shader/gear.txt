@@ -1,0 +1,31 @@
+// xs_begin
+// author : '@mode_vis'
+// arg : { var = 'm_teeth' name = 'Teeth' value = '6'   range = '3 64'    step = '1'	precision = '0' }
+// arg : { var = 'm_inner' name = 'Inner' value = '0.5' range = '0.0 1.0' step = '0.05'	precision = '2' }
+// xs_end
+
+//===== built-in args =====
+// uniform vec3		i_volume_size;		// volume size [1-256]
+// uniform float	i_color_index;		// current color index [0-255]
+// uniform int		i_num_color_sels;	// number of color selections [1-255]
+
+//===== built-in functions ===== 
+// float voxel( vec3 v );				// get voxel color index
+// float color_sel( float k );			// get kth selected color index
+// vec4 palette( float index );			// get palette color
+
+// generate a new voxel color index [0, 255] at position v ( v is at the center of voxel, such as vec3( 1.5, 2.5, 4.5 ) )
+float map( vec3 v ) {
+	float evo = 1.0;
+	
+	vec3 center = i_volume_size * 0.5;
+	vec3 p = (v-center);
+	p.z = 1.0;
+	float r = 0.12*min(i_volume_size.x,i_volume_size.y);
+	float R = length(p);
+	float a = atan(p.y,p.x);
+	float f = smoothstep(-.5, evo, cos(a * m_teeth)) * r + r * 3.0;
+	float d = step(r*4.*m_inner,R);
+	float col = d * vec3( 1.-step(f,R)) ;
+	return col* i_color_index;
+}

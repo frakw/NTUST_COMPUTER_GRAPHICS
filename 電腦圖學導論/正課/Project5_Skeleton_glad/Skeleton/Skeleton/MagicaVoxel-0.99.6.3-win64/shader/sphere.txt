@@ -1,0 +1,20 @@
+// xs_begin
+// author : 'ephtracy'
+// xs_end
+
+//===== built-in args =====
+// uniform vec3		i_volume_size;		// volume size [1-256]
+// uniform float	i_color_index;		// current color index [0-255]
+// uniform int		i_num_color_sels;	// number of color selections [1-255]
+
+//===== built-in functions ===== 
+// float voxel( vec3 v );				// get voxel color index
+// float color_sel( float k );			// get kth selected color index
+// vec4 palette( float index );			// get palette color
+
+// generate a new voxel color index [0, 255] at position v ( v is at the center of voxel, such as vec3( 1.5, 2.5, 4.5 ) )
+float map( vec3 v ) {
+	const float PI = 3.1415926;
+	v = ( v - i_volume_size * 0.5 ) / ( i_volume_size * 0.5 );
+	return i_color_index * step( length( v ), 1.0 );
+}

@@ -1,0 +1,64 @@
+vbox(id = 'menu_brush_opt' hidden = '1' clip = '0')(margin = '10 10 0 0') ::
+{
+	switch(class = 'panel')(def='h1' selected = '1' text = 'Display')(size = '32')
+	vbox ::
+	{
+		hbox(size = '27')(hint = 'High DPI') ::
+		{
+			label(def = 'h3' text = 'HDPI')(flex = '1' next = '3')
+			switch(def = 'sw-check' onClick = 'ui dpi' selected = '1')(size = '16')
+		}
+
+		hbox(size = '27')(hint = 'Show Ambient Occlusion') ::
+		{
+			label(def = 'h3' text = 'AO')(flex = '1' next = '3')
+			switch(def = 'sw-check' onClick = 'set rm_show ao' selected = '1')(size = '16')
+		}
+
+		hbox(size = '27')(hint = 'Constant Shading') ::
+		{
+			label(def = 'h3' text = 'Constant Shading')(flex = '1' next = '3')
+			switch(def = 'sw-check' onClick = 'set rm_show constant' selected = '0')(size = '16')
+		}
+
+		hbox(size = '27')(hint = 'Fade Background Objects') ::
+		{
+			label(def = 'h3' text = 'Fade')(flex = '1' next = '3')
+			switch(def = 'sw-check' onClick = 'set rm_show fade' selected = '1')(size = '16')
+		}
+
+		hbox(size = '27' clip = '0')(hint = 'Background Color') ::
+		{
+			label(def = 'h3' text = 'Background')(flex = '1' next = '3')
+			colpick(id = 'rm_bg_col' onChange = 'set rm_bg_col' menuOffset = '16 0')(size = '16' margin = '0 0 6 6')
+		}
+			
+		hbox(size = '27' clip = '0')(hint = 'Grid Color') ::
+		{
+			label(def = 'h3' text = 'Grid')(flex = '1' next = '3')
+			colpick(id = 'rm_grid_col' onChange = 'set rm_grid_col' menuOffset = '16 0')(size = '16' margin = '0 0 6 6')
+		}
+
+		hbox(size = '27' clip = '0')(hint = 'Edge Color') ::
+		{
+			label(def = 'h3' text = 'Edge')(flex = '1' next = '3')
+			colpick(id = 'rm_edge_col' onChange = 'set rm_edge_col' menuOffset = '16 0')(size = '16' margin = '0 0 6 6')
+		}
+
+		hbox(size = '27' clip = '0')(hint = 'Selection Color') ::
+		{
+			label(def = 'h3' text = 'Selection')(flex = '1' next = '3')
+			colpick(id = 'rm_sel_col' onChange = 'set rm_sel_col' menuOffset = '16 0')(size = '16' margin = '0 0 6 6')
+		}
+
+		hbox(hint = 'Frame Grid Spacing')(size = '27') ::
+		{
+			label(def = 'h3' text = 'Frame')(flex = '1' next = '3')
+			
+			textField(def = 'tf-sub' textSize = '7 7' id = 'rm_space' onEnter = 'set rm_space' enter = '1' maxLength = '3')
+			(corner = '15')(size = '25' next = '3')(margin = '0 0 4 4')
+
+			resizer(class = 'int')(path = '-1' range = '1 128' step = '1' space = '4')(size = '8' next = '1')(corner = '10')
+		}
+	}
+}

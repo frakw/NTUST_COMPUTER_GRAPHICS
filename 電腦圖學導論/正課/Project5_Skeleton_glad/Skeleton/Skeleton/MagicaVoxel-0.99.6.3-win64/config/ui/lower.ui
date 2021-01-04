@@ -1,0 +1,45 @@
+vbox(def = 'bg2') ::
+{
+	hbox(size = '26' prev = '3' next = '3') ::
+	{
+		switch(class = 'view')(def = 'sw-view' style = '2' view = [['v_cam']] selected = '0')
+		(text = '^9660' text2 = '^9650' textFont = 'symbol' textSize = '11 11')
+		(size = '24' prev = '3' next = '3' margin = '0 0 2 2')
+		(hint = 'Show Camera Control')
+
+		button(def = 'bn-ic' onClick = 'snap scene')
+		(text = '^8' textOffset = '0 1' textSize = '19 19')
+		(next = '3' size = '28')
+		(hint = 'Capture Image [6] : Capture Window [CTRL+6]')		
+		
+		textField(id = 'cmd' onEnter = '/' default = 'console' maxLength = '128' clear = '1' history = '1' border = '10' textSize = '8 8' align = '1')
+		(flex = '1' size = '90' next = '3' margin = '0 0 1 1')(radius = '6') 
+		(hint = 'Console [F1] : History [UP/DOWN]')
+
+		opBox(id = 'cam_mode' value = '0' onClick = 'ui_set scene proj')(size = '140') ::
+		{
+			hbox ::
+			{
+				option(def = 'tab-cam' id = '0' text = 'Perspective*')(flex = '1' next = '2')(hint = 'Perspective Camera')
+				option(def = 'tab-cam' id = '3' text = 'Free*')(flex = '1' next = '2')(hint = 'Freestyle Camera : Move [WASDQE]')
+				option(def = 'tab-cam' id = '1' text = 'Orthogonal*')(flex = '1' next = '2')(hint = 'Orthogonal Camera')
+				option(def = 'tab-cam' id = '2' text = 'Isometric*' )(flex = '1' next = '2')(hint = 'Isometric Camera')
+			}
+		}
+
+		button(def = 'bn-ic' textColor	= '255 255 255 180' textColor-h	= '255 255 255 210' onClick = 'cam focus' text = '^15' delayed = '0')(size = '22' next = '3')(hint = 'Recenter Camera [5] : Face View [CTRL+5]')
+		switch(def = 'sw-cam' onClick = 'ui_set scene ruler' selected = '0')(text = '^14')(size = '22' next = '3')(hint = 'Show Camera Ruler : Drag on Ruler [LButton]')
+		switch(def = 'sw-cam' onClick = 'ui_set scene cube' selected = '1')(text = '^13')(size = '22' next = '3')(hint = 'Show View Cube')
+	}
+
+	
+	vbox(id = 'v_hint') ::
+	{
+		layer(fitSize = '0 1') ::
+		{
+			ui = 'cam.ui'
+		}
+				
+		hint(size = '24')(hint = 'Hint : [HotKey]')
+	}
+}	

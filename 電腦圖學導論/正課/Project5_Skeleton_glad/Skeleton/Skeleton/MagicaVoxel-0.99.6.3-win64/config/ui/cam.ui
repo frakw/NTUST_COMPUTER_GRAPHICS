@@ -1,0 +1,107 @@
+hbox(id = 'v_cam' hidden = '1' margin = '0 0 3 3') ::
+{
+	sp(flex = '1')
+	
+	vbox(size = '95' prev = '8') ::
+	{
+		hbox(size = '27') ::
+		{
+			label(def = 'h1' text = 'Camera' align = '1' flex = '1')
+
+			button(def = 'bn-grey' onClick = 'cam save' text = '^9660' textSize = '9 9' textFont = 'symbol')(corner = '5' radius = '3' size = '22' next = '1' margin = '0 0 5 5')(hint = 'Save Camera [7]')
+			button(def = 'bn-grey' onClick = 'cam load' text = '^9650' textSize = '9 9' textFont = 'symbol')(corner = '10' radius = '3' size = '22' margin = '0 0 5 5')(hint = 'Load Camera [8]')
+		}
+
+		opBox(id = 'cam_slot' onClick = 'cam slot' value = '0' flex = '1' prev = '3' next = '3')(hint = 'Camera Slot') :: 
+		{
+			vbox(def = 'outline') ::
+			{
+				vbox(def = 'outline-i' bgColor = '55 55 55' flex = '1') ::
+				{
+					hbox(flex = '1') ::
+					{
+						option(def = 'op-sel' id = '0' text = '0' flex = '1')
+						option(def = 'op-sel' id = '1' text = '1' flex = '1')
+						option(def = 'op-sel' id = '2' text = '2' flex = '1')
+						option(def = 'op-sel' id = '3' text = '3' flex = '1')
+						option(def = 'op-sel' id = '4' text = '4' flex = '1')
+					}
+					hbox(flex = '1') ::
+					{
+						option(def = 'op-sel' id = '5' text = '5' flex = '1')
+						option(def = 'op-sel' id = '6' text = '6' flex = '1')
+						option(def = 'op-sel' id = '7' text = '7' flex = '1')
+						option(def = 'op-sel' id = '8' text = '8' flex = '1')
+						option(def = 'op-sel' id = '9' text = '9' flex = '1')
+					}
+				}
+			}								
+		}
+	}
+
+	vbox(size = '90')(hint = 'Camera Center' prev = '12') ::
+	{
+		hbox(size = '27') ::
+		{
+			label(def = 'h3' text = 'X')(flex = '1')
+			textField(def = 'tf-n' id = 'cam_x' onEnter = 'cam x')(corner = '5' size = '55')
+			resizer(class = 'float' def = 'res-n')(range = '-10000 10000')(size = '8')
+		}
+		hbox(size = '27') ::
+		{
+			label(def = 'h3' text = 'Y')(flex = '1')
+			textField(def = 'tf-n' id = 'cam_y' onEnter = 'cam y')(corner = '5' size = '55')
+			resizer(class = 'float' def = 'res-n')(range = '-10000 10000')(size = '8')
+		}
+		hbox(size = '27') ::
+		{
+			label(def = 'h3' text = 'Z')(flex = '1')
+			textField(def = 'tf-n' id = 'cam_z' onEnter = 'cam z')(corner = '5' size = '55')
+			resizer(class = 'float' def = 'res-n')(range = '-10000 10000')(size = '8')
+		}
+	}
+
+	vbox(size = '105' prev = '12') ::
+	{
+		hbox(size = '27')(hint = 'Horizontal Movement Step') ::
+		{
+			label(def = 'h3' text = 'dH')(flex = '1')
+			textField(def = 'tf-n' id = 'cam_dx' onEnter = 'cam dx')(corner = '5' size = '55')
+			resizer(class = 'float' def = 'res-n')(onResize = 'cam tx')(size = '8')(hint = 'Horizontal Movement : Small Step [SHIFT]')
+		}
+		hbox(size = '27')(hint = 'Vertical Movement Step') ::
+		{
+			label(def = 'h3' text = 'dV')(flex = '1')
+			textField(def = 'tf-n' id = 'cam_dy' onEnter = 'cam dy')(corner = '5' size = '55')
+			resizer(class = 'float' def = 'res-n')(onResize = 'cam ty')(size = '8')(hint = 'Vertical Movement : Small Step [SHIFT]')
+		}
+		hbox(size = '27')(hint = 'Camera Zoom/Distance') ::
+		{
+			label(def = 'h3' text = 'Zoom')(flex = '1')
+			textField(def = 'tf-n' id = 'cam_zoom' onEnter = 'cam zoom')(corner = '5' size = '55')
+			resizer(class = 'float' def = 'res-n')(onResize = 'cam tz')(size = '8')
+		}
+	}
+
+	vbox(size = '110')(hint = 'Camera Orientation' next = '8' prev = '12') ::
+	{
+		hbox(size = '27') ::
+		{
+			label(def = 'h3' text = 'Pitch')(flex = '1')
+			textField(def = 'tf-n' id = 'cam_rx' onEnter = 'cam rx')(corner = '5' size = '50')
+			resizer(class = 'float' def = 'res-n')(range = '-90 90')(size = '8')
+		}
+		hbox(size = '27') ::
+		{
+			label(def = 'h3' text = 'Yaw')(flex = '1')
+			textField(def = 'tf-n' id = 'cam_ry' onEnter = 'cam ry')(corner = '5' size = '50')
+			resizer(class = 'float' def = 'res-n')(range = '-180 180' mod = '1')(size = '8')
+		}
+		hbox(size = '27') ::
+		{
+			label(def = 'h3' text = 'Roll')(flex = '1')
+			textField(def = 'tf-n' id = 'cam_rz' onEnter = 'cam rz')(corner = '5' size = '50')
+			resizer(class = 'float' def = 'res-n')(range = '-180 180' mod = '1')(size = '8')
+		}
+	}
+}

@@ -1,0 +1,36 @@
+// xs_begin
+// arg : { var = 'm_width'	name = 'Width'	value = '1' range = '1 128' step = '1' precision = '0' }
+// arg : { var = 'm_rise'	name = 'Rise'	value = '1' range = '0 256' step = '1' precision = '0' }
+// arg : { var = 'm_thick'	name = 'Thick'	value = '1' range = '1 256' step = '1' precision = '0' }
+// arg : { var = 'm_dir'	name = 'Dir'	value = '0' range = '0 3'	step = '1' precision = '0' }
+// xs_end
+
+//===== built-in args =====
+// uniform vec3		i_volume_size;		// volume size [1-256]
+// uniform float	i_color_index;		// current color index [0-255]
+// uniform int		i_num_color_sels;	// number of color selections [1-255]
+
+//===== built-in functions ===== 
+// float voxel( vec3 v );				// get voxel color index
+// float color_sel( float k );			// get kth selected color index
+// vec4 palette( float index );			// get palette color
+
+// generate a new voxel color index [0, 255] at position v ( v is at the center of voxel, such as vec3( 1.5, 2.5, 4.5 ) )
+float map( vec3 v ) {
+	if ( m_dir > 2.5 ) {
+		v.xy = vec2( v.y, i_volume_size.x - v.x );
+	} else if ( m_dir > 1.5 ) {
+		v.x = i_volume_size.x - v.x;
+	} else if ( m_dir > 0.5 ) {
+		v.xy = vec2( i_volume_size.y - v.y, v.x );
+	}
+
+	float n = floor( v.x / m_width );
+	float h = i_volume_size.z - m_rise * n;
+
+	if ( v.z > h || v.z < h - m_thick ) {
+		return 0.0;
+	}
+
+	return color_sel( mod( n + 0.5, float( i_num_color_sels ) ) );
+}

@@ -1,0 +1,314 @@
+vbox(margin = '6 6 0 0') ::
+{
+	vbox(id = 'menu_model')(flex = '1') ::
+	{
+		switch(class = 'panel')(def='h2' selected = '1' text = 'Project' size = '30')
+		
+		layer(def = 'layer-dark')(flex = '1') ::
+		{
+			list(def = 'fileList' id = 'file' root = [[$/vox]] ext = "vox" onSelect = 'open' )(hint = 'Project List')
+		}
+	}
+
+	vbox(id = 'menu_patt' flex = '1' hidden = '1') ::
+	{
+		switch(class = 'panel')(def='h2' path = '0 2' selected = '1' text = 'Pattern')(size = '30')
+				
+		hbox(size = '20') ::
+		{
+			sp(flex = '1')
+			button(def = 'bn-grey' onClick = 'set pattlib -1' text = '^9664' textSize = '9 9' textFont = 'symbol' delayed = '0' repeated = '1')(corner = '5' radius = '3' size = '20' next = '1')(hint = 'Previous Pattern [3]')
+			button(def = 'bn-grey' onClick = 'set pattlib -2' text = '^9654' textSize = '9 9' textFont = 'symbol' delayed = '0' repeated = '1')(corner = '10' radius = '3' size = '20' next = '8')(hint = 'Next Pattern [4]')
+
+			button(def = 'bn-grey' onClick = 'onewpatt' text = '^10' textFont = 'icon' textSize = '10 10' delayed = '1')(corner = '15' radius = '3' size = '20' next = '8')(hint = 'Add Pattern in the Scene')
+		
+			button(def = 'bn-grey' text = '^73' textFont = 'icon' textSize = '14 14' onClick = 's_patt 1')(corner = '5' radius = '3')(size = '20' next = '1')
+			(hint = 'Create Reference Patterns from Selected Objects')
+		
+			button(def = 'bn-grey' text = '^12' textFont = 'icon' textSize = '14 14' onClick = 's_patt')(corner = '10' radius = '3')(size = '20')
+			(hint = 'Create Patterns from Selected Voxels/Objects')
+			sp(flex = '1')
+		}
+				
+		layer(bgColor = '0 0 0 0' resize = '4' size = '125' max = '250' flex = '-1') ::
+		{
+			preview(id = 'preview' flex = '1' margin = '6 6 6 6')(hint = 'Pattern Preview')
+		}
+
+		hbox(margin = '9 6 0 0' size = '28')(hint = 'Match Palette Color') ::
+		{
+			label(def = 'h3' text = 'Match Color')(flex = '1' next = '3')
+			switch(def = 'sw-check' onClick = 'set option_import patt_match' selected = '0')(size = '16')
+		}
+		
+		layer(def = 'layer-dark')(flex = '1') ::
+		{
+			list(def = 'fileList' id = 'file_patt' root = [[$/vox]] ext = 'vox' onSelect = 'i_patt')(hint = 'Pattern List')
+		}
+	}
+
+	vbox(id = 'menu_shader' flex = '1' hidden = '1') ::
+	{
+		hbox(clip = '0' size = '30') ::
+		{
+			switch(class = 'panel')(def='h2' selected = '1' path = '1 1' text = 'Argument' flex = '1' next = '3')
+
+			button(def = 'bn-grey' onClick = 'i_comp arg' textFont = 'icon' text = '^33' textSize = '14 14' delayed = '1')(size = '35' margin = '0 0 4 4' next = '1' corner = '5' radius = '3')(hint = 'Import Args')
+			button(def = 'bn-grey' onClick = 'o_comp arg' textFont = 'icon' text = '^34' textSize = '14 14' delayed = '1')(size = '35' margin = '0 0 4 4' corner = '10' radius = '3')(hint = 'Export Args')
+		} 
+		
+		layer(def = 'layer-dark')(bgColor = '70 70 70 0' scroll = '0 1' resize = '4' size = '125' max = '250' flex = '-1') ::
+		{
+			vbox(margin = '9 6 0 0')(id = 'xs' masked = '1')(hint = 'Shader Arguments') ::
+			{
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 0' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 1' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 2' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 3' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 4' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 5' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 6' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 7' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 8' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 9' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 10' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 11' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 12' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 13' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 14' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+				hbox(size = '28') ::
+				{
+					label(def = 'h3' id = 'name' text = 'Arg')(flex = '1' next = '6') textField(def = 'tf-n' id = 'value' onEnter = 'set xs_arg 15' )	(flex = '1' next = '3')
+					resizer(class = 'float')(id = 'set' range = '0 1.0' step = '1' space = '7')(size = '8')
+				}
+			}
+		}
+		
+		hbox(size = '30') ::
+		{
+			switch(class = 'panel')(def='h2' selected = '1' path = '1 1' text = 'Shader' flex = '1' next = '3')
+			button(def = 'bn-grey' text = '^42' textFont = 'icon' onClick = 'xs'            delayed = '1' textSize = '10 10')(size = '35' margin = '0 0 4 4' next = '1' corner = '5' radius = '3')(hint = 'Execute Shader')
+			button(def = 'bn-grey' text = '^38' textFont = 'icon' onClick = 'set xs_shader' delayed = '1' textSize = '12 12')(size = '35' margin = '0 0 4 4' corner = '10' radius = '3')(hint = 'Refresh Shader')
+		}
+		
+		hbox(size = '28' margin = '9 0 0 0')(hint = 'Iteration Number') ::
+		{
+			label(def = 'h3' text = 'Iteration')(flex = '1')
+			textField(def = 'tf-sub' id = 'xs_iter' onEnter = 'set xs_iter' text = '1' maxLength = '3')(size = '20')
+			resizer(class = 'int')(range = '1 64' step = '1' space = '4')(size = '8' prev = '3')
+		}
+
+		layer(def = 'layer-dark')(flex = '1') ::
+		{
+			list(def = 'fileList' id = 'file_xs' root = [[$/shader]] ext = 'txt' onSelect = 'set xs_shader')(hint = 'Voxel Shader List')
+		}
+	}
+
+	vbox(id = 'menu_graph' flex = '1' hidden = '1') ::
+	{
+		switch(class = 'panel')(def='h2' selected = '1' text = 'Info' size = '30')
+		
+		layer(def = 'layer-dark')(bgColor = '70 70 70 0' scroll = '0 1' resize = '4' size = '104' max = '208' flex = '-1' next = '3') ::
+		{
+			vbox(margin = '9 6 0 0')(id = 'xs')(hint = 'Shader Arguments') ::
+			{			
+				hbox(size = '28')(hint = 'Object Name') ::
+				{
+					label(def = 'h3' text = 'Name')(flex = '1' next = '3')
+					textfield(def = 'tf-info' id = 'oname' onEnter = 'oname' flex = '1.5')
+				}
+			}
+		}
+
+		switch(class = 'panel')(def='h2' selected = '1' text = 'Outline' size = '30')
+		
+		layer(def = 'layer-dark')(flex = '1') ::
+		{
+			graph(def = 'fileList' id = 'graph')(hint = 'Scene Outline')
+		}
+	}
+
+	layer(fitSize ='1 0' scroll = '0 1')(flex = '1')(id = 'menu_io' flex = '1' hidden = '1') ::
+	{
+		vbox(margin = '9 6 0 0' clip = '0') ::
+		{	
+			hbox(clip = '0' size = '30' margin = '-9 -2 0 0') ::
+			{
+				switch(class = 'panel')(def='h2' selected = '1' path = '1 1' text = 'File')( flex = '1')
+			}
+
+			vbox ::
+			{
+				hbox(size = '28')(hint = 'Palette') ::
+				{
+					label(def = 'h3' text = 'Palette')(flex = '1')
+					button(def = 'bn-ic-t'  onClick = 'i_pal sel' text = '^33' textSize = '14 14')(size = '20' margin = '0 0 4 4')(hint = 'Import')
+					button(def = 'bn-ic-t'  onClick = 'o_pal' text = '^34' textSize = '14 14')(size = '20' margin = '0 0 4 4')(hint = 'Export')
+					switch(def = 'sw-check' onClick = 'set option_save pal' selected = '1')(prev = '3' size = '16')(hint = 'Save in the File')
+				}
+				hbox(size = '28')(hint = 'Material') ::
+				{
+					label(def = 'h3' text = 'Material')(flex = '1')
+					button(def = 'bn-ic-t'  onClick = 'i_comp mtl' text = '^33' textSize = '14 14')(size = '20' margin = '0 0 4 4')(hint = 'Import')
+					button(def = 'bn-ic-t'  onClick = 'o_comp mtl' text = '^34' textSize = '14 14')(size = '20' margin = '0 0 4 4')(hint = 'Export')
+					switch(def = 'sw-check' onClick = 'set option_save mtl' selected = '1')(prev = '3' size = '16')(hint = 'Save in the File')
+				}
+				hbox(size = '28')(hint = 'Render Setting') ::
+				{
+					label(def = 'h3' text = 'Render')(flex = '1')
+					button(def = 'bn-ic-t'  onClick = 'i_comp render' text = '^33' textSize = '14 14')(size = '20' margin = '0 0 4 4')(hint = 'Import')
+					button(def = 'bn-ic-t'  onClick = 'o_comp render' text = '^34' textSize = '14 14')(size = '20' margin = '0 0 4 4')(hint = 'Export')
+					switch(def = 'sw-check' onClick = 'set option_save render' selected = '1')(prev = '3' size = '16')(hint = 'Save in the File')
+				}
+				hbox(size = '28')(hint = 'Camera') ::
+				{
+					label(def = 'h3' text = 'Camera')(flex = '1')
+					button(def = 'bn-ic-t'  onClick = 'i_comp camera' text = '^33' textSize = '14 14')(size = '20' margin = '0 0 4 4')(hint = 'Import')
+					button(def = 'bn-ic-t'  onClick = 'o_comp camera' text = '^34' textSize = '14 14')(size = '20' margin = '0 0 4 4')(hint = 'Export')
+					switch(def = 'sw-check' onClick = 'set option_save camera' selected = '1')(prev = '3' size = '16')(hint = 'Save in the File')
+				}	
+				hbox(size = '28')(hint = 'Palette Note') ::
+				{
+					label(def = 'h3' text = 'Note')(flex = '1')
+					button(def = 'bn-ic-t'  onClick = 'i_comp note' text = '^33' textSize = '14 14')(size = '20' margin = '0 0 4 4')(hint = 'Import')
+					button(def = 'bn-ic-t'  onClick = 'o_comp note' text = '^34' textSize = '14 14')(size = '20' margin = '0 0 4 4')(hint = 'Export')
+					switch(def = 'sw-check' onClick = 'set option_save note' selected = '1')(prev = '3' size = '16')(hint = 'Save in the File')
+				}			
+			}
+			
+			hbox(clip = '0' size = '30' margin = '-9 -2 0 0') ::
+			{
+				switch(class = 'panel')(def='h2' selected = '1' path = '1 1' text = 'Import')( flex = '1')
+				button(onClick = 'i' def = 'bn-ic-t' text = '^47' textSize = '14 14')(size = '20' margin = '-2 -2 4 4')(hint = 'Import Project [Drop]')
+			}			
+			vbox ::
+			{
+				hbox(size = '28')(hint = 'Only Import Color and Material for Selected Palette Region') ::
+				{
+					label(def = 'h3' text = 'Selected Color')(flex = '1')
+					switch(def = 'sw-check' onClick = 'set option_import pal_sel' selected = '0')(size = '16')
+				}
+				hbox(size = '28')(hint = 'Match Palette Color') ::
+				{
+					label(def = 'h3' text = 'Match Color')(flex = '1')
+					switch(def = 'sw-check' onClick = 'set option_import match' selected = '0')(size = '16')
+				}
+			}
+
+			hbox(clip = '0' size = '30' margin = '-9 -2 0 0') ::
+			{
+				switch(class = 'panel')(def='h2' selected = '1' path = '1 1' text = 'Export')( flex = '1')
+				button(onClick = 'o' def = 'bn-ic-t' text = '^47' textSize = '14 14')(size = '20' margin = '-2 -2 4 4')(hint = 'Export Project')
+			}
+			vbox ::
+			{
+				hbox(size = '28')(hint = 'Only Export Selected Objects') ::
+				{
+					label(def = 'h3' text = 'Selection Only')(flex = '1')
+					switch(def = 'sw-check' onClick = 'set option_export sel' selected = '0')(size = '16')
+				}
+
+				hbox(size = '28')(hint = 'Export Objects in the Local Space') ::
+				{
+					label(def = 'h3' text = 'Local Space')(flex = '1')
+					switch(def = 'sw-check' onClick = 'set option_export local' selected = '0')(size = '16')
+				}
+			}
+		}
+	}
+
+	//----------------
+	// Export
+	//----------------
+	vbox(def = 'bg') ::
+	{
+		switch(class = 'panel')(def='h2' selected = '0' text = 'Export' size = '30')
+		vbox ::
+		{
+			hbox(size = '26' next = '1') ::
+			{
+				button(onClick = 'o obj'	text = 'obj'	delayed = '1' 	)(flex = '1' next = '1')(corner = '4')(hint = 'obj : obj mesh')
+				button(onClick = 'o ply'	text = 'ply'	delayed = '1' 	)(flex = '1' next = '1')(corner = '0')(hint = 'ply : ply mesh')
+				button(onClick = 'o mc'		text = 'mc'		delayed = '1' 	)(flex = '1' next = '0')(corner = '8')(hint = 'mc : Marching Cubes')
+			}
+			hbox(size = '26' next = '1') ::
+			{
+				button(onClick = 'o xraw'   text = 'xraw'	delayed = '1' 	)(flex = '1' next = '1')(hint = 'vox : xraw volume')
+				button(onClick = 'o slab'	text = 'slab'	delayed = '1' 	)(flex = '1' next = '1')(hint = 'slab : slab6 vox volume')
+				button(onClick = 'o qb'		text = 'qb'		delayed = '1' 	)(flex = '1' next = '0')(hint = 'qb : qb volume')
+			}
+			hbox(size = '26' next = '1') ::
+			{
+				button(onClick = 'o vox'	text = 'vox'	delayed = '1' 	)(flex = '1' next = '1')(hint = 'vox : vox voxels')
+				button(onClick = 'o iso'	text = 'iso'	delayed = '1' 	)(flex = '1' next = '1')(hint = 'iso : isometric pixel sprite')
+				button(onClick = 'o 2d'		text = '2d'		delayed = '1' 	)(flex = '1' next = '0')(hint = '2d : 2D sprite')
+			}
+			hbox(size = '26') ::
+			{
+				button(onClick = 'o slice'	text = 'slice'	delayed = '1' 	)(flex = '1' next = '1')(corner = '1')(hint = 'slice : slices')
+				button(onClick = 'o pcl'	text = 'point'	delayed = '1' 	)(flex = '1' next = '1')(corner = '0')(hint = 'point : point clouds')
+				button(onClick = 'o cube'	text = 'cube'	delayed = '1' 	)(flex = '1' next = '0')(corner = '2')(hint = 'cube : cubes')
+			}
+		}
+	}
+}

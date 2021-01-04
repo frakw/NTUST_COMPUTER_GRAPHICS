@@ -1,0 +1,107 @@
+vbox(def = 'bg2' corner = '12' radius = '2') ::
+{
+	hbox(size = '25') ::
+	{
+		hbox(id = 'top_render' hidden = '1' flex = '1') ::
+		{
+			switch(def = 'sw-play' onClick = 'set pt_auto' selected = '1')
+			(corner = '12' radius = '2' size = '32')
+			(hint = 'Toggle Progressive Rendering')
+
+			sp(flex = '1')	
+
+			label(def = 'h3' text = '^57' textFont = 'icon' textSize = '20 20')
+			(size = '26' next = '5')
+
+			textField(def = 'tf-size' id = 'pt_image' onEnter = 'set pt_image' default = 'image' maxLength = '10')
+			(size = '110')
+			(hint = 'Image Size')
+
+			resizer(axis = '0' class = 'image')(range = '16 2048' step = '5' space = '2')(size = '8' next = '3' margin = '0 0 0 0')
+
+			label(def = 'h3' text = '^59' textFont = 'icon' textSize = '17 16')
+			(size = '26' next = '3')
+
+			textField(def = 'tf-size' id = 'pt_spp' onEnter = 'set pt_spp' default = 'sample' maxLength = '7')
+			(size = '100')
+			(hint = 'Samples Per Pixel')
+			
+			resizer(axis = '0' class = 'int')(range = '512 100000' step = '10')(size = '8' next = '3' margin = '0 0 0 0')
+		}
+		
+		hbox(id = 'top_edit' flex = '1') ::
+		{
+			switch(def = 'sw-orange' onClick = 'set b_switch_obj' text = '^74' textFont = 'icon' textSize = '14 14')(margin = '0 0 2.5 2.5' size = '20' prev = '3' next = '3')(hint = 'Double Click to Switch Between Objects')
+
+			hbox(id = 'top_oedit' flex = '1') ::
+			{
+				switch(def = 'sw-orange' onClick = 'set b_drag_ref'     text = '^73' textFont = 'icon' textSize = '15 15')(margin = '0 0 2.5 2.5' size = '20' next = '3')(hint = 'Create Reference of Objects [SHIFT+Drag]')
+	
+				sp(flex = '1')
+				
+				sp(def = 'bg0')(size = '2')
+
+				button(def = 'bn-bar' id = 'onew' onClick = 'onew' textFont = 'icon' text = '^10')
+				(size = '36')
+				(hint = 'New Object [CTRL+N]')
+
+				button(def = 'bn-bar' id = 'odel' onClick = 'odel' textFont = 'icon' text = '^11')
+				(size = '36')
+				(hint = 'Delete Objects [Backspace/Delete]')
+				
+				sp(def = 'bg0')(size = '2')
+				
+				button(def = 'bn-bar' id = 'ogroup' onClick = 'ogroup' textFont = 'icon' text = '^19')
+				(size = '36')
+				(hint = 'Group Objects [CTRL+R]')
+
+				button(def = 'bn-bar' id = 'oungroup' onClick = 'oungroup' textFont = 'icon' text = '^18')
+				(size = '36')
+				(hint = 'Ungroup Objects [CTRL+SHIFT+R]')
+
+				sp(def = 'bg0')(size = '2')
+			
+				button(def = 'bn-bar' id = 'lv_prev' onClick = 'olevel -1' text = '^X2191' textSize = '18 16')
+				(size = '36')
+				(hint = 'Leave Group [SHIFT+TAB/Double Click]')
+
+				button(def = 'bn-bar' id = 'lv_next' onClick = 'olevel +1' text = '^X2193' textSize = '18 16')
+				(size = '36')
+				(hint = 'Enter Group [TAB/Double Click]')
+
+				sp(def = 'bg0')(size = '2')
+			}
+			
+			hbox(id = 'top_medit' hidden = '1' flex = '1') ::
+			{
+				switch(def = 'sw-orange' onClick = 'set b_modify_sel' text = '^12'  textFont = 'icon' textSize = '15 15')(margin = '0 0 2.5 2.5' size = '20' next = '3')(hint = 'Modify Selection Region')
+				switch(def = 'sw-orange' onClick = 'set b_box_resize' text = '^105' textFont = 'icon' textSize = '14 14')(margin = '0 0 2.5 2.5' size = '20' next = '3')(hint = 'Show Brush Gizmo : Commit [Enter] : Cancel [Esc] : Two-sided [+SHIFT]')
+		
+				sp(flex = '1')
+
+				hbox ::
+				{
+					sp(def = 'bg0')(size = '2')
+					button(def = 'bn-bar' id = 'undo_brush' disabled = '1' onClick = 'cmd_brush undo' repeated = '1')(text = '^X2190')(size = '36' corner = '0')(hint = 'Undo Gizmo Transform')
+					button(def = 'bn-bar' id = 'redo_brush' disabled = '1' onClick = 'cmd_brush redo' repeated = '1')(text = '^X2192')(size = '36' corner = '0')(hint = 'Redo Gizmo Transform')
+				}
+				
+				sp(def = 'bg0')(size = '2')
+				
+				switch(def = 'sw-cam' id = 'b_resize' onClick = 'set b_type_s resize' textFont = 'icon' text = '^92' textSize = '15 15')(size = '36' corner = '0')(hint = 'Resize Model : Commit [Enter] : Cancel [Esc] : Two-sided [+SHIFT]')
+				
+				textField(def = 'tf-size' id = 'size' onEnter = 'size' default = 'size' maxLength = '12')
+				(corner = '0' margin = '0 0 0 0' size = '125')
+				(hint = 'Resize Model')
+			}
+			
+			button(def = 'bn-bar' onClick = 'shrink' textFont = 'icon' text = '^101' textSize = '14 14')(size = '36' corner = '0')(hint = 'Fit Model Size')
+
+			sp(def = 'bg0')(size = '2')
+			
+			switch(def = 'sw-bar' id = 'lv_edit' onClick = 'olevel -2' selected = '1' text = '^9650' text2 = '^9660' textFont = 'symbol' textSize = '11 11')
+			(corner = '8' radius = '2')(size = '36')
+			(hint = 'Switch between Model/World [TAB/Double Click]')
+		}			
+	}
+}

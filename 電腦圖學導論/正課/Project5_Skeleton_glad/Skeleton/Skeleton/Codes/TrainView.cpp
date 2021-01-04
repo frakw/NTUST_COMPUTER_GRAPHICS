@@ -245,10 +245,12 @@ void TrainView::draw()
 
 		if (!steve) {
 			steve = new Model("models/Steve/Steve.obj");
+			//steve = new Model("models/monu9/monu9.obj");
 		}
 
 		if (!terrain) {
-			terrain = new Model("models/terrain/Mountain.obj");
+			//terrain = new Model("models/terrain/Mountain.obj");
+			terrain = new Model("models/monu9/monu9.obj");
 		}
 
 		if (terrain_tex == -1) {

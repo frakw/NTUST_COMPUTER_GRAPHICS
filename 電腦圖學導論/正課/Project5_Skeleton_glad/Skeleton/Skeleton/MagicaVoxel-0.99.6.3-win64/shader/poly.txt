@@ -1,0 +1,42 @@
+// xs_begin
+// author : 'ephtracy'
+// arg : { var = 'm_side'  name = 'Side'  value = '3'   range = '3 64'    step = '1'    precision = '0' }
+// arg : { var = 'm_angle' name = 'Angle' value = '0'   range = '0 360'   step = '5'    precision = '0' }
+// xs_end
+
+//===== built-in args =====
+// uniform vec3		i_volume_size;		// volume size [1-256]
+// uniform float	i_color_index;		// current color index [0-255]
+// uniform int		i_num_color_sels;	// number of color selections [1-255]
+
+//===== built-in functions ===== 
+// float voxel( vec3 v );				// get voxel color index
+// float color_sel( float k );			// get kth selected color index
+// vec4 palette( float index );			// get palette color
+
+// generate a new voxel color index [0, 255] at position v ( v is at the center of voxel, such as vec3( 1.5, 2.5, 4.5 ) )
+float map( vec3 v ) {
+	const float PI = 3.1415926;
+
+	// model center
+	vec3 center = i_volume_size * 0.5;
+	
+	// 2D pos
+	vec2 u = ( v - center ).xy;
+
+	// poly
+	float angle = PI * 2.0 / max( floor( m_side ), 3.0 );
+	float t = min( center.x, center.y );
+
+	// polar coord
+	float r = length( u );
+	float theta = atan( u.y, u.x ) + PI + m_angle / 180.0 * PI;
+
+	r *= cos( angle * abs( fract( theta / angle ) - 0.5 ) );
+	t *= cos( angle * 0.5 );
+
+	r = max( r, 0.0 );
+	t = max( t, 0.0 );
+
+	return i_color_index * step( r, t );
+}

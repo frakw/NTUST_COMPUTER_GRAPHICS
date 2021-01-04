@@ -1,0 +1,47 @@
+vbox(margin = '0 6 0 0')(hint = 'Note [Tab/Up/Down]') ::
+{
+	sp(size = '30')
+	hbox(size = '17') ::
+	{
+		sp(flex = '1')
+		button(def = 'bn-ic-t' text = '^38' textFont = 'icon' onClick = 'set note_clear' delayed = '1' textSize = '12 12')(size = '14' margin = '-4 -4 0 0')(hint = 'Clear Notes')
+	}
+	vbox(id = 'note' flex = '1' size = '250') ::
+	{
+		textfield(def = 'tf-note' flex = '1' prev = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1')
+		textfield(def = 'tf-note' flex = '1' next = '1')
+	}
+	sp(size = '22')
+	sp(size = '30')
+	sp(id = 'col_pal_col_box' size = '100' hidden = '1')
+}

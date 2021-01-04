@@ -1,0 +1,83 @@
+workspace :
+{
+    // use '$' for current directory, otherwise use actual full path
+    dir_model      : [[$/vox]]
+    dir_pattern    : [[$/vox]]
+    dir_palette    : [[$/palette]]
+    dir_export     : [[$/export]]
+    dir_snapshot   : [[$/export]]
+    dir_xs_shader  : [[$/shader]]
+    dir_ibl        : [[$/ibl]]
+    dir_plugin     : [[$/plugin]]
+}
+
+view :
+{
+    ui_scale       : '1.25' // [0.5, 3.0]
+    ambient_color  : '0.19 0.18 0.26' // [0.0 ~ 1.0]
+}
+
+render :
+{
+    dense_buffer   : '256'   // [16, 1024] MB
+    sparse_buffer  : '256'   // [16, 1024] MB
+}
+
+io_iso :
+{
+    size      : '2' // voxel size : [1, 8]
+    height    : '4' // height : size * 2 : [1, 24]
+
+    view      : '4' // num of views : [1, 4]
+    outline   : '1' // outline and highlight : [0, 1]
+
+    top       : '1.17 1.15 1.25'  // top lighting [0.0 - 1.0]
+    left      : '0.37 0.35 0.55'  // left lighting
+    right     : '0.87 0.85 0.95'  // right lighting
+    bevel     : '0.13 0.13 0.13'  // bevel highlight
+}
+
+io_2d :
+{
+    size      : '16' // voxel size : [1, 32]
+    shadow    : '1'  // enable shadow : [0, 1]
+    outline   : '0'  // enable outline : [0, 1]
+}
+
+io_obj :
+{
+    scale   : '0.1'
+    axis    : 'XZ-Y' // axis : { 'XYZ' : Z up; 'XZ-Y' Y up }
+    cw      : '0'  // { 0 : counter clockwise; 1 : clockwise }
+    merge   : '1'  // merge voxel faces with same color
+}
+
+io_ply :
+{
+    scale   : '0.1'
+    axis    : 'XYZ'
+    cw      : '0'
+}
+
+io_mc :
+{
+    scale   : '0.1'
+    axis    : 'XYZ'
+    cw      : '0'
+}
+
+io_cube :
+{
+    scale   : '0.1'
+    axis    : 'XYZ'
+    cw      : '0'
+    margin  : '0.1' // 0.0 ~ 1.0
+}
+
+io_point :
+{
+    scale   : '1'
+    axis   : 'XYZ'
+    sample_offset  : '0 0 0' // 0.0 ~ 1.0
+}
+

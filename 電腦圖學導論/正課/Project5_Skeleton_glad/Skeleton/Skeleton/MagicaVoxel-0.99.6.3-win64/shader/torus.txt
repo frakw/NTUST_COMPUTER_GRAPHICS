@@ -1,0 +1,27 @@
+// xs_begin
+// arg : { var = 'm_radius' name = 'Radius' value = '3'   range = '1 128'    step = '1'    precision = '0' }
+// xs_end
+
+//===== built-in args =====
+// uniform vec3		i_volume_size;		// volume size [1-256]
+// uniform float	i_color_index;		// current color index [0-255]
+// uniform int		i_num_color_sels;	// number of color selections [1-255]
+
+//===== built-in functions ===== 
+// float voxel( vec3 v );				// get voxel color index
+// float color_sel( float k );			// get kth selected color index
+// vec4 palette( float index );			// get palette color
+
+// generate a new voxel color index [0, 255] at position v ( v is at the center of voxel, such as vec3( 1.5, 2.5, 4.5 ) )
+float map(vec3 v) {
+	vec3 center = i_volume_size * 0.5;
+	vec3 p = ( v - center );	
+
+	if( length( vec2( length(p.xy) - min(center.x,center.y) + m_radius, p.z)) - m_radius > 0.5 ) {
+		return 0.0;
+	}
+	
+	float s = i_volume_size.x / float( i_num_color_sels );
+	return color_sel( v.x / s );
+}
+
