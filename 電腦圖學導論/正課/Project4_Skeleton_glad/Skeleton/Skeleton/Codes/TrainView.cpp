@@ -295,7 +295,7 @@ void TrainView::draw()
 					"./Codes/shaders/tiles.vert",
 					nullptr, nullptr, nullptr,
 					"./Codes/shaders/tiles.frag");
-			float skyboxVertices[] = {
+			float tilesVertices[] = {
 				// positions          
 				-1.0f,  1.0f, -1.0f,
 				-1.0f, -1.0f, -1.0f,
@@ -325,12 +325,12 @@ void TrainView::draw()
 				 1.0f, -1.0f,  1.0f,
 				-1.0f, -1.0f,  1.0f,
 
-				-1.0f,  1.0f, -1.0f,
-				 1.0f,  1.0f, -1.0f,
-				 1.0f,  1.0f,  1.0f,
-				 1.0f,  1.0f,  1.0f,
-				-1.0f,  1.0f,  1.0f,
-				-1.0f,  1.0f, -1.0f,
+				//-1.0f,  1.0f, -1.0f,不要畫水池屋頂
+				// 1.0f,  1.0f, -1.0f,
+				// 1.0f,  1.0f,  1.0f,
+				// 1.0f,  1.0f,  1.0f,
+				//-1.0f,  1.0f,  1.0f,
+				//-1.0f,  1.0f, -1.0f,
 
 				-1.0f, -1.0f, -1.0f,
 				-1.0f, -1.0f,  1.0f,
@@ -339,14 +339,14 @@ void TrainView::draw()
 				-1.0f, -1.0f,  1.0f,
 				 1.0f, -1.0f,  1.0f
 			};
-			//// skybox VAO
-			//glGenVertexArrays(1, &skyboxVAO);
-			//glGenBuffers(1, &skyboxVBO);
-			//glBindVertexArray(skyboxVAO);
-			//glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-			//glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-			//glEnableVertexAttribArray(0);
-			//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			// skybox VAO
+			glGenVertexArrays(1, &tilesVAO);
+			glGenBuffers(1, &tilesVBO);
+			glBindVertexArray(tilesVAO);
+			glBindBuffer(GL_ARRAY_BUFFER, tilesVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(tilesVertices), &tilesVertices, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 			vector<const GLchar*> faces = {
 			"Images/tiles.jpg",
 			"Images/tiles.jpg",
@@ -356,6 +356,7 @@ void TrainView::draw()
 			"Images/tiles.jpg",
 			};
 			tiles_cubemapTexture = loadCubemap(faces);
+
 		}
 
 		if (!this->commom_matrices)
@@ -485,6 +486,11 @@ void TrainView::draw()
 			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 				cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+
+		if (tiles_tex == -1) {
+			tiles_tex = TextureFromFile("Images/tiles.jpg", ".");
+			//tiles_tex = TextureFromFile("Images/church.png",".");
 		}
 	}
 	else
@@ -689,9 +695,11 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "dir_open"), tw->dir_L->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "point_open"), tw->point_L->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "spot_open"), tw->spot_L->value());
-	glUniform1f(glGetUniformLocation(choose_wave->Program, "reflect_open"), tw->reflect->value());
-	glUniform1f(glGetUniformLocation(choose_wave->Program, "refract_open"), tw->refract->value());
+	//glUniform1f(glGetUniformLocation(choose_wave->Program, "reflect_open"), tw->reflect->value());
+	//glUniform1f(glGetUniformLocation(choose_wave->Program, "refract_open"), tw->refract->value());
 	glUniform1f(glGetUniformLocation(choose_wave->Program, "flat_shading"), tw->height_map_flat->value());
+
+	glUniform1f(glGetUniformLocation(choose_wave->Program, "skybox"), cubemapTexture);
 
 
 	dir_light(choose_wave);
@@ -699,7 +707,14 @@ void TrainView::draw()
 	spot_light(choose_wave,glm::normalize(glm::vec3(0,0,0) - my_pos));
 
 	glUniform2f(glGetUniformLocation(choose_wave->Program, "drop_point"), -1,-1);
+
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, tiles_tex);
+	glUniform1i(glGetUniformLocation(choose_wave->Program, "tiles"), 2);
 	wave->Draw(*choose_wave, tw->waveBrowser->value());
+
+
 	for (int i = 0;i < all_drop.size();i++) {
 		if (tw->time - all_drop[i].time > all_drop[i].keep_time) {
 			all_drop.erase(all_drop.begin() + i);
@@ -719,12 +734,13 @@ void TrainView::draw()
 	glUniformMatrix4fv(glGetUniformLocation(tiles->Program, "view"), 1, GL_FALSE, view);
 	glUniformMatrix4fv(glGetUniformLocation(tiles->Program, "model"), 1, GL_FALSE, &tiles_model[0][0]);
 	// skybox cube
-	glBindVertexArray(skyboxVAO);
+	glBindVertexArray(tilesVAO);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, tiles_cubemapTexture);
+
 	if(tw->tiles->value())glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
-	//glDepthFunc(GL_LESS); // set depth function back to default
+	glDepthFunc(GL_LESS); // set depth function back to default
 	glDisable(GL_CULL_FACE);
 
 	glDepthFunc(GL_LEQUAL);

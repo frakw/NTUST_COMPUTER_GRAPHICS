@@ -81,6 +81,59 @@ uniform float ratio_of_reflect_refract = 0.5f;
 
 uniform samplerCube skybox;
 uniform bool toon_open;
+
+uniform sampler2D tiles;
+const float poolHeight = 1;
+
+const vec3 underwaterColor = vec3(0.4, 0.9, 1.0);
+vec2 intersectCube(vec3 origin, vec3 ray, vec3 cubeMin, vec3 cubeMax) {
+	vec3 tMin = (cubeMin - origin) / ray;
+	vec3 tMax = (cubeMax - origin) / ray;
+	vec3 t1 = min(tMin, tMax);
+	vec3 t2 = max(tMin, tMax);
+	float tNear = max(max(t1.x, t1.y), t1.z);
+	float tFar = min(min(t2.x, t2.y), t2.z);
+	return vec2(tNear, tFar);
+}
+
+
+vec3 getWallColor(vec3 point) {
+	float scale = 0.5;
+
+	vec3 wallColor;
+	vec3 normal;
+	if (abs(point.x) > 0.999) {
+		wallColor = texture2D(tiles, point.yz * 0.5 + vec2(1.0, 0.5)).rgb;
+		normal = vec3(-point.x, 0.0, 0.0);
+	} else if (abs(point.z) > 0.999) {
+		wallColor = texture2D(tiles, point.yx * 0.5 + vec2(1.0, 0.5)).rgb;
+		normal = vec3(0.0, 0.0, -point.z);
+	} else {
+		wallColor = texture2D(tiles, point.xz * 0.5 + 0.5).rgb;
+		normal = vec3(0.0, 1.0, 0.0);
+	}
+
+	scale /= length(point); /* pool ambient occlusion */
+	
+
+	return wallColor * scale;
+}
+
+  vec3 getSurfaceRayColor(vec3 origin, vec3 ray, vec3 waterColor) {
+        vec3 color;
+        if (ray.y < 0.0) {
+		    vec2 t = intersectCube(origin, ray, vec3(-1, -poolHeight, -1), vec3(1, poolHeight, 1));
+            color = getWallColor(origin + ray * t.y);
+		}
+        else{
+            color = vec3(textureCube(skybox, ray)); 
+        }
+
+        if(ray.y<0.0f)color*=waterColor;
+        return color;
+  }
+
+
 void main()
 {   
     if(toon_open){
@@ -121,18 +174,15 @@ void main()
     vec3 RefractVec_up = refract(I, -normalize(f_in.normal),Eta);
     vec3 RefractVec_down = refract(I, normalize(f_in.normal),Eta);
     vec3 ReflectColor = vec3(textureCube(skybox, ReflectVec));
-    //vec3 RefractColor = vec3(textureCube(skybox, RefractVec));
     vec3 RefractColor;
     if(viewPos.y > f_in.position.y){
-        RefractColor = vec3(textureCube(skybox, RefractVec_down));
+        RefractColor = getSurfaceRayColor(vec3(f_in.texture_coordinate.x*2-1,0.0f,f_in.texture_coordinate.y*2-1), RefractVec_down, vec3(1.0)) * vec3(0.8, 1.0, 1.1);
     }
     else{
-        RefractColor = vec3(textureCube(skybox, RefractVec_up));        
+        RefractColor = getSurfaceRayColor(vec3(f_in.texture_coordinate.x*2-1,0.0f,f_in.texture_coordinate.y*2-1), RefractVec_up, vec3(1.0)) * vec3(0.8, 1.0, 1.1);
     }
 
-    if(reflect_open && refract_open)f_color = vec4(mix(ReflectColor,RefractColor ,ratio_of_reflect_refract),1.0f); 
-    else if(reflect_open)f_color = vec4(ReflectColor, 1.0);
-    else if(refract_open)f_color = vec4(RefractColor, 1.0);
+    f_color = vec4(mix(ReflectColor,RefractColor ,ratio_of_reflect_refract),1.0f); 
     //else f_color = vec4(basecolor,1.0f);//這個會讓shader爆炸，原因不明，Reflect Refract似乎不能跟貼圖同時出現
 
     }

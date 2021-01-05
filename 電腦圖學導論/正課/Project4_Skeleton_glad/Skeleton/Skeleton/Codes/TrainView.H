@@ -114,6 +114,7 @@ class TrainView : public Fl_Gl_Window
 		GLuint cubemapTexture;//skybox
 		GLuint tiles_cubemapTexture;//tiles
 		GLuint skyboxVAO, skyboxVBO;
+		GLuint tilesVAO, tilesVBO;
 
 		Texture2D* texture	= nullptr;
 		VAO* plane			= nullptr;
@@ -138,6 +139,7 @@ class TrainView : public Fl_Gl_Window
 		unsigned int interactive_rbo;
 		unsigned int interactive_quadVAO, interactive_quadVBO;
 
+		unsigned int tiles_tex = -1;
 		//vector<glm::vec2> drop_point;
 		//vector<float> drop_time;
 		vector<Drop> all_drop;

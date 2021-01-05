@@ -48,7 +48,7 @@ public:
                 for (auto& j : height_map_meshes[i].textures) {
                     j.id = height_map_id[height_map_index];
                 }
-                glActiveTexture(GL_TEXTURE0 + height_map_id[height_map_index]);
+                glActiveTexture(GL_TEXTURE0 + i);
                 glUniform1i(glGetUniformLocation(shader.Program, "height_map_texture"), height_map_id[height_map_index]);
                 glBindTexture(GL_TEXTURE_2D, height_map_id[height_map_index]);
                 height_map_meshes[i].Draw(shader);
@@ -247,10 +247,19 @@ unsigned int TextureFromFile(const char* path, const string& directory, bool gam
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
+        
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        
+
+        /*
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat 
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        */
 
         stbi_image_free(data);
     }

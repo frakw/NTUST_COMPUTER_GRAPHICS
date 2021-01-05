@@ -104,8 +104,6 @@ class TrainWindow : public Fl_Double_Window {
 		Fl_Value_Slider*	wavespeed;
 		Fl_Value_Slider*	interactive_wavespeed;
 		Fl_Value_Slider*	rain_frequency;
-		Fl_Button* reflect;
-		Fl_Button* refract;
 		Fl_Button* tiles;
 		Fl_Button* rain;
 		Fl_Button* height_map_flat;
