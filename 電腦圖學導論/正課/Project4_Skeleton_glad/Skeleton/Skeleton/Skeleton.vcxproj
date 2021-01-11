@@ -119,7 +119,7 @@
     <LibraryPath>lib\Debug\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LibraryPath>lib\Release\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>lib\Release\;lib\;$(LibraryPath)</LibraryPath>
     <IncludePath>include\;include\glad\;include\glm\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

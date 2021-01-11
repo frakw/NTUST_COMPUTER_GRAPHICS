@@ -55,6 +55,10 @@
     <None Include="Codes\shaders\model_texture.vert" />
     <None Include="Codes\shaders\particle.frag" />
     <None Include="Codes\shaders\particle.vert" />
+    <None Include="Codes\shaders\screen.frag" />
+    <None Include="Codes\shaders\screen.vert" />
+    <None Include="Codes\shaders\skybox.frag" />
+    <None Include="Codes\shaders\skybox.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -107,6 +107,19 @@ class TrainView : public Fl_Gl_Window
 		Model* terrain = nullptr;
 		Shader* for_model = nullptr;
 		Shader* for_model_texture = nullptr;
+		//------------------------skybox----------------------
+		Shader* skybox = nullptr;
+		GLuint cubemapTexture;//skybox
+		GLuint skyboxVAO, skyboxVBO;
+		//----------------------------------------------------
+
+		//------------------------framebuffer----------------------
+		Shader* screen = nullptr;
+		GLuint screen_framebuffer;
+		GLuint screen_textureColorbuffer;
+		GLuint screen_rbo;
+		GLuint screen_quadVAO, screen_quadVBO;
+		//---------------------------------------------------------
 
 		ParticleGenerator* Particles = nullptr;//記得設null
 		Shader* particle_shader = nullptr;//記得設null

@@ -121,5 +121,17 @@
     <None Include="Codes\shaders\particle.vert">
       <Filter>shader</Filter>
     </None>
+    <None Include="Codes\shaders\skybox.frag">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="Codes\shaders\skybox.vert">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="Codes\shaders\screen.frag">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="Codes\shaders\screen.vert">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

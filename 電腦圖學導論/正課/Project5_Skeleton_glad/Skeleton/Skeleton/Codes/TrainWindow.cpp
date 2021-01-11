@@ -171,6 +171,16 @@ TrainWindow(const int x, const int y)
 		pty += 30;
 		physics = new Fl_Button(605, pty, 60, 20, "physics");
 		togglify(physics);
+		pty += 30;
+		frame_buffer_type = new Fl_Browser(605, pty, 120, 70, "frame buffer Type");
+		frame_buffer_type->type(2);		// select
+		frame_buffer_type->callback((Fl_Callback*)damageCB, this);
+		frame_buffer_type->add("default");
+		frame_buffer_type->add("pixel");
+		frame_buffer_type->add("offset");
+		frame_buffer_type->add("sobel");
+		frame_buffer_type->add("toon");
+		frame_buffer_type->select(1);
 #ifdef EXAMPLE_SOLUTION
 		makeExampleWidgets(this,pty);
 #endif

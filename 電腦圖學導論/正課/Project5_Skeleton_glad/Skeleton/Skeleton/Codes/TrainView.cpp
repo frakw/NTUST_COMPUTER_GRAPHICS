@@ -202,6 +202,37 @@ void point_light() {
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, yellowAmbientDiffuse);
 	glLightfv(GL_LIGHT1, GL_POSITION, position);
 }
+
+unsigned int loadCubemap(vector<const GLchar*> faces)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+	int width, height, nrChannels;
+	for (unsigned int i = 0; i < faces.size(); i++)
+	{
+		unsigned char* data = stbi_load(faces[i], &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			stbi_image_free(data);
+		}
+		else
+		{
+			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+			stbi_image_free(data);
+		}
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	return textureID;
+}
+
 //************************************************************************
 //
 // * this is the code that actually draws the window
@@ -273,12 +304,172 @@ void TrainView::draw()
 		if (!Particles) {
 			//Particles = new ParticleGenerator(particle_shader, particle_texture,500);
 		}
+
+				if (!this->screen) {
+			this->screen = new
+				Shader(
+					"./Codes/shaders/screen.vert",
+					nullptr, nullptr, nullptr,
+					"./Codes/shaders/screen.frag");
+
+			float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+			  // positions   // texCoords
+			  -1.0f,  1.0f,  0.0f, 1.0f,
+			  -1.0f, -1.0f,  0.0f, 0.0f,
+			   1.0f, -1.0f,  1.0f, 0.0f,
+
+			  -1.0f,  1.0f,  0.0f, 1.0f,
+			   1.0f, -1.0f,  1.0f, 0.0f,
+			   1.0f,  1.0f,  1.0f, 1.0f
+			};
+			// screen quad VAO
+			glGenVertexArrays(1, &screen_quadVAO);
+			glGenBuffers(1, &screen_quadVBO);
+			glBindVertexArray(screen_quadVAO);
+			glBindBuffer(GL_ARRAY_BUFFER, screen_quadVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+			screen->Use();
+			glUniform1i(glGetUniformLocation(screen->Program, "screenTexture"),0);
+
+			glGenFramebuffers(1, &screen_framebuffer);
+			glBindFramebuffer(GL_FRAMEBUFFER, screen_framebuffer);
+
+			glGenTextures(1, &screen_textureColorbuffer);
+			glBindTexture(GL_TEXTURE_2D, screen_textureColorbuffer);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w(), h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screen_textureColorbuffer, 0);
+
+			glGenRenderbuffers(1, &screen_rbo);
+			glBindRenderbuffer(GL_RENDERBUFFER, screen_rbo);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, w(), h()); // use a single renderbuffer object for both a depth AND stencil buffer.
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, screen_rbo); // now actually attach it
+			// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+				cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+
+		if (!this->skybox) {
+			this->skybox = new
+				Shader(
+					"./Codes/shaders/skybox.vert",
+					nullptr, nullptr, nullptr,
+					"./Codes/shaders/skybox.frag");
+			float skyboxVertices[] = {
+				// positions          
+				-1.0f,  1.0f, -1.0f,
+				-1.0f, -1.0f, -1.0f,
+				 1.0f, -1.0f, -1.0f,
+				 1.0f, -1.0f, -1.0f,
+				 1.0f,  1.0f, -1.0f,
+				-1.0f,  1.0f, -1.0f,
+
+				-1.0f, -1.0f,  1.0f,
+				-1.0f, -1.0f, -1.0f,
+				-1.0f,  1.0f, -1.0f,
+				-1.0f,  1.0f, -1.0f,
+				-1.0f,  1.0f,  1.0f,
+				-1.0f, -1.0f,  1.0f,
+
+				 1.0f, -1.0f, -1.0f,
+				 1.0f, -1.0f,  1.0f,
+				 1.0f,  1.0f,  1.0f,
+				 1.0f,  1.0f,  1.0f,
+				 1.0f,  1.0f, -1.0f,
+				 1.0f, -1.0f, -1.0f,
+
+				-1.0f, -1.0f,  1.0f,
+				-1.0f,  1.0f,  1.0f,
+				 1.0f,  1.0f,  1.0f,
+				 1.0f,  1.0f,  1.0f,
+				 1.0f, -1.0f,  1.0f,
+				-1.0f, -1.0f,  1.0f,
+
+				-1.0f,  1.0f, -1.0f,
+				 1.0f,  1.0f, -1.0f,
+				 1.0f,  1.0f,  1.0f,
+				 1.0f,  1.0f,  1.0f,
+				-1.0f,  1.0f,  1.0f,
+				-1.0f,  1.0f, -1.0f,
+
+				-1.0f, -1.0f, -1.0f,
+				-1.0f, -1.0f,  1.0f,
+				 1.0f, -1.0f, -1.0f,
+				 1.0f, -1.0f, -1.0f,
+				-1.0f, -1.0f,  1.0f,
+				 1.0f, -1.0f,  1.0f
+			};
+			// skybox VAO
+			glGenVertexArrays(1, &skyboxVAO);
+			glGenBuffers(1, &skyboxVBO);
+			glBindVertexArray(skyboxVAO);
+			glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			vector<const GLchar*> faces = {
+			"image/skybox/right.jpg",
+			"image/skybox/left.jpg",
+			"image/skybox/top.jpg",
+			"image/skybox/bottom.jpg",
+			"image/skybox/front.jpg",
+			"image/skybox/back.jpg",
+			};
+			cubemapTexture = loadCubemap(faces);
+		}
 	}
 	else
 		throw std::runtime_error("Could not initialize GLAD!");
 
-	// Set up the view port
-	glViewport(0,0,w(),h());
+		static int pre_w = w(), pre_h = h();
+		// Set up the view port
+		glViewport(0, 0, w(), h());
+		if (pre_w != w() || pre_h != h()) {
+			glBindFramebuffer(GL_FRAMEBUFFER, screen_framebuffer);
+
+			glBindTexture(GL_TEXTURE_2D, screen_textureColorbuffer);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w(), h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screen_textureColorbuffer, 0);
+
+			glBindRenderbuffer(GL_RENDERBUFFER, screen_rbo);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, w(), h()); // use a single renderbuffer object for both a depth AND stencil buffer.
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, screen_rbo); // now actually attach it
+			// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+				cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+			/*
+			////=======================================================
+			// framebuffer configuration
+			glBindFramebuffer(GL_FRAMEBUFFER, interactive_framebuffer);
+			glBindTexture(GL_TEXTURE_2D, interactive_textureColorbuffer);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w(), h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, interactive_textureColorbuffer, 0);
+
+			glBindRenderbuffer(GL_RENDERBUFFER, interactive_rbo);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, w(), h()); // use a single renderbuffer object for both a depth AND stencil buffer.
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, interactive_rbo); // now actually attach it
+			// now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+				cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			*/
+		}
+		pre_w = w();
+		pre_h = h();
 
 	// clear the window, be sure to clear the Z-Buffer too
 	glClearColor(0,0,.3f,0);		// background should be blue
@@ -355,6 +546,12 @@ void TrainView::draw()
 	//glLightfv(GL_LIGHT2, GL_POSITION, lightPosition3);
 	//glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);
 
+	glBindFramebuffer(GL_FRAMEBUFFER, screen_framebuffer);
+	glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
+	// make sure we clear the framebuffer's content
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	tunnel_pos = Pnt3f(70,0,0);
 
 	GLfloat projection[16];
@@ -406,10 +603,27 @@ void TrainView::draw()
 	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 	//Particles->Draw();
 
+
+	glDepthFunc(GL_LEQUAL);
+	skybox->Use();
+	glUniform1f(glGetUniformLocation(skybox->Program, "skybox"), cubemapTexture);
+	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "projection"), 1, GL_FALSE, projection);
+	glUniformMatrix4fv(glGetUniformLocation(skybox->Program, "model_view"), 1, GL_FALSE, &view_without_translate[0][0]);
+	// skybox cube
+	glBindVertexArray(skyboxVAO);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+	glDepthFunc(GL_LESS); // set depth function back to default
+
 	//draw_tunnel();
 	//*********************************************************************
 	// now draw the ground plane
 	//*********************************************************************
+
+
+
 	// set to opengl fixed pipeline(use opengl 1.x draw function)
 	glUseProgram(0);
 
@@ -439,6 +653,22 @@ void TrainView::draw()
 	ProcessParticles();
 
 	DrawParticles();
+
+	// now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
+	// clear all relevant buffers
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessary actually, since we won't be able to see behind the quad anyways)
+	glClear(GL_COLOR_BUFFER_BIT);
+	this->screen->Use();
+	glUniform1i(glGetUniformLocation(screen->Program, "frame_buffer_type"), tw->frame_buffer_type->value());
+	glUniform1f(glGetUniformLocation(screen->Program, "screen_w"), w());
+	glUniform1f(glGetUniformLocation(screen->Program, "screen_h"), h());
+	glUniform1f(glGetUniformLocation(screen->Program, "t"), tw->time * 20);
+	glBindVertexArray(screen_quadVAO);
+	glBindTexture(GL_TEXTURE_2D, screen_textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glUseProgram(0);
 
 }
 
