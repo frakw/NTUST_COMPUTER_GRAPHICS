@@ -36,6 +36,7 @@
     <ClInclude Include="Codes\CallBacks.H" />
     <ClInclude Include="Codes\camera.h" />
     <ClInclude Include="Codes\ControlPoint.H" />
+    <ClInclude Include="Codes\Geometry.h" />
     <ClInclude Include="Codes\mesh.h" />
     <ClInclude Include="Codes\model.h" />
     <ClInclude Include="Codes\particle.h" />
@@ -49,6 +50,9 @@
     <ClInclude Include="Codes\Utilities\Pnt3f.H" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Codes\shaders\fbo.frag" />
+    <None Include="Codes\shaders\fbo.vert" />
+    <None Include="Codes\shaders\fog.glsl" />
     <None Include="Codes\shaders\model_loading.frag" />
     <None Include="Codes\shaders\model_loading.vert" />
     <None Include="Codes\shaders\model_texture.frag" />
@@ -59,6 +63,8 @@
     <None Include="Codes\shaders\screen.vert" />
     <None Include="Codes\shaders\skybox.frag" />
     <None Include="Codes\shaders\skybox.vert" />
+    <None Include="Codes\shaders\sun.frag" />
+    <None Include="Codes\shaders\sun.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

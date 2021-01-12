@@ -30,6 +30,7 @@
 #pragma warning(disable:4311)
 #include <Fl/Fl.h>
 #include <ctime>
+#include <windows.h>
 #pragma warning(pop)
 
 
@@ -37,7 +38,8 @@ int main(int, char**)
 {
 	srand(time(NULL));
 	printf("CS559 Train Assignment\n");
-
+	HKL hkl = LoadKeyboardLayout("00000409", KLF_ACTIVATE);
+	PostMessage(GetConsoleWindow(), WM_INPUTLANGCHANGEREQUEST, 0, (LPARAM)hkl);
 	TrainWindow tw;
 	tw.show();
 

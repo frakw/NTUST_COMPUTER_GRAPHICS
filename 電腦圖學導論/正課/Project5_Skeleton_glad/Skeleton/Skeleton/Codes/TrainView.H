@@ -90,6 +90,7 @@ class TrainView : public Fl_Gl_Window
 		Pnt3f GMT(const Pnt3f& p0, const Pnt3f& p1, const Pnt3f& p2, const Pnt3f& p3, int matrix_type, float t);
 
 		void draw_tunnel();
+		void set_fbo(int* framebuffer, unsigned int* textureColorbuffer);
 	public:
 		ArcBallCam		arcball;			// keep an ArcBall for the UI
 		int				selectedCube;  // simple - just remember which cube is selected
@@ -97,7 +98,8 @@ class TrainView : public Fl_Gl_Window
 		TrainWindow*	tw;				// The parent of this display window
 		CTrack*			m_pTrack;		// The track of the entire scene
 
-		Camera camera();
+		Camera camera;
+		bool first_person = false;
 
 		Pnt3f tunnel_pos = Pnt3f(0,0,0);
 		int tunnel_tex = -1;
@@ -105,8 +107,11 @@ class TrainView : public Fl_Gl_Window
 		Model* tunnel = nullptr;
 		Model* steve = nullptr;
 		Model* terrain = nullptr;
+		Model* rocket = nullptr;
+		Model* house = nullptr;
 		Shader* for_model = nullptr;
 		Shader* for_model_texture = nullptr;
+		Shader* sun_shader = nullptr;
 		//------------------------skybox----------------------
 		Shader* skybox = nullptr;
 		GLuint cubemapTexture;//skybox
@@ -115,11 +120,14 @@ class TrainView : public Fl_Gl_Window
 
 		//------------------------framebuffer----------------------
 		Shader* screen = nullptr;
+		Shader* fbo_shader = nullptr;//for motion blur
 		GLuint screen_framebuffer;
 		GLuint screen_textureColorbuffer;
 		GLuint screen_rbo;
 		GLuint screen_quadVAO, screen_quadVBO;
 		//---------------------------------------------------------
+		int sun_tex = -1;
+
 
 		ParticleGenerator* Particles = nullptr;//記得設null
 		Shader* particle_shader = nullptr;//記得設null
@@ -140,6 +148,16 @@ class TrainView : public Fl_Gl_Window
 
 		float physics_add = 1.0f;
 		int color_pos = 0;
+
+		float deltaTime = 0.0f;
+		float lastFrame = 0.0f;
+
+		int framebuffer[8] = {-1};
+		unsigned int textureColorbuffer[8];
+		glm::mat4 current_trans = glm::mat4(1.0f);
+		glm::mat4 trans[8];
+		int frame = 0;
+
 };
 
 

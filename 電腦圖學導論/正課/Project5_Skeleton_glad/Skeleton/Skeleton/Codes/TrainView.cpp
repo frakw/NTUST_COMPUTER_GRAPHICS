@@ -51,7 +51,7 @@ using std::make_pair;
 #include "TrainWindow.H"
 #include "Utilities/3DUtils.H"
 
-
+#include "Geometry.h"
 #include "model.h"
 //#include "particle_generator.h"
 
@@ -65,7 +65,7 @@ using std::make_pair;
 //========================================================================
 TrainView::
 TrainView(int x, int y, int w, int h, const char* l) 
-	: Fl_Gl_Window(x,y,w,h,l)
+	: Fl_Gl_Window(x,y,w,h,l), camera(glm::vec3(0.0f, 20.0f, 100.0f))
 //========================================================================
 {
 	mode( FL_RGB|FL_ALPHA|FL_DOUBLE | FL_STENCIL );
@@ -160,26 +160,79 @@ int TrainView::handle(int event)
 			focus(this);
 			break;
 
-		case FL_KEYBOARD:
-		 		int k = Fl::event_key();
-				int ks = Fl::event_state();
-				if (k == 'p') {
-					// Print out the selected control point information
-					if (selectedCube >= 0) 
-						printf("Selected(%d) (%g %g %g) (%g %g %g)\n",
-								 selectedCube,
-								 m_pTrack->points[selectedCube].pos.x,
-								 m_pTrack->points[selectedCube].pos.y,
-								 m_pTrack->points[selectedCube].pos.z,
-								 m_pTrack->points[selectedCube].orient.x,
-								 m_pTrack->points[selectedCube].orient.y,
-								 m_pTrack->points[selectedCube].orient.z);
-					else
-						printf("Nothing Selected\n");
+		case FL_KEYBOARD: {
+			int k = Fl::event_key();
+			int ks = Fl::event_state();
+			switch (k)
+			{
+			case 'p': {
+				// Print out the selected control point information
+				if (selectedCube >= 0)
+					printf("Selected(%d) (%g %g %g) (%g %g %g)\n",
+						selectedCube,
+						m_pTrack->points[selectedCube].pos.x,
+						m_pTrack->points[selectedCube].pos.y,
+						m_pTrack->points[selectedCube].pos.z,
+						m_pTrack->points[selectedCube].orient.x,
+						m_pTrack->points[selectedCube].orient.y,
+						m_pTrack->points[selectedCube].orient.z);
+				else
+					printf("Nothing Selected\n");
 
-					return 1;
-				};
+				return 1;
+			}break;
+			//case 'w':case 'W': {
+			//	camera.ProcessKeyboard(FORWARD, deltaTime*0.05);
+			//}break;
+			//case 'a':case 'A': {
+			//	camera.ProcessKeyboard(LEFT, deltaTime * 0.05);
+			//}break;
+			//case 's':case 'S': {
+			//	camera.ProcessKeyboard(BACKWARD, deltaTime * 0.05);
+			//}break;
+			//case 'd':case 'D': {
+			//	camera.ProcessKeyboard(RIGHT, deltaTime * 0.05);
+			//}break;
+
+			default:
 				break;
+			}
+		}
+		break;
+		case FL_MOVE: {
+			if (tw->cameraBrowser->value() != 4) break;
+			static bool firstMouse = true;
+			static float lastX, lastY;
+			float xpos = Fl::event_x(), ypos = Fl::event_y();
+			if (firstMouse)
+			{
+				lastX = xpos;
+				lastY = ypos;
+				firstMouse = false;
+			}
+
+			float xoffset = xpos - lastX;
+			float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+			lastX = xpos;
+			lastY = ypos;
+
+			camera.ProcessMouseMovement(xoffset*0.7, yoffset*0.7);
+		}
+			break;
+		case FL_Escape: {
+			if (tw->cameraBrowser->value() == 4) {
+				tw->cameraBrowser->select(1);
+			}
+		}break;
+		case FL_MOUSEWHEEL: {
+			if (Fl::event_dy() < 0) {
+				camera.ProcessKeyboard(FORWARD, 15000);
+			}
+			else {
+				camera.ProcessKeyboard(BACKWARD, 15000);
+			}
+		}break;
 	}
 
 	return Fl_Gl_Window::handle(event);
@@ -233,6 +286,74 @@ unsigned int loadCubemap(vector<const GLchar*> faces)
 	return textureID;
 }
 
+glm::mat4 billboard(glm::mat4 mv,glm::vec3 translate) {
+	glm::mat4 result(1.0f);
+	float d = sqrtf(mv[0][0] * mv[0][0] + mv[1][0] * mv[1][0] + mv[2][0] * mv[2][0]);
+	result[0][0] = d;
+	result[1][1] = d;
+	result[2][2] = d;
+
+	result[0][3] = translate.x;
+	result[1][3] = translate.y;
+	result[2][3] = translate.z;
+	return result;
+	//glm::mat4 result(1.0f);
+	//float d = sqrtf(mv[0][0] * mv[0][0] + mv[0][1] * mv[0][1] + mv[0][2] * mv[0][2]);
+	//result[0][0] = d;
+	//result[1][1] = d;
+	//result[2][2] = d;
+
+	//result[3][0] = translate.x;
+	//result[3][1] = translate.y;
+	//result[3][2] = translate.z;
+	return result;
+}
+typedef struct com {
+	float real;
+	float vir;
+}com;
+void RenderScene();
+void draw_scene_model(Model* ourModel, bool motion_activated, Shader* FboShader, glm::mat4 m_trans, glm::mat4 trans) {
+
+	glClearColor(0.2f, 0.5f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+	glUniformMatrix4fv(glGetUniformLocation(FboShader->Program,"model"), 1, GL_FALSE, glm::value_ptr(model));
+	ourModel->Draw(*FboShader);
+
+	unsigned int transformLoc = glGetUniformLocation(FboShader->Program, "trans");
+
+	if (motion_activated)
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(m_trans));
+	else
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+}
+
+void TrainView::set_fbo(int* framebuffer, unsigned int* textureColorbuffer) {
+
+	glGenFramebuffers(1, (GLuint*)framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, *framebuffer);
+	// create a color attachment texture
+	glGenTextures(1, textureColorbuffer);
+	glBindTexture(GL_TEXTURE_2D, *textureColorbuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w(), h(), 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *textureColorbuffer, 0);
+
+
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+}
+
 //************************************************************************
 //
 // * this is the code that actually draws the window
@@ -240,7 +361,7 @@ unsigned int loadCubemap(vector<const GLchar*> faces)
 //========================================================================
 void TrainView::draw()
 {
-
+	deltaTime = clock() - lastFrame;
 	//*********************************************************************
 	//
 	// * Set up basic opengl informaiton
@@ -282,6 +403,25 @@ void TrainView::draw()
 		if (!terrain) {
 			//terrain = new Model("models/terrain/Mountain.obj");
 			terrain = new Model("models/monu9/monu9.obj");
+		}
+
+		if (!rocket) {
+			rocket = new Model("models/rocket/cartoon_rocket.obj");
+		}
+
+		if (!house) {
+			house = new Model("models/house/Farmhouse OBJ.obj");
+		}
+
+		if (sun_tex == -1) {
+			sun_tex = TextureFromFile("image/sun_baby.png", ".");
+		}
+		if (!sun_shader) {
+			sun_shader = new
+				Shader(
+					"./Codes/shaders/sun.vert",
+					nullptr, nullptr, nullptr,
+					"./Codes/shaders/sun.frag");
 		}
 
 		if (terrain_tex == -1) {
@@ -424,6 +564,23 @@ void TrainView::draw()
 			};
 			cubemapTexture = loadCubemap(faces);
 		}
+
+		if (framebuffer[0] == -1) {
+			for (int i = 0;i < 8;i++) {
+				set_fbo(&framebuffer[i], &textureColorbuffer[i]);
+				glUniform1i(glGetUniformLocation(screen->Program, ("TextureFBO" + to_string(i+1)).c_str()), i);
+				trans[i] = glm::mat4(1.0f);
+			}
+		}
+		if (!fbo_shader) {
+			fbo_shader = new
+				Shader(
+					"./Codes/shaders/fbo.vert",
+					nullptr, nullptr, nullptr,
+					"./Codes/shaders/fbo.frag");
+			//fbo_shader->Use();
+			//glUniform1i(glGetUniformLocation(fbo_shader->Program, "texture_diffuse1"), 0);
+		}
 	}
 	else
 		throw std::runtime_error("Could not initialize GLAD!");
@@ -545,14 +702,7 @@ void TrainView::draw()
 
 	//glLightfv(GL_LIGHT2, GL_POSITION, lightPosition3);
 	//glLightfv(GL_LIGHT2, GL_DIFFUSE, blueLight);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, screen_framebuffer);
 	glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
-	// make sure we clear the framebuffer's content
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	tunnel_pos = Pnt3f(70,0,0);
 
 	GLfloat projection[16];
 	GLfloat view[16];
@@ -561,18 +711,71 @@ void TrainView::draw()
 	glm::mat4 view_without_translate = glm::mat4(glm::mat3(glm::make_mat4(view)));
 	glm::mat4 view_inv = glm::inverse(glm::make_mat4(view));
 	glm::vec3 my_pos(view_inv[3][0], view_inv[3][1], view_inv[3][2]);
-
-
 	glm::mat4 model = glm::mat4(1.0f);
+
+	current_trans = glm::make_mat4(projection) * glm::make_mat4(view);
+
+	if (frame < 8) {
+		if (frame % 8 != 0) {
+			trans[frame % 8] = trans[frame % 8 - 1];
+		}
+		else {
+			trans[0] = current_trans;
+		}
+	}
+	else {
+
+		trans[7] = trans[6];
+		trans[6] = trans[5];
+		trans[5] = trans[4];
+		trans[4] = trans[3];
+		trans[3] = trans[2];
+		trans[2] = trans[1];
+		trans[1] = trans[0];
+		trans[0] = current_trans;
+	}
+	frame++;
+	for (int i = 0;i < 8;i++) {
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer[i]);
+		draw_scene_model(rocket, true, fbo_shader, trans[i], current_trans);
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, screen_framebuffer);
+	// make sure we clear the framebuffer's content
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glEnable(GL_FOG);
+	float fogColor[4] = { 0.8, 0.8, 0.8, 1 };
+	glFogi(GL_FOG_MODE, GL_LINEAR);
+	glFogfv(GL_FOG_COLOR, fogColor);
+	glFogf(GL_FOG_DENSITY, 0.8);
+	glHint(GL_FOG_HINT, GL_NICEST);
+	glFogf(GL_FOG_START, 0.1);
+	glFogf(GL_FOG_END, 200);
+
+	// Fog
+	const float fogDensity = 0.0045f;
+	const glm::vec3 fogColor1 = glm::vec3(0.604f, 0.655f, 0.718f);
+	const glm::vec3 fogColor2 = glm::vec3(0.631f, 0.651f, 0.698f);
+
+	tunnel_pos = Pnt3f(70,0,0);
+
+
+
+	
 	model = glm::translate(model, glm::vec3(tunnel_pos.x, tunnel_pos.y, tunnel_pos.z));
 	//model = glm::rotate(model,glm::radians(40.0f), glm::vec3(0,1,0));
-	model = glm::scale(model, glm::vec3(50, 50, 50));
+	model = glm::scale(model, glm::vec3(50, 50, 25));
 
 	for_model_texture->Use();
 	glActiveTexture(GL_TEXTURE0); // active proper texture unit before binding
 	glUniformMatrix4fv(glGetUniformLocation(for_model_texture->Program, "projection"), 1, GL_FALSE, projection);
 	glUniformMatrix4fv(glGetUniformLocation(for_model_texture->Program, "view"), 1, GL_FALSE, view);
 	glUniformMatrix4fv(glGetUniformLocation(for_model_texture->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	glUniform3f(glGetUniformLocation(for_model_texture->Program, "viewPos"), my_pos[0], my_pos[1], my_pos[2]);
+	glUniform1f(glGetUniformLocation(for_model_texture->Program, "fog.Density"), fogDensity);
+	glUniform3f(glGetUniformLocation(for_model_texture->Program, "fog.Color"), fogColor1[0], fogColor1[1], fogColor1[2]);
 	glUniform1i(glGetUniformLocation(for_model_texture->Program, "texture1"), 0);
 	glBindTexture(GL_TEXTURE_2D, tunnel_tex);
 	tunnel->Draw(*for_model_texture);
@@ -591,8 +794,39 @@ void TrainView::draw()
 	glUniform1i(glGetUniformLocation(for_model_texture->Program, "texture1"), 0);
 	glBindTexture(GL_TEXTURE_2D, terrain_tex);
 	terrain->Draw(*for_model_texture);
-
 	glActiveTexture(GL_TEXTURE0);
+	
+
+
+	
+
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(-25, 0, 0));
+	model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
+	for_model->Use();
+	glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "projection"), 1, GL_FALSE, projection);
+	glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "view"), 1, GL_FALSE, view);
+	glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	glUniform3f(glGetUniformLocation(for_model->Program, "viewPos"), my_pos[0], my_pos[1], my_pos[2]);
+	glUniform1f(glGetUniformLocation(for_model->Program, "fog.Density"), fogDensity);
+	glUniform3f(glGetUniformLocation(for_model->Program, "fog.Color"), fogColor1[0], fogColor1[1], fogColor1[2]);
+	rocket->Draw(*for_model);
+
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(-25, 0, 30));
+	model = glm::scale(model, glm::vec3(1,1,1));
+	glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+	house->Draw(*for_model);
+
+
+	sun_shader->Use();
+	glUniformMatrix4fv(glGetUniformLocation(sun_shader->Program, "projection"), 1, GL_FALSE, projection);
+	glUniformMatrix4fv(glGetUniformLocation(sun_shader->Program, "view"), 1, GL_FALSE, glm::value_ptr(billboard(glm::make_mat4(projection)*glm::make_mat4(view)*model,glm::vec3(0,80,0))));
+	//glm::vec3 tmp = glm::normalize(glm::vec3(0.43f, 0.76f, -0.33f)) * 250.0f;
+	//glUniform3f(glGetUniformLocation(sun_shader->Program, "sunPos"), tmp.x,tmp.y,tmp.z);
+	glActiveTexture(GL_TEXTURE0); // active proper texture unit before binding
+	glBindTexture(GL_TEXTURE_2D, sun_tex);
+	Geometry::DrawPlane();
 
 
 	model = glm::mat4(1.0f);
@@ -602,6 +836,7 @@ void TrainView::draw()
 	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "view"), 1, GL_FALSE, view);
 	glUniformMatrix4fv(glGetUniformLocation(particle_shader->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 	//Particles->Draw();
+
 
 
 	glDepthFunc(GL_LEQUAL);
@@ -630,7 +865,7 @@ void TrainView::draw()
 	setupFloor();
 	//glDisable(GL_LIGHTING);
 	//drawFloor(200,10);
-
+	//RenderScene();
 
 	//*********************************************************************
 	// now draw the object and we need to do it twice
@@ -666,7 +901,28 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(screen->Program, "screen_h"), h());
 	glUniform1f(glGetUniformLocation(screen->Program, "t"), tw->time * 20);
 	glBindVertexArray(screen_quadVAO);
-	glBindTexture(GL_TEXTURE_2D, screen_textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
+	if (tw->frame_buffer_type->value() != 8) {
+		glBindTexture(GL_TEXTURE_2D, screen_textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
+	}
+	else {
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureColorbuffer[0]);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, textureColorbuffer[1]);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, textureColorbuffer[2]);
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, textureColorbuffer[3]);
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, textureColorbuffer[4]);
+		glActiveTexture(GL_TEXTURE5);
+		glBindTexture(GL_TEXTURE_2D, textureColorbuffer[5]);
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, textureColorbuffer[6]);
+		glActiveTexture(GL_TEXTURE7);
+		glBindTexture(GL_TEXTURE_2D, textureColorbuffer[7]);
+		glBindTexture(GL_TEXTURE_2D, screen_textureColorbuffer);
+	}
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glUseProgram(0);
 
@@ -761,6 +1017,16 @@ setProjection()
 #ifdef EXAMPLE_SOLUTION
 		trainCamView(this,aspect);
 #endif
+	}
+	else if (tw->cameraBrowser->value() == 4) {
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(45, aspect, 0.01f, 1000.0f);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glm::mat4 view = camera.GetViewMatrix();
+		glLoadMatrixf(glm::value_ptr(view));
 	}
 }
 void glvertex_vec(Pnt3f in) {
@@ -1360,4 +1626,65 @@ doPick()
 		selectedCube = -1;
 
 	printf("Selected Cube %d\n",selectedCube);
+}
+
+
+
+
+com cmul(com a, com b)
+{
+	com c;
+	c.real = a.real * b.real - a.vir * b.vir;
+	c.vir = a.real * b.vir + a.vir * b.real;
+	return c;
+}
+
+com cadd(com a, com b)
+{
+	com c;
+	c.real = a.real + b.real;
+	c.vir = a.vir + b.vir;
+	return c;
+}
+
+float m(com a)
+{
+	return sqrt(a.real * a.real + a.vir * a.vir);
+}
+
+float cfunc(com a, int iter)
+{
+	//const c: real part affects pattern complication, virtual part affects symmetry
+	com c = { -1,0.3 };
+	if (iter)
+	{
+		com d = cadd(cmul(a, a), c);
+		com e = cadd(cmul(d, d), c);
+		return cfunc(e, --iter);
+	}
+	else return (int)(m(a) / 4 * 10);
+}
+
+void RenderScene()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	float i, j;
+	glBegin(GL_POINTS);
+	float d;
+	com a;
+
+	//draw the fractal point
+	for (i = -2;i <= 2;i += 0.01)
+		for (j = -2;j <= 2;j += 0.01)
+		{
+			a.real = i;
+			a.vir = j;
+			d = cfunc(a, 6);
+			d = d / 10;
+			glColor3f(d, d * 1.2, d * 1.5);
+			glVertex2f(i,j);
+		}
+
+	glEnd();
+	glFlush();
 }

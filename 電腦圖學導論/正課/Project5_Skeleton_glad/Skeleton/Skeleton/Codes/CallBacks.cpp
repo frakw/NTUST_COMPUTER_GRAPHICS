@@ -20,6 +20,7 @@
 *************************************************************************/
 #pragma once
 
+#include <iostream>
 #include <time.h>
 #include <math.h>
 
@@ -32,6 +33,7 @@
 #pragma warning(disable:4311)
 #include <Fl/Fl_File_Chooser.H>
 #include <Fl/math.h>
+#include <windows.h>
 #pragma warning(pop)
 
 //***************************************************************************
@@ -281,6 +283,31 @@ void keeping_refresh(TrainWindow* tw)
 		if (tw->runButton->value()) {	// only advance time if appropriate
 			lastRedraw = clock();
 			tw->advanceTrain();
+		}
+	}
+	if (tw->cameraBrowser->value() == 4) {
+		if (GetAsyncKeyState('W') || GetAsyncKeyState('w')) {
+			tw->trainView->camera.ProcessKeyboard(FORWARD, 1);
+		}
+		if (GetAsyncKeyState('A') || GetAsyncKeyState('a')) {
+			tw->trainView->camera.ProcessKeyboard(LEFT, 1);
+
+		}
+		if (GetAsyncKeyState('S') || GetAsyncKeyState('s')) {
+			tw->trainView->camera.ProcessKeyboard(BACKWARD, 1);
+
+		}
+		if (GetAsyncKeyState('D') || GetAsyncKeyState('d')) {
+			tw->trainView->camera.ProcessKeyboard(RIGHT, 1);
+
+		}
+		if (GetAsyncKeyState(' ')) {
+			tw->trainView->camera.Position.y+=0.005f;
+
+		}
+		if (GetAsyncKeyState('F') || GetAsyncKeyState('f')) {
+			tw->trainView->camera.Position.y -= 0.005f;
+
 		}
 	}
 }

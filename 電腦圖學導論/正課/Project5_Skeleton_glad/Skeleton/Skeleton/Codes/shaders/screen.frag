@@ -2,7 +2,6 @@
 out vec4 FragColor;
 
 in vec2 TexCoords;
-in vec4 vertColor;
 
 uniform sampler2D screenTexture;
 uniform float vx_offset=0.5;
@@ -13,6 +12,17 @@ uniform float pixel_w = 15;
 uniform float pixel_h = 10; 
 
 uniform int frame_buffer_type;
+
+
+uniform sampler2D TextureFBO1;
+uniform sampler2D TextureFBO2;
+uniform sampler2D TextureFBO3;
+uniform sampler2D TextureFBO4;
+uniform sampler2D TextureFBO5;
+uniform sampler2D TextureFBO6;
+uniform sampler2D TextureFBO7;
+uniform sampler2D TextureFBO8;
+
 float toonify(in float intensity) {
     if (intensity > 0.8)
         return 1.0;
@@ -24,164 +34,69 @@ float toonify(in float intensity) {
         return 0.1;
 }
 
-#define HueLevCount 6
-#define SatLevCount 7
-#define ValLevCount 4
-float HueLevels[HueLevCount];
-float SatLevels[SatLevCount];
-float ValLevels[ValLevCount];
- 
-vec3 RGBtoHSV( float r, float g, float b) {
-   float minv, maxv, delta;
-   vec3 res;
- 
-   minv = min(min(r, g), b);
-   maxv = max(max(r, g), b);
-   res.z = maxv;            // v
-   
-   delta = maxv - minv;
- 
-   if( maxv != 0.0 )
-      res.y = delta / maxv;      // s
-   else {
-      // r = g = b = 0      // s = 0, v is undefined
-      res.y = 0.0;
-      res.x = -1.0;
-      return res;
-   }
- 
-   if( r == maxv )
-      res.x = ( g - b ) / delta;      // between yellow & magenta
-   else if( g == maxv )
-      res.x = 2.0 + ( b - r ) / delta;   // between cyan & yellow
-   else
-      res.x = 4.0 + ( r - g ) / delta;   // between magenta & cyan
- 
-   res.x = res.x * 60.0;            // degrees
-   if( res.x < 0.0 )
-      res.x = res.x + 360.0;
-      
-   return res;
+//https://gist.github.com/sugi-cho/6a01cae436acddd72bdf
+
+vec3 rgb2hsv(vec3 c)
+{
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 }
- 
-vec3 HSVtoRGB(float h, float s, float v ) {
-   int i;
-   float f, p, q, t;
-   vec3 res;
- 
-   if( s == 0.0 ) {
-      // achromatic (grey)
-      res.x = v;
-      res.y = v;
-      res.z = v;
-      return res;
-   }
- 
-   h /= 60.0;         // sector 0 to 5
-   i = int(floor( h ));
-   f = h - float(i);         // factorial part of h
-   p = v * ( 1.0 - s );
-   q = v * ( 1.0 - s * f );
-   t = v * ( 1.0 - s * ( 1.0 - f ) );
- 
-   if (i==0) {
-		res.x = v;
-		res.y = t;
-		res.z = p;
-   	} else if (i==1) {
-         res.x = q;
-         res.y = v;
-         res.z = p;
-	} else if (i==2) {
-         res.x = p;
-         res.y = v;
-         res.z = t;
-	} else if (i==3) {
-         res.x = p;
-         res.y = q;
-         res.z = v;
-	} else if (i==4) {
-         res.x = t;
-         res.y = p;
-         res.z = v;
-	} else if (i==5) {
-         res.x = v;
-         res.y = p;
-         res.z = q;
-   }
-   
-   return res;
+
+vec3 hsv2rgb(vec3 c)
+{
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
- 
-float nearestLevel(float col, int mode) {
- 
-   if (mode==0) {
-   		for (int i =0; i<HueLevCount-1; i++ ) {
-		    if (col >= HueLevels[i] && col <= HueLevels[i+1]) {
-		      return HueLevels[i+1];
-		    }
-		}
-	 }
- 
-	if (mode==1) {
-		for (int i =0; i<SatLevCount-1; i++ ) {
-			if (col >= SatLevels[i] && col <= SatLevels[i+1]) {
-	          return SatLevels[i+1];
-	        }
-		}
-	}
- 
- 
-	if (mode==2) {
-		for (int i =0; i<ValLevCount-1; i++ ) {
-			if (col >= ValLevels[i] && col <= ValLevels[i+1]) {
-	          return ValLevels[i+1];
-	        }
-		}
-	}
- 
-    return 0;
+
+float character(int n, vec2 p)
+{
+	p = floor(p*vec2(4.0, -4.0) + 2.5);
+    if (clamp(p.x, 0.0, 4.0) == p.x)
+	{
+        if (clamp(p.y, 0.0, 4.0) == p.y)	
+		{
+        	int a = int(round(p.x) + 5.0 * round(p.y));
+			if (((n >> a) & 1) == 1) return 1.0;
+		}	
+    }
+	return 0.0;
 }
- 
-// averaged pixel intensity from 3 color channels
-float avg_intensity(vec4 pix) {
- return (pix.r + pix.g + pix.b)/3.;
+
+float character(float n, vec2 p) {
+  p = floor(p*vec2(4.0, -4.0) + 2.5);
+  if (clamp(p.x, 0.0, 4.0) == p.x && clamp(p.y, 0.0, 4.0) == p.y){
+    if (int(mod(n/exp2(p.x + 5.0*p.y), 2.0)) == 1) return 1.0;
+  }
+  return 0.0;
 }
- 
-vec4 get_pixel(vec2 coords, float dx, float dy) {
- return texture2D(screenTexture,coords + vec2(dx, dy));
+float luma(vec3 color) {
+  return dot(color, vec3(0.299, 0.587, 0.114));
 }
- 
-// returns pixel color
-float IsEdge(in vec2 coords){
-  float dxtex = 1.0 / TexCoords.x ;
-  float dytex = 1.0 / TexCoords.y ;
-  
-  float pix[9];
-  
-  int k = -1;
-  float delta;
- 
-  // read neighboring pixel intensities
-float pix0 = avg_intensity(get_pixel(coords,-1.0*dxtex, -1.0*dytex));
-float pix1 = avg_intensity(get_pixel(coords,-1.0*dxtex, 0.0*dytex));
-float pix2 = avg_intensity(get_pixel(coords,-1.0*dxtex, 1.0*dytex));
-float pix3 = avg_intensity(get_pixel(coords,0.0*dxtex, -1.0*dytex));
-float pix4 = avg_intensity(get_pixel(coords,0.0*dxtex, 0.0*dytex));
-float pix5 = avg_intensity(get_pixel(coords,0.0*dxtex, 1.0*dytex));
-float pix6 = avg_intensity(get_pixel(coords,1.0*dxtex, -1.0*dytex));
-float pix7 = avg_intensity(get_pixel(coords,1.0*dxtex, 0.0*dytex));
-float pix8 = avg_intensity(get_pixel(coords,1.0*dxtex, 1.0*dytex)); 
-  // average color differences around neighboring pixels
-  delta = (abs(pix1-pix7)+
-          abs(pix5-pix3) +
-          abs(pix0-pix8)+
-          abs(pix2-pix6)
-           )/4.;
- 
-  return clamp(5.5*delta,0.0,1.0);
+
+float asciiFilter(vec3 color, vec2 uv, float pixelSize) {
+  float threshold = luma(color);
+  float n =  65536.0;                  // .
+  if (threshold > 0.2) n = 65600.0;    // :
+  if (threshold > 0.3) n = 332772.0;   // *
+  if (threshold > 0.4) n = 15255086.0; // o
+  if (threshold > 0.5) n = 23385164.0; // &
+  if (threshold > 0.6) n = 15252014.0; // 8
+  if (threshold > 0.7) n = 13199452.0; // @
+  if (threshold > 0.8) n = 11512810.0; // #
+  vec2 p = mod( uv / ( pixelSize * 0.5 ), 2.0) - vec2(1.0);
+  return character(n, p);
 }
- 
+
+float asciiFilter(vec3 color, vec2 uv) {
+  return asciiFilter(color, uv, 1.0 / 100.0);
+}
+
 
 void main()
 {
@@ -237,40 +152,65 @@ void main()
            FragColor = vec4(edge, texture2D(screenTexture, TexCoords.xy).a);
         }break;
         case 5:{
-        /*
-            	HueLevels[0] = 0.0;
-	            HueLevels[1] = 80.0;
-	            HueLevels[2] = 160.0;
-	            HueLevels[3] = 240.0;
-	            HueLevels[4] = 320.0;
-	            HueLevels[5] = 360.0; 
- 
-	            SatLevels[0] = 0.0;
-	            SatLevels[1] = 0.1;
-	            SatLevels[2] = 0.3;
-	            SatLevels[3] = 0.5;
-	            SatLevels[4] = 0.6;
-	            SatLevels[5] = 0.8;
-	            SatLevels[6] = 1.0;
- 
-	            ValLevels[0] = 0.0;
-	            ValLevels[1] = 0.3;
-	            ValLevels[2] = 0.6;
-	            ValLevels[3] = 1.0; 
- 
-                vec4 colorOrg = texture2D(screenTexture, vertColor.xy);
-                vec3 vHSV =  RGBtoHSV(colorOrg.r,colorOrg.g,colorOrg.b);
-                vHSV.x = nearestLevel(vHSV.x, 0);
-                vHSV.y = nearestLevel(vHSV.y, 1);
-                vHSV.z = nearestLevel(vHSV.z, 2);
-                float edg = IsEdge(vertColor.xy);
-                vec3 vRGB = (edg >= 0.3)? vec3(0.0,0.0,0.0):HSVtoRGB(vHSV.x,vHSV.y,vHSV.z);
-                FragColor = vec4(vRGB.x,vRGB.y,vRGB.z,1.0);
+        
+	        vec3 hsv = rgb2hsv(texture(screenTexture, TexCoords).rgb);
+	        hsv.z = round(hsv.z*5)/5;
+            FragColor = vec4(hsv2rgb(hsv),1);
+                
 
+                /*
+                vec4 color = texture2D(screenTexture, TexCoords);
+                float factor = toonify(max(color.r, max(color.g, color.b)));
+                FragColor = vec4(factor*color.rgb, color.a);
                 */
-                    vec4 color = texture2D(screenTexture, TexCoords);
-    float factor = toonify(max(color.r, max(color.g, color.b)));
-    FragColor = vec4(factor*color.rgb, color.a);
+        }break;
+        case 6:{
+        const float offset = 1.0 / 300.0;  
+                vec2 offsets[9] = vec2[](
+        vec2(-offset,  offset), // top-left
+        vec2( 0.0f,    offset), // top-center
+        vec2( offset,  offset), // top-right
+        vec2(-offset,  0.0f),   // center-left
+        vec2( 0.0f,    0.0f),   // center-center
+        vec2( offset,  0.0f),   // center-right
+        vec2(-offset, -offset), // bottom-left
+        vec2( 0.0f,   -offset), // bottom-center
+        vec2( offset, -offset)  // bottom-right    
+    );
+
+    float kernel[9] = float[](
+        -1, -1, -1,
+        -1,  9, -1,
+        -1, -1, -1
+    );
+    
+    vec3 sampleTex[9];
+    for(int i = 0; i < 9; i++)
+    {
+        sampleTex[i] = vec3(texture(screenTexture, TexCoords.st + offsets[i]));
+    }
+    vec3 col = vec3(0.0);
+    for(int i = 0; i < 9; i++)
+        col += sampleTex[i] * kernel[i];
+    
+    FragColor = vec4(col, 1.0);
+        }break;
+        case 7:{
+    
+
+    FragColor.r = asciiFilter(vec3(texture(screenTexture,TexCoords).r),TexCoords);
+    FragColor.g = asciiFilter(vec3(texture(screenTexture,TexCoords).g),TexCoords);
+    FragColor.b = asciiFilter(vec3(texture(screenTexture,TexCoords).b),TexCoords);
+      FragColor.a = 1.0f;
+        }break;
+        case 8:{//motion blur
+            FragColor = mix(texture(TextureFBO7, TexCoords), texture(screenTexture, TexCoords), 0.5);
+            FragColor = mix(texture(TextureFBO6, TexCoords), FragColor, 0.5);
+            FragColor = mix(texture(TextureFBO5, TexCoords), FragColor, 0.5);
+            FragColor = mix(texture(TextureFBO4, TexCoords), FragColor, 0.5);
+            FragColor = mix(texture(TextureFBO3, TexCoords), FragColor, 0.5);
+            FragColor = mix(texture(TextureFBO2, TexCoords), FragColor, 0.5);
+            FragColor = mix(texture(TextureFBO1, TexCoords), FragColor, 0.4);
         }break;
     }
 }    

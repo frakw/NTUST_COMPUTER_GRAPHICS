@@ -107,9 +107,10 @@ TrainWindow(const int x, const int y)
 		cameraBrowser->add("worldCam");
 		cameraBrowser->add("trainCam");
 		cameraBrowser->add("topCam");
+		cameraBrowser->add("freeCam");
 		cameraBrowser->select(1);
 
-		pty += 110;
+		pty += 140;
 
 		// browser to select spline types
 		// TODO: make sure these choices are the same as what the code supports
@@ -180,6 +181,9 @@ TrainWindow(const int x, const int y)
 		frame_buffer_type->add("offset");
 		frame_buffer_type->add("sobel");
 		frame_buffer_type->add("toon");
+		frame_buffer_type->add("sharpen");
+		frame_buffer_type->add("ascii");
+		frame_buffer_type->add("motion blur");
 		frame_buffer_type->select(1);
 #ifdef EXAMPLE_SOLUTION
 		makeExampleWidgets(this,pty);
