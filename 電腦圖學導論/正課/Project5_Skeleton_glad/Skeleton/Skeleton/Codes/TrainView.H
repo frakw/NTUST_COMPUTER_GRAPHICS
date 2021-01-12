@@ -112,9 +112,9 @@ class TrainView : public Fl_Gl_Window
 		Model* terrain = nullptr;
 		Model* rocket = nullptr;
 		Model* house = nullptr;
+		Model* sun = nullptr;
 		Shader* for_model = nullptr;
 		Shader* for_model_texture = nullptr;
-		Shader* sun_shader = nullptr;
 		//------------------------skybox----------------------
 		Shader* skybox = nullptr;
 		GLuint cubemapTexture;//skybox
@@ -165,6 +165,7 @@ class TrainView : public Fl_Gl_Window
 		GLuint makeaTree;
 		float heightObj = 4.0f;
 		float baseObj = 0.4f;
+		glm::vec3 camera_up;
 };
 
 

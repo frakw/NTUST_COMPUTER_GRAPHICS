@@ -269,6 +269,7 @@ void change_tension(Fl_Widget*, TrainWindow* tw) {
 }
 void recreate_tree(Fl_Widget*, TrainWindow* tw) {
 	glDeleteLists(tw->trainView->makeaTree, GL_COMPILE);
+	tw->trainView->heightObj = tw->tree_height->value();
 	tw->trainView->reCreateTree();
 }
 

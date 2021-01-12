@@ -101,9 +101,6 @@
     <ClInclude Include="Codes\camera.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
-    <ClInclude Include="Codes\Geometry.h">
-      <Filter>標頭檔</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Codes\shaders\model_loading.frag">
@@ -134,12 +131,6 @@
       <Filter>shader</Filter>
     </None>
     <None Include="Codes\shaders\screen.vert">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="Codes\shaders\sun.frag">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="Codes\shaders\sun.vert">
       <Filter>shader</Filter>
     </None>
     <None Include="Codes\shaders\fog.glsl">

@@ -51,7 +51,6 @@ using std::make_pair;
 #include "TrainWindow.H"
 #include "Utilities/3DUtils.H"
 
-#include "Geometry.h"
 #include "model.h"
 //#include "particle_generator.h"
 
@@ -457,7 +456,19 @@ void TrainView::reCreateTree() {
 	glEndList();
 	
 }
-
+glm::mat4 billboard(glm::vec3 position, glm::vec3 cameraPos, glm::vec3 cameraUp) {
+	glm::vec3 look = normalize(cameraPos - position);
+	glm::vec3 right = cross(cameraUp, look);
+	glm::vec3 up2 = cross(look, right);
+	glm::mat4 transform;
+	transform[0] = glm::vec4(right, 0);
+	transform[1] = glm::vec4(up2, 0);
+	transform[2] = glm::vec4(look, 0);
+	// Uncomment this line to translate the position as well
+	// (without it, it's just a rotation)
+	//transform[3] = vec4(position, 1);
+	return transform;
+}
 //************************************************************************
 //
 // * this is the code that actually draws the window
@@ -519,13 +530,6 @@ void TrainView::draw()
 
 		if (sun_tex == -1) {
 			sun_tex = TextureFromFile("image/sun_baby.png", ".");
-		}
-		if (!sun_shader) {
-			sun_shader = new
-				Shader(
-					"./Codes/shaders/sun.vert",
-					nullptr, nullptr, nullptr,
-					"./Codes/shaders/sun.frag");
 		}
 
 		if (terrain_tex == -1) {
@@ -684,6 +688,9 @@ void TrainView::draw()
 					"./Codes/shaders/fbo.frag");
 			//fbo_shader->Use();
 			//glUniform1i(glGetUniformLocation(fbo_shader->Program, "texture_diffuse1"), 0);
+		}
+		if (!sun) {
+			sun = new Model("models/plane/plane.obj");
 		}
 	}
 	else
@@ -863,7 +870,7 @@ void TrainView::draw()
 	const glm::vec3 fogColor1 = glm::vec3(0.604f, 0.655f, 0.718f);
 	const glm::vec3 fogColor2 = glm::vec3(0.631f, 0.651f, 0.698f);
 
-	tunnel_pos = Pnt3f(70,0,0);
+	tunnel_pos = Pnt3f(100,0,0);
 
 
 
@@ -905,7 +912,7 @@ void TrainView::draw()
 	
 
 	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(-25, 0, 0));
+	model = glm::translate(model, glm::vec3(-100, 0, 0));
 	model = glm::scale(model, glm::vec3(0.1, 0.1, 0.1));
 	for_model->Use();
 	glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "projection"), 1, GL_FALSE, projection);
@@ -917,20 +924,28 @@ void TrainView::draw()
 	rocket->Draw(*for_model);
 
 	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(-25, 0, 30));
-	model = glm::scale(model, glm::vec3(1,1,1));
+	model = glm::translate(model, glm::vec3(-50, 0, 100));
+	model = glm::scale(model, glm::vec3(1, 1, 1));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
 	glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 	house->Draw(*for_model);
 
 
-	sun_shader->Use();
-	glUniformMatrix4fv(glGetUniformLocation(sun_shader->Program, "projection"), 1, GL_FALSE, projection);
-	glUniformMatrix4fv(glGetUniformLocation(sun_shader->Program, "view"), 1, GL_FALSE, glm::value_ptr(billboard(glm::make_mat4(projection)*glm::make_mat4(view)*model,glm::vec3(0,80,0))));
-	//glm::vec3 tmp = glm::normalize(glm::vec3(0.43f, 0.76f, -0.33f)) * 250.0f;
-	//glUniform3f(glGetUniformLocation(sun_shader->Program, "sunPos"), tmp.x,tmp.y,tmp.z);
-	glActiveTexture(GL_TEXTURE0); // active proper texture unit before binding
-	glBindTexture(GL_TEXTURE_2D, sun_tex);
-	Geometry::DrawPlane();
+
+	glm::vec3 sun_pos(0, 20, 30);
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(00, 20, 30));
+	model = glm::scale(model, glm::vec3(10, 10, 10));
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	float angle = atan2(sun_pos.x - my_pos.x, sun_pos.y - my_pos.z) * (180 / M_PI);
+	model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0, 1.0, 0.0));
+	model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
+	glUniformMatrix4fv(glGetUniformLocation(for_model->Program, "model"), 1, GL_FALSE, &model[0][0]);
+	sun->Draw(*for_model);
 
 
 	model = glm::mat4(1.0f);
@@ -1127,6 +1142,7 @@ setProjection()
 		gluLookAt(my_pos.x, my_pos.y, my_pos.z,
 			next_pos.x, next_pos.y, next_pos.z, orient.x, orient.y, orient.z);
 		glGetFloatv(GL_MODELVIEW_MATRIX, model_view);
+		camera_up = glm::vec3(orient.x, orient.y, orient.z);
 #ifdef EXAMPLE_SOLUTION
 		trainCamView(this,aspect);
 #endif
@@ -1140,6 +1156,7 @@ setProjection()
 		glLoadIdentity();
 		glm::mat4 view = camera.GetViewMatrix();
 		glLoadMatrixf(glm::value_ptr(view));
+		camera_up = camera.Up;
 	}
 }
 void glvertex_vec(Pnt3f in) {
@@ -1222,7 +1239,7 @@ void TrainView::drawStuff(bool doingShadows)
 		first_draw_tree = true;
 	}
 	glPushMatrix();
-	glTranslatef(20, 0, 30);
+	glTranslatef(-50, 0, -80);
 	glScalef(5, 5, 5);
 	glCallList(makeaTree);
 	glPopMatrix();

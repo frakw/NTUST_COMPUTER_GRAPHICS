@@ -185,8 +185,15 @@ TrainWindow(const int x, const int y)
 		frame_buffer_type->add("ascii");
 		frame_buffer_type->add("motion blur");
 		frame_buffer_type->add("fxaa");
+		frame_buffer_type->add("chromaticAberration");
 		frame_buffer_type->select(1);
 		pty += 70;
+		tree_height = new Fl_Value_Slider(680, pty, 140, 20, "tree height");
+		tree_height->range(1.0f, 4.0f);
+		tree_height->value(3.0f);
+		tree_height->align(FL_ALIGN_LEFT);
+		tree_height->type(FL_HORIZONTAL);
+		pty += 30;
 		create_tree = new Fl_Button(605, pty, 190, 20, "recreate tree");
 		create_tree->callback((Fl_Callback*)recreate_tree, this);
 		//pty += 30;

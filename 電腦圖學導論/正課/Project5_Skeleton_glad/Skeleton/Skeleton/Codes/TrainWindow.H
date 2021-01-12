@@ -91,6 +91,7 @@ class TrainWindow : public Fl_Double_Window {
 		// if we're animating it, how fast should it go?
 		Fl_Value_Slider*	speed;
 		Fl_Value_Slider*	tension;
+		Fl_Value_Slider*	tree_height;
 		Fl_Button*			arcLength;		// do we use arc length for speed?
 
 		Fl_Button* dir_L;

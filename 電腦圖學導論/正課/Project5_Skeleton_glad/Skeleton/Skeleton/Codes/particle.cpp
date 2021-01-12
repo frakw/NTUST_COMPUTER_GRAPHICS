@@ -53,6 +53,48 @@ void InitParticle(cube_particle& ep)
 	AddParticle(ep);//加入粒子列表    
 }
 
+
+
+void DeleteParticle(cube_particle** p)
+{
+	if (!(*p))//假如cube_particle列表為空
+		return;
+	if (!(*p)->pNext && !(*p)->pPrev)//假如只有一個cube_particle，直接删除  
+	{
+		delete (*p);
+		*p = NULL;
+		cube_particles = *p;
+		return;
+	}
+	cube_particle* tmp;
+	if (!(*p)->pPrev)//假如是首節點  
+	{
+		tmp = (*p);
+		*p = (*p)->pNext;
+		cube_particles = *p;
+		(*p)->pPrev = NULL;
+		delete tmp;
+		return;
+	}
+
+	if (!(*p)->pNext)//末節點  
+	{
+		(*p)->pPrev->pNext = NULL;
+		delete (*p);
+		*p = NULL;
+		return;
+	}
+	else
+	{
+		//一般情况  
+		tmp = (*p);
+		(*p)->pPrev->pNext = (*p)->pNext;
+		(*p)->pNext->pPrev = (*p)->pPrev;
+		*p = (*p)->pNext;
+		delete tmp;
+	}
+}
+
 void AddParticle(cube_particle ex)
 {
 	cube_particle* p;
@@ -85,46 +127,6 @@ void AddParticle(cube_particle ex)
 		cube_particles->pPrev = p;//插入cube_particle
 		p->pNext = cube_particles;
 		cube_particles = p;
-	}
-}
-
-void DeleteParticle(cube_particle** p)
-{
-	if (!(*p))//假如cube_particle列表為空
-		return;
-	if (!(*p)->pNext && !(*p)->pPrev)//假如只有一個cube_particle，直接删除  
-	{
-		delete (*p);
-		*p = NULL;
-		cube_particles = *p; //!!!!!
-		return;
-	}
-	cube_particle* tmp;
-	if (!(*p)->pPrev)//假如是首節點  
-	{
-		tmp = (*p);
-		*p = (*p)->pNext;
-		cube_particles = *p;
-		(*p)->pPrev = NULL;
-		delete tmp;
-		return;
-	}
-
-	if (!(*p)->pNext)//末節點  
-	{
-		(*p)->pPrev->pNext = NULL;
-		delete (*p);
-		*p = NULL;
-		return;
-	}
-	else
-	{
-		//一般情况  
-		tmp = (*p);
-		(*p)->pPrev->pNext = (*p)->pNext;
-		(*p)->pNext->pPrev = (*p)->pPrev;
-		*p = (*p)->pNext;
-		delete tmp;
 	}
 }
 

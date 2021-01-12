@@ -24,10 +24,10 @@ uniform vec3 viewPos;
 
 void main()
 {    
-    vec3 color = texture(texture_diffuse1, TexCoords).rgb;
+    vec4 color = texture(texture_diffuse1, TexCoords);
     float fogFactor = getFogFactor(fog, viewPos, worldFragPos);
-    vec3 colorWithFog = mix(color, fog.Color, fogFactor);
+    vec3 colorWithFog = mix(color.rgb, fog.Color, fogFactor);
 
-    FragColor = vec4(colorWithFog, 1.0);
+    FragColor = vec4(colorWithFog, color.a);
    
 }
