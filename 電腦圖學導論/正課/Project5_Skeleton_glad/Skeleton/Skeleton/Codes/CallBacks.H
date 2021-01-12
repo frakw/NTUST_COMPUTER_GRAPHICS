@@ -63,4 +63,5 @@ void rmzCB(Fl_Widget*, TrainWindow* tw);
 void add_car(Fl_Widget*, TrainWindow* tw);
 void del_car(Fl_Widget*, TrainWindow* tw);
 void change_tension(Fl_Widget*, TrainWindow* tw);
+void recreate_tree(Fl_Widget*, TrainWindow* tw);
 void keeping_refresh(TrainWindow* tw);

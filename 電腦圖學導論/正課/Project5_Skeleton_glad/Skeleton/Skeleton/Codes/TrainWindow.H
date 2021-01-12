@@ -96,6 +96,7 @@ class TrainWindow : public Fl_Double_Window {
 		Fl_Button* dir_L;
 		Fl_Button* point_L;
 		Fl_Button* physics;
+		Fl_Button* create_tree;
 
 		bool animating = false;
 		float time = 0.0f;

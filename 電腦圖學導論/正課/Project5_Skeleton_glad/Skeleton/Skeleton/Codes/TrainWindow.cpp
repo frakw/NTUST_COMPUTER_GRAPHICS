@@ -101,7 +101,7 @@ TrainWindow(const int x, const int y)
 		topCam->callback((Fl_Callback*)damageCB,this);
 		camGroup->end();
 		*/
-		cameraBrowser = new Fl_Browser(605, pty, 120, 75, "Camera type");
+		cameraBrowser = new Fl_Browser(605, pty, 190, 75, "Camera type");
 		cameraBrowser->type(2);		// select
 		cameraBrowser->callback((Fl_Callback*)damageCB, this);
 		cameraBrowser->add("worldCam");
@@ -110,18 +110,17 @@ TrainWindow(const int x, const int y)
 		cameraBrowser->add("freeCam");
 		cameraBrowser->select(1);
 
-		pty += 140;
+		pty += 100;
 
 		// browser to select spline types
 		// TODO: make sure these choices are the same as what the code supports
-		splineBrowser = new Fl_Browser(605,pty,120,75,"Spline Type");
+		splineBrowser = new Fl_Browser(605,pty, 190,75,"Spline Type");
 		splineBrowser->type(2);		// select
 		splineBrowser->callback((Fl_Callback*)damageCB,this);
 		splineBrowser->add("Linear");
 		splineBrowser->add("Cardinal Cubic");
 		splineBrowser->add("Cubic B-Spline");
 		splineBrowser->select(2);
-
 		pty += 110;
 
 		// add and delete points
@@ -172,8 +171,9 @@ TrainWindow(const int x, const int y)
 		pty += 30;
 		physics = new Fl_Button(605, pty, 60, 20, "physics");
 		togglify(physics);
+
 		pty += 30;
-		frame_buffer_type = new Fl_Browser(605, pty, 120, 70, "frame buffer Type");
+		frame_buffer_type = new Fl_Browser(605, pty, 190, 50, "frame buffer Type");
 		frame_buffer_type->type(2);		// select
 		frame_buffer_type->callback((Fl_Callback*)damageCB, this);
 		frame_buffer_type->add("default");
@@ -184,7 +184,12 @@ TrainWindow(const int x, const int y)
 		frame_buffer_type->add("sharpen");
 		frame_buffer_type->add("ascii");
 		frame_buffer_type->add("motion blur");
+		frame_buffer_type->add("fxaa");
 		frame_buffer_type->select(1);
+		pty += 70;
+		create_tree = new Fl_Button(605, pty, 190, 20, "recreate tree");
+		create_tree->callback((Fl_Callback*)recreate_tree, this);
+		//pty += 30;
 #ifdef EXAMPLE_SOLUTION
 		makeExampleWidgets(this,pty);
 #endif

@@ -267,6 +267,10 @@ void del_car(Fl_Widget*, TrainWindow* tw)
 void change_tension(Fl_Widget*, TrainWindow* tw) {
 	tw->damageMe();
 }
+void recreate_tree(Fl_Widget*, TrainWindow* tw) {
+	glDeleteLists(tw->trainView->makeaTree, GL_COMPILE);
+	tw->trainView->reCreateTree();
+}
 
 
 

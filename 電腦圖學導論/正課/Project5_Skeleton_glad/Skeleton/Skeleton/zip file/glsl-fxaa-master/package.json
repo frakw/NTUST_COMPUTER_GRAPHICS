@@ -1,0 +1,60 @@
+{
+  "name": "glsl-fxaa",
+  "version": "3.0.0",
+  "description": "FXAA implementation for glslify in WebGL",
+  "main": "index.glsl",
+  "license": "MIT",
+  "author": "Matt DesLauriers <dave.des@gmail.com>",
+  "dependencies": {},
+  "devDependencies": {
+    "a-big-triangle": "^1.0.2",
+    "browserify": "^10.2.4",
+    "budo": "^5.1.5",
+    "garnish": "^3.2.1",
+    "gl-shader": "^4.0.5",
+    "gl-texture2d": "^2.0.9",
+    "glslify": "^2.2.1",
+    "img": "^1.0.0",
+    "uglify-js": "^2.4.23",
+    "webgl-context": "^2.2.0"
+  },
+  "scripts": {
+    "start": "budo demo/index.js:bundle.js --dir demo --live -- -t glslify | garnish",
+    "build": "browserify demo/index.js -t glslify | uglifyjs -cm > demo/bundle.js"
+  },
+  "testling": {
+    "files": "test.js",
+    "browsers": [
+      "ie/6..latest",
+      "chrome/22..latest",
+      "firefox/16..latest",
+      "safari/latest",
+      "opera/11.0..latest",
+      "iphone/6",
+      "ipad/6",
+      "android-browser/latest"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mattdesl/glsl-fxaa.git"
+  },
+  "homepage": "https://github.com/mattdesl/glsl-fxaa",
+  "bugs": {
+    "url": "https://github.com/mattdesl/glsl-fxaa/issues"
+  },
+  "keywords": [
+    "glslify",
+    "glsl",
+    "webgl",
+    "gl",
+    "fxaa",
+    "anti",
+    "alias",
+    "aliasing",
+    "aa",
+    "anti-alias",
+    "msaa",
+    "anti-aliasing"
+  ]
+}

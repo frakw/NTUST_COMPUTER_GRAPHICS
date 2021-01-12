@@ -353,6 +353,110 @@ void TrainView::set_fbo(int* framebuffer, unsigned int* textureColorbuffer) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
+void TrainView::esfera(int radio,bool draw_line) {
+	float px, py, pz;
+	int i, j;
+	float incO = 2 * M_PI / sphere_divide;
+	float incA = M_PI / sphere_divide;
+	glBegin(GL_TRIANGLE_STRIP);
+	for (i = 0; i <= sphere_divide; i++) {
+		for (j = 0; j <= sphere_divide; j++) {
+			pz = cos(M_PI - (incA * j)) * radio;
+			py = sin(M_PI - (incA * j)) * sin(incO * i) * radio;
+			px = sin(M_PI - (incA * j)) * cos(incO * i) * radio;
+			//printf("%lf%lf%lf\n", px, py, pz);
+			glVertex3f(px, py, pz);
+			pz = cos(M_PI - (incA * j)) * radio;
+			py = sin(M_PI - (incA * j)) * sin(incO * (i + 1)) * radio;
+			px = sin(M_PI - (incA * j)) * cos(incO * (i + 1)) * radio;
+			glVertex3f(px, py, pz);
+		}
+	}
+	glEnd();
+
+	if (draw_line) {
+		glColor3ub(0, 0, 0);
+		glBegin(GL_LINE_STRIP);
+		for (i = 0; i <= sphere_divide; i++) {
+			for (j = 0; j <= sphere_divide; j++) {
+
+				pz = cos(M_PI - (incA * j)) * radio;
+				py = sin(M_PI - (incA * j)) * sin(incO * i) * radio;
+				px = sin(M_PI - (incA * j)) * cos(incO * i) * radio;
+				//printf("%lf%lf%lf\n", px, py, pz);
+				glVertex3f(px, py, pz);
+				pz = cos(M_PI - (incA * j)) * radio;
+				py = sin(M_PI - (incA * j)) * sin(incO * (i + 1)) * radio;
+				px = sin(M_PI - (incA * j)) * cos(incO * (i + 1)) * radio;
+				glVertex3f(px, py, pz);
+
+			}
+		}
+		glEnd();
+	}
+}
+
+void makeCylinder(double height, double base) {
+	int randd = rand() % 50 + 20;
+	GLUquadric* obj = gluNewQuadric();
+	//gluQuadricDrawStyle(obj, GLU_LINE);
+	glColor3f(0.64f, 0.16f, 0.16f);
+	glPushMatrix();
+	glRotatef(-90.0f, 1.00f, 0.0f, 0.0f);
+	gluCylinder(obj, base, base - (0.2f * base), height, 20.0f, 20.0f);
+	glPopMatrix();
+	gluDeleteQuadric(obj);
+}
+
+
+void  TrainView::makeTree(double height, double base) {
+	double angle;
+	makeCylinder(height, base);
+	glTranslatef(0.0f, height, 0.0f);
+	height -= height * 0.2f;
+	base -= base * 0.3f;
+
+	int ramas = rand() % 3 + 3;
+	for (int a = 0;a < ramas;a++) {
+		angle = rand() % 50 + 20;
+		if (angle > 48)
+			angle = -(rand() % 50 + 20);
+		if (height > 1) {
+			glPushMatrix();
+			int randy = rand() % 4;
+			if (randy % 2 == 0) {
+				glRotatef(angle, 1, randy, 1);
+			}
+			else {
+				glRotatef(angle, 1, (-randy), 1);
+			}
+			makeTree(height, base);
+			glPopMatrix();
+		}
+		else {
+			glColor3f(0.0f, 1.0f / (rand() % 3 + 1), 0.0f);
+			esfera(1.0f, false);
+		}
+	}
+
+	//gluSphere(0.2f, 10, 10);
+
+}
+
+void TrainView::reCreateTree() {
+
+	// clear the draw buffer .
+	glClear(GL_COLOR_BUFFER_BIT);   // Erase everything
+
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glShadeModel(GL_SMOOTH);
+	glEnable(GL_DEPTH_TEST);
+	makeaTree = glGenLists(1);
+	glNewList(makeaTree, GL_COMPILE);
+	makeTree(heightObj, baseObj);
+	glEndList();
+	
+}
 
 //************************************************************************
 //
@@ -874,6 +978,10 @@ void TrainView::draw()
 	glEnable(GL_LIGHTING);
 	setupObjects();
 
+	float sphere_distance = sqrtf(my_pos[0] * my_pos[0] + (my_pos[1]-40) * (my_pos[1] - 40) + my_pos[2] * my_pos[2]);
+	if (sphere_distance < 0.01) sphere_distance = 0.01;
+	sphere_divide = 1 / sphere_distance * 1000;
+	if (sphere_divide > 100)sphere_divide = 100;
 	drawStuff();
 
 	// this time drawing is for shadows (except for top view)
@@ -900,11 +1008,17 @@ void TrainView::draw()
 	glUniform1f(glGetUniformLocation(screen->Program, "screen_w"), w());
 	glUniform1f(glGetUniformLocation(screen->Program, "screen_h"), h());
 	glUniform1f(glGetUniformLocation(screen->Program, "t"), tw->time * 20);
+	glUniform2f(glGetUniformLocation(screen->Program, "u_texelStep"), 1.0f / w(), 1.0f / h());
+	glUniform1i(glGetUniformLocation(screen->Program, "u_showEdges"), 0);
+	glUniform1i(glGetUniformLocation(screen->Program, "u_fxaaOn"), 1);
+	glUniform1i(glGetUniformLocation(screen->Program, "u_lumaThreshold"), 0.5);
+	glUniform1i(glGetUniformLocation(screen->Program, "u_mulReduce"), 8.0f);
+	glUniform1i(glGetUniformLocation(screen->Program, "u_minReduce"), 128.0f);
+	glUniform1i(glGetUniformLocation(screen->Program, "u_maxSpan"),8.0f);
 	glBindVertexArray(screen_quadVAO);
-	if (tw->frame_buffer_type->value() != 8) {
-		glBindTexture(GL_TEXTURE_2D, screen_textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
-	}
-	else {
+	glBindTexture(GL_TEXTURE_2D, screen_textureColorbuffer);	// use the color attachment texture as the texture of the quad plane
+
+	if (tw->frame_buffer_type->value() == 8) {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textureColorbuffer[0]);
 		glActiveTexture(GL_TEXTURE1);
@@ -921,7 +1035,6 @@ void TrainView::draw()
 		glBindTexture(GL_TEXTURE_2D, textureColorbuffer[6]);
 		glActiveTexture(GL_TEXTURE7);
 		glBindTexture(GL_TEXTURE_2D, textureColorbuffer[7]);
-		glBindTexture(GL_TEXTURE_2D, screen_textureColorbuffer);
 	}
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glUseProgram(0);
@@ -1094,11 +1207,24 @@ void TrainView::drawStuff(bool doingShadows)
 
 
 	glPushMatrix();
-	GLUquadric* n = gluNewQuadric();
+	glShadeModel(GL_FLAT);
 	glTranslatef(0, 40, 0);
+	glRotatef(90.0f, 1.0, 0.0, 0.0);
+	glColor4f(0.0, 0.0, 0.75, 0.5);
+	glLineWidth(2.0);
 	if (!doingShadows)glColor3ub(255, 255, 0);
-	gluSphere(n, 5.0f, 30, 30);
-	gluDeleteQuadric(n);
+	esfera(5,true);
+	glPopMatrix();
+	glShadeModel(GL_SMOOTH);
+	static bool first_draw_tree = false;
+	if (!first_draw_tree) {
+		reCreateTree();
+		first_draw_tree = true;
+	}
+	glPushMatrix();
+	glTranslatef(20, 0, 30);
+	glScalef(5, 5, 5);
+	glCallList(makeaTree);
 	glPopMatrix();
 
 	// Draw the control points

@@ -91,6 +91,9 @@ class TrainView : public Fl_Gl_Window
 
 		void draw_tunnel();
 		void set_fbo(int* framebuffer, unsigned int* textureColorbuffer);
+		void esfera(int radio,bool draw_line = false);
+		void reCreateTree();
+		void  makeTree(double height, double base);
 	public:
 		ArcBallCam		arcball;			// keep an ArcBall for the UI
 		int				selectedCube;  // simple - just remember which cube is selected
@@ -158,6 +161,10 @@ class TrainView : public Fl_Gl_Window
 		glm::mat4 trans[8];
 		int frame = 0;
 
+		int sphere_divide = 20;
+		GLuint makeaTree;
+		float heightObj = 4.0f;
+		float baseObj = 0.4f;
 };
 
 
