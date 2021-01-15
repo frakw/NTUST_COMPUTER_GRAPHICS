@@ -1,0 +1,59 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.8"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "Utilities",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Utilities::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Utilities-Debug-d6c07d3263fe5eb5b5e6.json",
+					"name" : "Utilities",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/t4w32/source/repos/frakw/NTUST_COMPUTER_GRAPHICS/電腦圖學導論/正課/Project4_Skeleton_glad/Skeleton/Skeleton/Codes/Utilities/out/build/x64-Debug (預設)",
+		"source" : "C:/Users/t4w32/source/repos/frakw/NTUST_COMPUTER_GRAPHICS/電腦圖學導論/正課/Project4_Skeleton_glad/Skeleton/Skeleton/Codes/Utilities"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 1
+	}
+}
